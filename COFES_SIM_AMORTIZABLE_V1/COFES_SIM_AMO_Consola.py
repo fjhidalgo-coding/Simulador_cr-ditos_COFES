@@ -48,9 +48,9 @@ plazo=18
 tasa=0.133
 tasa_comision_apertura=0.03
 imp_max_com_apertura= int(950)
-comision_apertura_capitalizada=True
-seguro_titular_1 = 1
-seguro_titular_2 = 1
+#comision_apertura_capitalizada=True
+#seguro_titular_1 = 1
+#seguro_titular_2 = 1
 fecha_financiacion = CURRENT_DATE
 dia_pago = D_PAGO_DEFECTO
 
