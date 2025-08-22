@@ -1,58 +1,11 @@
 #!
 '''Programa para la simulación de los productos amortizables de Cofidis España'''
 
-
-
-''' Importar módulos a utilizar en el simulador'''
-
-import datetime as dt
-
-
-
-''' Definir las características de los productos ''' 
-
-PRODUCTOS = [
-{"id":  1, "Producto POPS": "B 2141650000", "Familia de producto": "Directo Rachat","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento": 14, "Asegurable": 1, "Tipo de seguro": [{id:1, "Etiqueta": "Seguro ADE"}],"Etiqueta": "CREDITO FUSION"},
-{"id":  2, "Producto POPS": "B 2150850001", "Familia de producto": "Directo","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": True , "Mínimo entre financiación y vencimiento": 14, "Asegurable": 1, "Tipo de seguro": [{id:1, "Etiqueta": "Seguro ADE"}],"Etiqueta": "Crédito Proyecto"},
-{"id":  3, "Producto POPS": "B 2460050000", "Familia de producto": "PdV","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 0, "Tipo de seguro": None, "Etiqueta": "Compra a plazos"},
-{"id":  4, "Producto POPS": "B 2460050001", "Familia de producto": "PdV","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": True,  "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 0, "Tipo de seguro": None, "Etiqueta": "Compra a plazos Vorwerk"},
-{"id":  5, "Producto POPS": "B 2460050002", "Familia de producto": "PdV sin interés cliente","Interés cliente": False, "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 0, "Tipo de seguro": None, "Etiqueta": "Compra financiada"},
-{"id":  6, "Producto POPS": "B 2460050003", "Familia de producto": "PdV sin interés cliente","Interés cliente": False, "Producto con dos secuencias": False,"Carencia forzada": True,  "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 0, "Tipo de seguro": None, "Etiqueta": "COMPRA FINANCIADA VORWERK"},
-{"id":  7, "Producto POPS": "B 2460050004", "Familia de producto": "OPTION+","Interés cliente": False, "Producto con dos secuencias": True, "Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 0, "Tipo de seguro": None, "Etiqueta": "AMORTIZABLE OPTION PH IP"},
-{"id":  8, "Producto POPS": "B 2460050005", "Familia de producto": "OPTION+","Interés cliente": True,  "Producto con dos secuencias": True, "Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 0, "Tipo de seguro": None, "Etiqueta": "AMORTIZABLE OPTION PH IC"},
-{"id":  9, "Producto POPS": "B 2460050006", "Familia de producto": "AUTO","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 1, "Tipo de seguro": [{id:2, "Etiqueta": "VIDA PLUS"},{id:3, "Etiqueta": "VIDA"}], "Etiqueta": "CREDITO FINANCIACION AUTO OCASION"},
-{"id": 10, "Producto POPS": "B 2460050007", "Familia de producto": "AUTO","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 1, "Tipo de seguro": [{id:2, "Etiqueta": "VIDA PLUS"},{id:3, "Etiqueta": "VIDA"}], "Etiqueta": "CREDITO FINANCIACION MOTO OCASION"},
-{"id": 11, "Producto POPS": "B 2460050008", "Familia de producto": "AUTO","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 1, "Tipo de seguro": [{id:2, "Etiqueta": "VIDA PLUS"},{id:3, "Etiqueta": "VIDA"}], "Etiqueta": "CREDITO FINANCIACION AUTO NUEVO"},
-{"id": 12, "Producto POPS": "B 2460050009", "Familia de producto": "AUTO","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 1, "Tipo de seguro": [{id:2, "Etiqueta": "VIDA PLUS"},{id:3, "Etiqueta": "VIDA"}], "Etiqueta": "CREDITO FINANCIACION MOTO NUEVO"},
-{"id": 13, "Producto POPS": "B 2460050066", "Familia de producto": "AUTO","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 1, "Tipo de seguro": [{id:2, "Etiqueta": "VIDA PLUS"},{id:3, "Etiqueta": "VIDA"}], "Etiqueta": "CREDITO FINANCIACION AUTO OCASION"},
-{"id": 14, "Producto POPS": "B 2460050067", "Familia de producto": "AUTO","Interés cliente": True,  "Producto con dos secuencias": False,"Carencia forzada": False, "Carencia gratuita": False, "Mínimo entre financiación y vencimiento":  0, "Asegurable": 1, "Tipo de seguro": [{id:2, "Etiqueta": "VIDA PLUS"},{id:3, "Etiqueta": "VIDA"}], "Etiqueta": "CREDITO FINANCIACION MOTO OCASION"}
-]
-
-
-
 ''' Definir los parámetros básicos para realizar las simulaciones'''
 
+LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
+LISTA_SEGURO = ["SIN SEGURO", "Seguro ADE","VIDA PLUS", "VIDA"]
 DIAS_BASE = 360
-D_PAGO_DEFECTO = 2
-DIAS_VENCIMIENTO = list(range(1,13))
-CURRENT_DATE = dt.date.today()
-
-
-
-''' Definir la variables de trabajo de la simulación '''
-
-producto = PRODUCTOS[0]                          # Pendiente buscar cómo recuperar los productos con un desplegable o similar en Streamlit                  
-capital_prestado= int(50000)
-carencia=2
-plazo=18
-tasa=0.133
-tasa_comision_apertura=0.03
-imp_max_com_apertura= int(950)
-#comision_apertura_capitalizada=True
-#seguro_titular_1 = 1
-#seguro_titular_2 = 1
-fecha_financiacion = CURRENT_DATE
-dia_pago = D_PAGO_DEFECTO
 
 
 
