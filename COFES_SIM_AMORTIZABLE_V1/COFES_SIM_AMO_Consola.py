@@ -52,31 +52,32 @@ comision_apertura_capitalizada=True
 seguro_titular_1 = 1
 seguro_titular_2 = 1
 fecha_financiacion = CURRENT_DATE
+dia_pago = D_PAGO_DEFECTO
 
 
 
-''' Creamos las funciones necesarias para la simulación '''
+''' Crear las funciones necesarias para la simulación '''
 
 def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura):
-    '''Calculamos la comisión de apertura en base al capital prestado y el porcentaje definido'''
+    '''Calcular la comisión de apertura en base al capital prestado y el porcentaje definido'''
     comision_apertura = round(capital_prestado * tasa_comision_apertura,2)
         
     if comision_apertura > imp_max_com_apertura and imp_max_com_apertura > 0:
-        '''Comprobamos que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
+        '''Comprobar que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
         comision_apertura = imp_max_com_apertura
     
     return comision_apertura
 
 def calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura):
     if comision_apertura_capitalizada:
-        '''Incrementamos el capital prestado con la comisión de apertura si el préstamo cobra de esta fornma la comisión (comision_apertura_capitalizada=True)'''
+        '''Incrementar el capital prestado con la comisión de apertura si el préstamo cobra de esta fornma la comisión (comision_apertura_capitalizada=True)'''
         capital_prestado += comision_apertura
     
     if carencia > 0:
-        '''Incremantamos el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
+        '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
         capital_prestado += round((capital_prestado * tasa / 12),2) * carencia
     
-    '''Calculamos la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
+    '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
     cuota_1SEC = capital_prestado
     #cuota=npf.pmt(tasa, plazo,-capital_prestado, 0)
     print(cuota_1SEC)                                                                                                              # A suprimir en versión definitiva
