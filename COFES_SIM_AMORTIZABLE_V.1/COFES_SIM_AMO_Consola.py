@@ -13,14 +13,49 @@ import numpy_financial as npf
 import matplotlib.pyplot as plt
 
 
-tasa=0.0109
-importe_a_financiar=500000
+producto = 1
+capital_prestado= int(50000)
+carencia=2
 plazo=18
-cuota_inicial=0
+tasa=0.133
+tasa_comision_apertura=0.03
+imp_max_com_apertura= int(950)
+comision_apertura_capitalizada=True
+#cuota_inicial=0
 
-# Función cuota_fija para realizar la simulación de crédito
+def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura):
+    '''Calculamos la comisión de apertura en base al capital prestado y el porcentaje definido'''
+    comision_apertura = round(capital_prestado * tasa_comision_apertura,2)
+        
+    if comision_apertura > imp_max_com_apertura and imp_max_com_apertura > 0:
+        '''Comprobamos que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
+        comision_apertura = imp_max_com_apertura
+    
+    return comision_apertura
 
-def cuota_fija(tasa,importe_a_financiar, plazo, cuota_inicial ):
+def calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura):
+    if comision_apertura_capitalizada:
+        '''Incrementamos el capital prestado con la comisión de apertura si el préstamo cobra de esta fornma la comisión (comision_apertura_capitalizada=True)'''
+        capital_prestado += comision_apertura
+    
+    if carencia > 0:
+        '''Incremantamos el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
+        capital_prestado += round((capital_prestado * tasa / 12),2) * carencia
+    
+    '''Calculamos la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
+    cuota_1SEC = capital_prestado
+    #cuota=npf.pmt(tasa, plazo,-capital_prestado, 0)
+    print(cuota_1SEC)                                                                                                              # A suprimir en versión definitiva
+
+
+comision_apertura= calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
+
+df=calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura)
+
+
+
+
+def cuota_fija(tasa,importe_a_financiar, plazo, cuota_inicial):
     '''
     La función cuota_fija permite generar la simulación de un cuadro de amortización a partir de las variables de entrada:
     tasa                : Contiene el tipo de interés solicitado al usuario
@@ -77,18 +112,17 @@ def cuota_fija(tasa,importe_a_financiar, plazo, cuota_inicial ):
 
 # Generación del Cuadro de amortización - TAMO - a partir de la salida de la función cuota_fija 
 
-df=cuota_fija(tasa,importe_a_financiar, plazo, cuota_inicial )
-print(df)
+#print(df)
 
 
 # Generación del gráfico con la caída de capital e intereses 
 
-plt.figure(figsize=(15,8))
-plt.plot(df.Mes_cuota,df.Saldo,label='Saldo')
-plt.xlabel('Meses')
-plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
-plt.title('Saldo de la deuda')
-for a,b in zip(df.Mes_cuota,df.Saldo): 
-    plt.text(a, b, str(b))
-plt.legend()
-plt.show()
+#plt.figure(figsize=(15,8))
+#plt.plot(df.Mes_cuota,df.Saldo,label='Saldo')
+#plt.xlabel('Meses')
+#plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
+#plt.title('Saldo de la deuda')
+#for a,b in zip(df.Mes_cuota,df.Saldo): 
+#    plt.text(a, b, str(b))
+#plt.legend()
+#plt.show()
