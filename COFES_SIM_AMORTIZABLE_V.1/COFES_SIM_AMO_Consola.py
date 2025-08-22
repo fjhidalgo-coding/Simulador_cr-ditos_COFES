@@ -104,7 +104,6 @@ df=calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, product
 
 
 
-
 #  def cuota_fija(tasa,importe_a_financiar, plazo, cuota_inicial):
 #      '''
 #      La función cuota_fija permite generar la simulación de un cuadro de amortización a partir de las variables de entrada:
