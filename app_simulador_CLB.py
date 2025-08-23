@@ -1,16 +1,53 @@
+#!
+# Aplicación Streamlit para simular operaciones de los productos amortizables de Cofidis España
+
+
+
+# Importar los módulos a utilizar en la aplicación
+
 import streamlit as st
 import datetime  as dt
 import COFES_SIM_AMORTIZABLE_V1.COFES_SIM_AMO_Consola as sim
 
+
+
+#  Declarar las variables que usa la aplicación
+
 LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
 LISTA_SEGURO = ["SIN SEGURO", "Seguro ADE","VIDA PLUS", "VIDA"]
-    
+
+tasa = 0.00
+capital_prestado = 0.00
+plazo = 0
+carencia = 0
+capital_2SEC = 0.00
+plazo_2SEC = 0
+seguro_titular_1 = "SIN SEGURO"
+seguro_titular_2 = "SIN SEGURO"
+tasa_comision_apertura = 0.00
+comision_apertura_capitalizada = False
+imp_max_com_apertura = 0.00
+fecha_financiacion = dt.date.today()
+dia_pago = 2
+
+
+
+#  Iniciar la aplicación
+
+st.set_page_config(
+   page_title="Simulador de préstamos amortizables Cofidis España",
+   page_icon="💱",
+   layout="wide",
+   initial_sidebar_state="expanded",
+)
 st.title('Simulador de Cofidis España')
 
-
 with st.sidebar:
+    # Crear barra lateral donde se introducen los datos de la simulación
     
     with st.form("Datos de entrada"):
+                    
+        submit = st.form_submit_button("Simular operación")
         
         etiqueta_producto = st.selectbox('Elige el producto contratado:', LISTA_PRODUCTOS, index=1)
         tasa = st.number_input("Tipo de Interés Deudor", min_value=0.0, max_value=20.00, step=0.05, value=5.95, help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
@@ -34,14 +71,24 @@ with st.sidebar:
         with st.expander("Personalizar las fechas"):
             fecha_financiacion = st.date_input("Fecha de financiación", dt.date.today())
             dia_pago = st.number_input("Día de vencimiento", min_value=1, max_value=12, step=1, value=2, help="Se debe indicar el día de pago seleccionado por el cliente")
-            
-        st.form_submit_button("Pendiente",on_click=sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura))
         
 st.header('Préstamos amortizables')
 
 with st.expander("Ver detalle del producto seleccionado"):
     st.write("Pendiente alimentar con detalle del producto seleccionado")
 
-st.write('¡Streamlit está funcionando correctamente!')
+if submit:
+    comision = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
+    
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    col1.metric("Capital", capital_prestado, "EUR")
+    col2.metric("Intereses", "PENDIENTE", "EUR")
+    col3.metric("Comisión de apertura", comision, "EUR")
+    col4.metric("Prima de seguro", "PENDIENTE", "EUR")
+    col5.metric("Coste total", "PENDIENTE", "EUR")
+    col6.metric("Importe total a pagar", "PENDIENTE", "EUR")
+    
+    
+    
 
-        
+st.write('¡Streamlit está funcionando correctamente!')

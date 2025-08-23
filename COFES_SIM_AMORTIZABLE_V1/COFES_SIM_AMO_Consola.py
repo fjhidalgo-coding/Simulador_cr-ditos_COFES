@@ -7,13 +7,18 @@ LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compr
 LISTA_SEGURO = ["SIN SEGURO", "Seguro ADE","VIDA PLUS", "VIDA"]
 DIAS_BASE = 360
 
-
+capital_prestado = 0.00
+comision_apertura = 0.00
+tasa_comision_apertura = 0.00
+imp_max_com_apertura = 0.00
+comision_apertura_capitalizada = False
+    
 
 ''' Crear las funciones necesarias para la simulación '''
 
 def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura):
     '''Calcular la comisión de apertura en base al capital prestado y el porcentaje definido'''
-    comision_apertura = round(capital_prestado * tasa_comision_apertura,2)
+    comision_apertura = round(capital_prestado * tasa_comision_apertura / 100, 2)
         
     if comision_apertura > imp_max_com_apertura and imp_max_com_apertura > 0:
         '''Comprobar que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
@@ -41,7 +46,7 @@ def calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, produc
 
 comision_apertura= calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
 
-df=calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura)
+#df=calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura)
 
 
 
