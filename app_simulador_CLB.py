@@ -11,25 +11,10 @@ import COFES_SIM_AMORTIZABLE_V1.COFES_SIM_AMO_Consola as sim
 
 
 
-#  Declarar las variables que usa la aplicación
+#  Declarar las listas de productos tanto de crédito como de seguro
 
 LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
 LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
-
-tasa = 0.00
-capital_prestado = 0.00
-plazo = 0
-carencia = 0
-capital_2SEC = 0.00
-plazo_2SEC = 0
-seguro_titular_1 = "SIN SEGURO"
-seguro_titular_2 = "SIN SEGURO"
-tasa_comision_apertura = 0.00
-comision_apertura_capitalizada = False
-imp_max_com_apertura = 0.00
-fecha_financiacion = dt.date.today()
-dia_pago = 2
-submit = False
 
 
 
@@ -42,20 +27,46 @@ st.set_page_config(
    initial_sidebar_state="expanded",
 )
 st.title('Simulador de Cofidis España')
+st.header('Préstamos amortizables')
 
+
+
+# Crear barra lateral donde se introducen los datos de la simulación
 with st.sidebar:
-    # Crear barra lateral donde se introducen los datos de la simulación
     
+    # Crear selector del producto amortizable a simular
     with st.expander("Seleccionar producto", expanded=True):
         with st.form("Producto"):
             etiqueta_producto = st.selectbox('Elige el producto contratado:', LISTA_PRODUCTOS, index=1)
             seleccion = st.form_submit_button("Seleccionar producto")
-                
-    if seleccion:
-        
+            
+            # Guardar el producto seleccionado en session_state
+            if seleccion:
+                st.session_state.etiqueta_producto = etiqueta_producto
+                st.session_state.simular = False  # Reinicia simulación al cambiar producto
+
+    # Seleccionar datos de la simulación
+    if "etiqueta_producto" in st.session_state:        
         with st.form("Datos de entrada"):
-                    
+                
+            # Inicializar variables
+            carencia = 0
+            capital_2SEC = 0
+            plazo_2SEC = 0
+            seguro_titular_1 = "SIN SEGURO"
+            seguro_titular_2 = "SIN SEGURO"
+            tasa_comision_apertura = 0.0
+            comision_apertura_capitalizada = False
+            imp_max_com_apertura = 0.0
+            fecha_financiacion = dt.date.today()
+            dia_pago = 2
+
+            # Mmostrar botón para simular la operación
             submit = st.form_submit_button("Simular operación")
+
+            # Guardar los datos en session_state
+            if submit:
+                st.session_state.simular = True
             
             with st.expander("Personalizar las fechas"):
                 fecha_financiacion = st.date_input("Fecha de financiación", dt.date.today())
@@ -65,15 +76,17 @@ with st.sidebar:
             capital_prestado = st.number_input("Importe solicitado (EUR)", min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, help="Se debe indicar el importe del capital solicitado en el préstamo")
             plazo = st.number_input("Nº de mensualidades", min_value=3, max_value=120, step=1, value=12, help="Se debe indicar la duración en meses del plazo de amortización")
             
-            if LISTA_PRODUCTOS.index(etiqueta_producto) != 1 and LISTA_PRODUCTOS.index(etiqueta_producto) < 8:
+            idx = LISTA_PRODUCTOS.index(st.session_state.etiqueta_producto)
+            
+            if idx != 1 and idx < 8:
                 carencia = st.number_input("Meses de carencia", min_value=0, max_value=4, step=1, help="Se debe indicar la duración de la carencia total inicial")
             
-            if 5 < LISTA_PRODUCTOS.index(etiqueta_producto) < 8:
+            if 5 < idx < 8:
                 with st.expander("Gestionar la segunda secuencia financiera"):
                     capital_2SEC = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", min_value=50.00, max_value=30000.00, step=50.00, help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
                     plazo_2SEC = st.number_input("Duración de la segunda secuencia", min_value=1, max_value=60, step=1, help="Se debe indicar la duración en meses del segundo tramo de amortización")   
                     
-            if LISTA_PRODUCTOS.index(etiqueta_producto) < 2 or LISTA_PRODUCTOS.index(etiqueta_producto) > 7:
+            if idx < 2 or idx > 7:
                 with st.expander("Gestionar el seguro"):
                     if LISTA_PRODUCTOS.index(etiqueta_producto) < 2:
                         seguro_titular_1 = st.selectbox("Seguro titular 1", LISTA_SEGURO[:2], index=1)
@@ -82,25 +95,25 @@ with st.sidebar:
                         seguro_titular_1 = st.selectbox("Seguro titular 1", LISTA_SEGURO[1:], index=0)
                         seguro_titular_2 = st.selectbox("Seguro titular 2", LISTA_SEGURO[1:], index=0)
             
-            if LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
+            if  idx != 1:
                 with st.expander("Gestionar la comisión de apertura"):
                     tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura", min_value=0.00, max_value=5.00, step=0.05, help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
                     
-                    if LISTA_PRODUCTOS.index(etiqueta_producto) > 7:
+                    if idx > 7:
                         comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",value=True, disabled=True)
-                    elif LISTA_PRODUCTOS.index(etiqueta_producto) > 1:
+                    elif idx > 1:
                         comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
                     
                     imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)", min_value=0.00, step=1.00, help="Se debe indicar el importe que no debería superar la comisión de apertura")
             
         
-st.header('Préstamos amortizables')
 
-with st.expander("Ver detalle del producto seleccionado"):
-    st.write("Pendiente alimentar con detalle del producto seleccionado")
-
-if submit:
+# Mostra el resultado de la simulación
+if st.session_state.get("simular", False):
     comision = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
+    
+    with st.expander("Ver detalle del producto seleccionado"):
+        st.write("Pendiente alimentar con detalle del producto seleccionado")
     
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Capital", capital_prestado, "EUR")
@@ -112,5 +125,5 @@ if submit:
     
     
     
-
+# Mostrar pie
 st.write('¡Streamlit está funcionando correctamente!')
