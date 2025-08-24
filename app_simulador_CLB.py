@@ -21,13 +21,12 @@ LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
 #  Iniciar la aplicación
 
 st.set_page_config(
-   page_title="Simulador de préstamos amortizables Cofidis España",
+   page_title="Simulador de préstamos amortizables",
    page_icon="💱",
    layout="wide",
    initial_sidebar_state="expanded",
 )
-st.title('Simulador de Cofidis España')
-st.header('Préstamos amortizables')
+st.title('Simulador de préstamos amortizables')
 
 
 
@@ -110,10 +109,60 @@ with st.sidebar:
 
 # Mostra el resultado de la simulación
 if st.session_state.get("simular", False):
-    comision = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
     
-    with st.expander("Ver detalle del producto seleccionado"):
-        st.write("Pendiente alimentar con detalle del producto seleccionado")
+    # Detallar las características del producto amortizable de la simulación
+    with st.expander(f"Detalle del producto: {etiqueta_producto}", expanded=False):
+        if idx == 0:
+            st.write("Familia de productos: Amortizable Rachat Directo")
+            st.write("Interés: A cargo del cliente")
+            st.write("Carencia: Hasta 2 meses en función del PROCOM")
+            st.write("Comisión de apertura: En función del PROCOM y parametrización TACT. Presentada en el primer vencimiento")
+            st.write("Secuencia financiera: Única")
+            st.write("Producto asegurable (ADE)")
+            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe transcurrir un mínimo de 14 días")
+        elif idx == 1:
+            st.write("Familia de productos: Amortizable Directo")
+            st.write("Interés: A cargo del cliente")
+            st.write("Carencia: No aplicable")
+            st.write("Comisión de apertura: No aplicable")
+            st.write("Secuencia financiera: Única")
+            st.write("Producto asegurable (ADE)")
+            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe transcurrir un mínimo de 14 días")
+        elif idx < 6:
+            st.write("Familia de productos: Amortizable Punto de Venta")
+            if idx < 4:
+                st.write("Interés: A cargo del cliente")
+            else:
+                st.write("Interés: A cargo del partner")
+            st.write("Carencia:  Hasta 4 meses en función del baremo y el PROCOM")
+            st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM")
+            st.write("Secuencia financiera: Única")
+            st.write("Producto NO asegurable")
+            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")
+        elif idx < 8:
+            st.write("Familia de productos: Amortizable OPTION+")
+            if idx == 7:
+                st.write("Interés: A cargo del cliente  aunque la segunda secuencia financiera puede tener interés 0% en función del PROCOM")
+            else:
+                st.write("Interés: A cargo del partner aunque la segunda secuencia financiera puede tener interés cliente en función del PROCOM")
+            st.write("Carencia:  Hasta 4 meses en función del baremo y el PROCOM")
+            st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM")
+            st.write("Secuencia financiera: Doble")
+            st.write("Producto NO asegurable")
+            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")
+        else:
+            st.write("Familia de productos: Amortizable AUTO")
+            st.write("Interés: A cargo del cliente")
+            st.write("Carencia: No aplicable")
+            st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada")
+            st.write("Secuencia financiera: Única")
+            st.write("Producto asegurable (Vida y Vida+)")
+            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")    
+        if idx == 3 or idx == 5:
+            st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
+        
+    
+    comision = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
     
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Capital", capital_prestado, "EUR")
