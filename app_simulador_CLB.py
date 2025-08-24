@@ -111,7 +111,7 @@ with st.sidebar:
 if st.session_state.get("simular", False):
     
     # Detallar las características del producto amortizable de la simulación
-    with st.expander(f"Detalle del producto: {etiqueta_producto}", expanded=False):
+    with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
         if idx == 0:
             st.write("Familia de productos: Amortizable Rachat Directo")
             st.write("Interés: A cargo del cliente")
@@ -156,7 +156,7 @@ if st.session_state.get("simular", False):
             st.write("Carencia: No aplicable")
             st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada")
             st.write("Secuencia financiera: Única")
-            st.write("Producto asegurable (Vida y Vida+)")
+            st.write("Producto asegurable (Vida y Vida+). Prima única capitalizada")
             st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")    
         if idx == 3 or idx == 5:
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
