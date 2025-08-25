@@ -26,6 +26,16 @@ st.set_page_config(
    layout="wide",
    initial_sidebar_state="expanded",
 )
+st.markdown(
+    """
+    <style>
+        section[data-testid="stSidebar"] {
+            width: 450px !important; # Set the width to your desired value
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 st.title('Simulador de préstamos amortizables')
 
 
@@ -50,6 +60,7 @@ with st.sidebar:
                 
             # Inicializar variables
             carencia = 0
+            tasa_2SEC = 0.00
             capital_2SEC = 0
             plazo_2SEC = 0
             seguro_titular_1 = "SIN SEGURO"
@@ -82,6 +93,7 @@ with st.sidebar:
             
             if 5 < idx < 8:
                 with st.expander("Gestionar la segunda secuencia financiera"):
+                    tasa_2SEC = st.number_input("Tipo de Interés Deudor", min_value=0.0, max_value=20.00, step=0.05, value=0.00, help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
                     capital_2SEC = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", min_value=50.00, max_value=30000.00, step=50.00, help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
                     plazo_2SEC = st.number_input("Duración de la segunda secuencia", min_value=1, max_value=60, step=1, help="Se debe indicar la duración en meses del segundo tramo de amortización")   
                     
@@ -109,6 +121,22 @@ with st.sidebar:
 
 # Mostra el resultado de la simulación
 if st.session_state.get("simular", False):
+    
+    # Realizar los cálculos de la simulación
+    comision_apertura = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
+    seguro_capitalizado = sim.calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seguro_titular_1, seguro_titular_2, comision_apertura)
+    cuota_1SEC, cuota_2SEC = sim.calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC)
+    
+    # Mostrar resumen de la simulación
+    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+    if idx > 7:
+        col1.metric("Importe del crédito", f"{capital_prestado + comision_apertura + seguro_capitalizado:.2f}", "EUR")
+    col2.metric("Capital", f"{capital_prestado:.2f}", "EUR")
+    col3.metric("Comisión de apertura", f"{comision_apertura:.2f}", "EUR")
+    col4.metric("Prima de seguro", f"{seguro_capitalizado:.2f}", "EUR") # Pendiente evaluar correctamente el seguro
+    col5.metric("Intereses", "PENDIENTE", "EUR")
+    col6.metric("Coste total", "PENDIENTE", "EUR")
+    col7.metric("Importe total a pagar", "PENDIENTE", "EUR")
     
     # Detallar las características del producto amortizable de la simulación
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
@@ -161,18 +189,11 @@ if st.session_state.get("simular", False):
         if idx == 3 or idx == 5:
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
         
-    
-    comision = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
-    
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    col1.metric("Capital", capital_prestado, "EUR")
-    col2.metric("Intereses", "PENDIENTE", "EUR")
-    col3.metric("Comisión de apertura", comision, "EUR")
-    col4.metric("Prima de seguro", "PENDIENTE", "EUR")
-    col5.metric("Coste total", "PENDIENTE", "EUR")
-    col6.metric("Importe total a pagar", "PENDIENTE", "EUR")
-    
-    
+    # Chivatos de la simulación a suprimir en la versión definitiva
+    st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
+    st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
+
+
     
 # Mostrar pie
 st.write('¡Streamlit está funcionando correctamente!')

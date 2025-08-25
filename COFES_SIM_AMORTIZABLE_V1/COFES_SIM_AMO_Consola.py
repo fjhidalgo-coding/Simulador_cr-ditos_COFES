@@ -1,6 +1,8 @@
 #!
 '''Programa para la simulación de los productos amortizables de Cofidis España'''
 
+import math
+
 ''' Definir los parámetros básicos para realizar las simulaciones'''
 
 LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
@@ -12,6 +14,7 @@ comision_apertura = 0.00
 tasa_comision_apertura = 0.00
 imp_max_com_apertura = 0.00
 comision_apertura_capitalizada = False
+etiqueta_producto = ""
     
 
 ''' Crear las funciones necesarias para la simulación '''
@@ -26,25 +29,78 @@ def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max
     
     return comision_apertura
 
-def calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura):
+def obtener_tasa_seguro(plazo, tipo_seguro):
+    # Cada tupla: (plazo_máximo, tasa_vida_plus, tasa_otro)
+    rangos = [
+        (24, 0.04760, 0.01410),
+        (36, 0.05550, 0.02200),
+        (48, 0.06350, 0.03000),
+        (60, 0.06910, 0.03560),
+        (72, 0.07820, 0.04470),
+        (84, 0.08820, 0.05470),
+        (96, 0.09920, 0.06570),
+        (108, 0.11100, 0.07750),
+        (float('inf'), 0.12410, 0.09060)
+    ]
+    for max_plazo, tasa_plus, tasa_otro in rangos:
+        if plazo < max_plazo + 1:
+            return tasa_plus if tipo_seguro == "VIDA PLUS" else tasa_otro
+    return 0.0
+
+def calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seguro_titular_1, seguro_titular_2, comision):
+    '''Calcular el seguro de vida en base al capital prestado, el tipo de seguro, el número de personas aseguradas y la duración del préstamo'''
+    capital_prestado += comision #Incrementar la base de cálculo del seguro con la comisión de apertura capitalizada
+    if LISTA_PRODUCTOS.index(etiqueta_producto) > 7 and (seguro_titular_1 != "SIN SEGURO" or seguro_titular_2 != "SIN SEGURO"):
+        if seguro_titular_1 != "SIN SEGURO":
+            tasa_titular_1 = obtener_tasa_seguro(plazo, seguro_titular_1)
+        else:
+            tasa_titular_1 = 0.00
+        if seguro_titular_2 != "SIN SEGURO":
+            tasa_titular_2 = obtener_tasa_seguro(plazo, seguro_titular_2)
+        else:
+            tasa_titular_2 = 0.00
+        seguro_capitalizado = round(capital_prestado * tasa_titular_1, 2) + round(capital_prestado * tasa_titular_2, 2)
+    else:
+        seguro_capitalizado = 0.00
+    return seguro_capitalizado
+
+def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC):
+    
+    if tasa == 0.00:
+        tasa = 0.000000000001  # Evitar división por cero en el cálculo de la mensualidad
+    
+    if tasa_2SEC == 0.00:
+        tasa_2SEC = 0.000000000001  # Evitar división por cero en el cálculo de la mensualidad
+    
+    if seguro_titular_1 == "Seguro ADE" and seguro_titular_2 == "Seguro ADE":
+        tasa += 7.68
+    elif seguro_titular_1 == "Seguro ADE" or seguro_titular_2 == "Seguro ADE":
+        tasa += 4.44
+    
     if comision_apertura_capitalizada:
         '''Incrementar el capital prestado con la comisión de apertura si el préstamo cobra de esta fornma la comisión (comision_apertura_capitalizada=True)'''
-        capital_prestado += comision_apertura
+        capital_prestado += comision_apertura + seguro_capitalizado
+    else:
+        capital_prestado += seguro_capitalizado
     
     if carencia > 0:
         '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
-        capital_prestado += round((capital_prestado * tasa / 12),2) * carencia
+        capital_prestado += round((capital_prestado * tasa / 1200),2) * carencia
     
     '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
-    cuota_1SEC = capital_prestado
-    #cuota=npf.pmt(tasa, plazo,-capital_prestado, 0)
-    print(cuota_1SEC)                                                                                                              # A suprimir en versión definitiva
+    cuota_1SEC = math.ceil(capital_2SEC * tasa / 1200 * 100) / 100 + math.ceil((capital_prestado - capital_2SEC) * tasa / 1200 * ((1 + (tasa / 1200)) ** plazo) / (((1 + (tasa / 1200)) ** plazo) - 1) * 100 ) / 100
+    if capital_2SEC != 0.00:
+        cuota_2SEC = math.ceil(capital_2SEC * tasa_2SEC / 1200 * ((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) / (((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) - 1) * 100 ) / 100
+    else:
+        cuota_2SEC = 0.00
+    
+    return cuota_1SEC, cuota_2SEC
 
 
 
 ''' Iniciar la simulación de préstamo'''
 
-comision_apertura= calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
+#comision_apertura= calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
 
 #df=calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura)
 
