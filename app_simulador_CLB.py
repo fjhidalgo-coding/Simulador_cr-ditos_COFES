@@ -128,15 +128,16 @@ if st.session_state.get("simular", False):
     cuota_1SEC, cuota_2SEC = sim.calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC)
     
     # Mostrar resumen de la simulación
-    col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
     if idx > 7:
         col1.metric("Importe del crédito", f"{capital_prestado + comision_apertura + seguro_capitalizado:.2f}", "EUR")
     col2.metric("Capital", f"{capital_prestado:.2f}", "EUR")
     col3.metric("Comisión de apertura", f"{comision_apertura:.2f}", "EUR")
     col4.metric("Prima de seguro", f"{seguro_capitalizado:.2f}", "EUR") # Pendiente evaluar correctamente el seguro
-    col5.metric("Intereses", "PENDIENTE", "EUR")
-    col6.metric("Coste total", "PENDIENTE", "EUR")
-    col7.metric("Importe total a pagar", "PENDIENTE", "EUR")
+    col5.metric("Intereses", "PDT", "EUR")
+    col6.metric("Coste total", "PDT", "EUR")
+    col7.metric("TAE", "PDT", "%")
+    col8.metric("Importe total a pagar", "PDT", "EUR")
     
     # Detallar las características del producto amortizable de la simulación
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):

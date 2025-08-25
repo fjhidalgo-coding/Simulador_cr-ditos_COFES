@@ -2,6 +2,9 @@
 '''Programa para la simulación de los productos amortizables de Cofidis España'''
 
 import math
+import pandas as pd 
+
+
 
 ''' Definir los parámetros básicos para realizar las simulaciones'''
 
@@ -15,6 +18,8 @@ tasa_comision_apertura = 0.00
 imp_max_com_apertura = 0.00
 comision_apertura_capitalizada = False
 etiqueta_producto = ""
+fechas_bloqueo = pd.read_csv('COFES_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True)
+
     
 
 ''' Crear las funciones necesarias para la simulación '''
@@ -22,14 +27,21 @@ etiqueta_producto = ""
 def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura):
     '''Calcular la comisión de apertura en base al capital prestado y el porcentaje definido'''
     comision_apertura = round(capital_prestado * tasa_comision_apertura / 100, 2)
-        
     if comision_apertura > imp_max_com_apertura and imp_max_com_apertura > 0:
         '''Comprobar que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
         comision_apertura = imp_max_com_apertura
-    
     return comision_apertura
 
-def obtener_tasa_seguro(plazo, tipo_seguro):
+def obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2):
+    if seguro_titular_1 == "Seguro ADE" and seguro_titular_2 == "Seguro ADE":
+        tasa_ADE = 7.68
+    elif seguro_titular_1 == "Seguro ADE" or seguro_titular_2 == "Seguro ADE":
+        tasa_ADE = 4.44
+    else:
+        tasa_ADE = 0.00
+    return tasa_ADE
+
+def obtener_tasa_seguro_AUTO(plazo, tipo_seguro):
     # Cada tupla: (plazo_máximo, tasa_vida_plus, tasa_otro)
     rangos = [
         (24, 0.04760, 0.01410),
@@ -52,11 +64,11 @@ def calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seg
     capital_prestado += comision #Incrementar la base de cálculo del seguro con la comisión de apertura capitalizada
     if LISTA_PRODUCTOS.index(etiqueta_producto) > 7 and (seguro_titular_1 != "SIN SEGURO" or seguro_titular_2 != "SIN SEGURO"):
         if seguro_titular_1 != "SIN SEGURO":
-            tasa_titular_1 = obtener_tasa_seguro(plazo, seguro_titular_1)
+            tasa_titular_1 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_1)
         else:
             tasa_titular_1 = 0.00
         if seguro_titular_2 != "SIN SEGURO":
-            tasa_titular_2 = obtener_tasa_seguro(plazo, seguro_titular_2)
+            tasa_titular_2 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_2)
         else:
             tasa_titular_2 = 0.00
         seguro_capitalizado = round(capital_prestado * tasa_titular_1, 2) + round(capital_prestado * tasa_titular_2, 2)
@@ -65,17 +77,9 @@ def calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seg
     return seguro_capitalizado
 
 def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC):
-    
-    if tasa == 0.00:
-        tasa = 0.000000000001  # Evitar división por cero en el cálculo de la mensualidad
-    
-    if tasa_2SEC == 0.00:
-        tasa_2SEC = 0.000000000001  # Evitar división por cero en el cálculo de la mensualidad
-    
-    if seguro_titular_1 == "Seguro ADE" and seguro_titular_2 == "Seguro ADE":
-        tasa += 7.68
-    elif seguro_titular_1 == "Seguro ADE" or seguro_titular_2 == "Seguro ADE":
-        tasa += 4.44
+    if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
+        tasa = 0.00
+    tasa += obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2)
     
     if comision_apertura_capitalizada:
         '''Incrementar el capital prestado con la comisión de apertura si el préstamo cobra de esta fornma la comisión (comision_apertura_capitalizada=True)'''
@@ -88,26 +92,18 @@ def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, ca
         capital_prestado += round((capital_prestado * tasa / 1200),2) * carencia
     
     '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
-    cuota_1SEC = math.ceil(capital_2SEC * tasa / 1200 * 100) / 100 + math.ceil((capital_prestado - capital_2SEC) * tasa / 1200 * ((1 + (tasa / 1200)) ** plazo) / (((1 + (tasa / 1200)) ** plazo) - 1) * 100 ) / 100
+    if tasa == 0.00:
+        cuota_1SEC = math.ceil((capital_prestado - capital_2SEC) / plazo * 100) / 100
+    else:
+        cuota_1SEC = math.ceil(capital_2SEC * tasa / 1200 * 100) / 100 + math.ceil((capital_prestado - capital_2SEC) * tasa / 1200 * ((1 + (tasa / 1200)) ** plazo) / (((1 + (tasa / 1200)) ** plazo) - 1) * 100 ) / 100
     if capital_2SEC != 0.00:
-        cuota_2SEC = math.ceil(capital_2SEC * tasa_2SEC / 1200 * ((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) / (((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) - 1) * 100 ) / 100
+        if tasa_2SEC == 0.00:
+            cuota_2SEC = math.ceil(capital_2SEC / plazo_2SEC * 100) / 100
+        else:
+            cuota_2SEC = math.ceil(capital_2SEC * tasa_2SEC / 1200 * ((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) / (((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) - 1) * 100 ) / 100
     else:
         cuota_2SEC = 0.00
-    
     return cuota_1SEC, cuota_2SEC
-
-
-
-''' Iniciar la simulación de préstamo'''
-
-#comision_apertura= calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
-
-#df=calcular_mensualidad_estandar(tasa,capital_prestado, plazo, carencia, producto, comision_apertura)
-
-
-
-
-
 
 
 
