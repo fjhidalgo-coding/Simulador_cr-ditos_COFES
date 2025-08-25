@@ -7,7 +7,7 @@
 
 import streamlit as st
 import datetime  as dt
-import COFES_SIM_AMORTIZABLE_V1.COFES_SIM_AMO_Consola as sim
+import COFES_SIM_AMO_Consola as sim
 
 
 
