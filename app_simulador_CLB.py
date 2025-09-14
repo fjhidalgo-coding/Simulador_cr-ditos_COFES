@@ -8,6 +8,7 @@
 import streamlit as st
 import datetime  as dt
 import COFES_SIM_AMO_Consola as sim
+import pandas as pd
 
 
 
@@ -126,6 +127,7 @@ if st.session_state.get("simular", False):
     comision_apertura = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
     seguro_capitalizado = sim.calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seguro_titular_1, seguro_titular_2, comision_apertura)
     cuota_1SEC, cuota_2SEC = sim.calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC)
+    fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = sim.calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia)
     
     # Mostrar resumen de la simulación
     col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
@@ -193,6 +195,13 @@ if st.session_state.get("simular", False):
     # Chivatos de la simulación a suprimir en la versión definitiva
     st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
     st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
+    
+    mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
+    
+    st.write(f"TMP - Fecha fin carencia forzada gratuita: {mostrar_fecha(fecha_fin_carencia_gratuita_forzada)}")
+    st.write(f"TMP - Fecha fin de la carencia diferida: {mostrar_fecha(fecha_fin_carencia_diferida)}")
+    st.write(f"TMP - Fecha fin de la carencia: {mostrar_fecha(fecha_fin_carencia)}")
+    st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
 
 
     

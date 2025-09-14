@@ -19,8 +19,9 @@ imp_max_com_apertura = 0.00
 comision_apertura_capitalizada = False
 etiqueta_producto = ""
 fechas_bloqueo = pd.read_csv('COFES_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True)
+fechas_bloqueo = fechas_bloqueo.sort_values(by='Fecha_BLOQUEO')
 
-    
+        
 
 ''' Crear las funciones necesarias para la simulación '''
 
@@ -81,11 +82,8 @@ def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, ca
         tasa = 0.00
     tasa += obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2)
     
-    if comision_apertura_capitalizada:
-        '''Incrementar el capital prestado con la comisión de apertura si el préstamo cobra de esta fornma la comisión (comision_apertura_capitalizada=True)'''
-        capital_prestado += comision_apertura + seguro_capitalizado
-    else:
-        capital_prestado += seguro_capitalizado
+    '''Incrementar el capital prestado con la comisión de apertura capitalizada y el seguro capitalizado'''
+    capital_prestado += comision_apertura + seguro_capitalizado
     
     if carencia > 0:
         '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
@@ -105,7 +103,43 @@ def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, ca
         cuota_2SEC = 0.00
     return cuota_1SEC, cuota_2SEC
 
+def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
+    '''Función para calcular las principales fechas de préstamo'''
+    fecha_financiacion = pd.to_datetime(fecha_financiacion)
+    fecha_fin_carencia = pd.to_datetime("")
+    fecha_fin_carencia_diferida = pd.to_datetime("")
+    fecha_fin_carencia_gratuita_forzada = pd.to_datetime("")
+    
+    '''Calcular la fecha del primer vencimiento en base a la fecha de bloqueo posterior a la fecha de financiación'''
+    proximas_db = fechas_bloqueo[fechas_bloqueo['Fecha_BLOQUEO'] >= fecha_financiacion]
+    fecha_primer_vencimiento = proximas_db['Fecha_BLOQUEO'].iloc[0].replace(day=dia_pago) + pd.DateOffset(months=1)
+    
+    '''Calculamos el periodo de "carencia diferida" gratuita de los productos Vorwerk que evita tener una primera mensualidad superior al resto'''
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5) and fecha_financiacion < (fecha_primer_vencimiento + pd.DateOffset(months=-1)):
+        fecha_fin_carencia_gratuita_forzada = fecha_primer_vencimiento + pd.DateOffset(months=-1)
+    
+    '''Recalculamos la fecha del primer vencimiento de los amortizables de directos para evitar que haya menos de 14 días entre la fecha de financiación y el primer recibo'''
+    if LISTA_PRODUCTOS.index(etiqueta_producto) < 2 and carencia == 0 and (fecha_primer_vencimiento - fecha_financiacion).days  < 14:
+        fecha_primer_vencimiento += pd.DateOffset(months=1)
+    
+    if carencia != 0:
+        if fecha_financiacion.day != dia_pago:
+            '''Calculamos la fecha fin carencia diferida, de la carencia normal y la fecha del primer vencimiento'''
+            if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada):
+                '''Si existe carencia gratuita forzada, la fecha fin de carencia se calcula a partir de esta'''
+                fecha_fin_carencia = fecha_fin_carencia_gratuita_forzada + pd.DateOffset(months=carencia)
+            else:
+                if fecha_financiacion < (fecha_primer_vencimiento + pd.DateOffset(months=-1)):
+                    '''Calculamos la fecha de fin de la carencia diferida cuando la fecha de financiación entre fecha de bloqueo y fecha de vencimiento'''
+                    fecha_fin_carencia_diferida = fecha_primer_vencimiento + pd.DateOffset(months=-1)
+                else:
+                    fecha_fin_carencia_diferida = fecha_primer_vencimiento
+                fecha_fin_carencia = fecha_fin_carencia_diferida + pd.DateOffset(months=carencia)
+        else:
+            fecha_fin_carencia = fecha_primer_vencimiento + pd.DateOffset(months=carencia-1)
+        fecha_primer_vencimiento = fecha_fin_carencia + pd.DateOffset(months=1)
 
+    return fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento
 
 
 
