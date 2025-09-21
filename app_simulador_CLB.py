@@ -14,9 +14,15 @@ import pandas as pd
 
 #  Declarar las listas de productos tanto de crédito como de seguro
 
-LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
-LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
+LISTA_SEGURO = sim.LISTA_SEGURO
+LISTA_PRODUCTOS = sim.LISTA_PRODUCTOS
+PRODUCTOS_DICCIONARIO = sim.PRODUCTOS_DICCIONARIO
 
+
+
+# Convertir el diccionario de productos en un dataframe para facilitar su manejo
+
+productos_descripcion = pd.DataFrame(PRODUCTOS_DICCIONARIO)
 
 
 #  Iniciar la aplicación
@@ -124,18 +130,17 @@ with st.sidebar:
 if st.session_state.get("simular", False):
     
     # Realizar los cálculos de la simulación
-    comision_apertura = sim.calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura)
-    seguro_capitalizado = sim.calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seguro_titular_1, seguro_titular_2, comision_apertura)
-    cuota_1SEC, cuota_2SEC = sim.calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC)
-    fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = sim.calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia)
+    comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
     
     # Mostrar resumen de la simulación
     col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
     if idx > 7:
-        col1.metric("Importe del crédito", f"{capital_prestado + comision_apertura + seguro_capitalizado:.2f}", "EUR")
+        col1.metric("Importe del crédito", f"{importe_crédito:.2f}", "EUR")
+    if 3 < idx < 7:
+        col1.metric("Descuento Partner", f"{descuento:.2f}", "EUR")
     col2.metric("Capital", f"{capital_prestado:.2f}", "EUR")
     col3.metric("Comisión de apertura", f"{comision_apertura:.2f}", "EUR")
-    col4.metric("Prima de seguro", f"{seguro_capitalizado:.2f}", "EUR") # Pendiente evaluar correctamente el seguro
+    col4.metric("Prima de seguro", f"{coste_seguro:.2f}", "EUR") # Pendiente evaluar correctamente el seguro
     col5.metric("Intereses", "PDT", "EUR")
     col6.metric("Coste total", "PDT", "EUR")
     col7.metric("TAE", "PDT", "%")
@@ -143,55 +148,27 @@ if st.session_state.get("simular", False):
     
     # Detallar las características del producto amortizable de la simulación
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
-        if idx == 0:
-            st.write("Familia de productos: Amortizable Rachat Directo")
-            st.write("Interés: A cargo del cliente")
-            st.write("Carencia: Hasta 2 meses en función del PROCOM")
-            st.write("Comisión de apertura: En función del PROCOM y parametrización TACT. Presentada en el primer vencimiento")
-            st.write("Secuencia financiera: Única")
-            st.write("Producto asegurable (ADE)")
-            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe transcurrir un mínimo de 14 días")
-        elif idx == 1:
-            st.write("Familia de productos: Amortizable Directo")
-            st.write("Interés: A cargo del cliente")
-            st.write("Carencia: No aplicable")
-            st.write("Comisión de apertura: No aplicable")
-            st.write("Secuencia financiera: Única")
-            st.write("Producto asegurable (ADE)")
-            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe transcurrir un mínimo de 14 días")
-        elif idx < 6:
-            st.write("Familia de productos: Amortizable Punto de Venta")
-            if idx < 4:
-                st.write("Interés: A cargo del cliente")
-            else:
-                st.write("Interés: A cargo del partner")
-            st.write("Carencia:  Hasta 4 meses en función del baremo y el PROCOM")
-            st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM")
-            st.write("Secuencia financiera: Única")
-            st.write("Producto NO asegurable")
-            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")
-        elif idx < 8:
-            st.write("Familia de productos: Amortizable OPTION+")
-            if idx == 7:
-                st.write("Interés: A cargo del cliente  aunque la segunda secuencia financiera puede tener interés 0% en función del PROCOM")
-            else:
-                st.write("Interés: A cargo del partner aunque la segunda secuencia financiera puede tener interés cliente en función del PROCOM")
-            st.write("Carencia:  Hasta 4 meses en función del baremo y el PROCOM")
-            st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM")
-            st.write("Secuencia financiera: Doble")
-            st.write("Producto NO asegurable")
-            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")
+        # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
+        producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
+        
+        col9, col10 = st.columns([0.35, 0.65], gap="medium")
+        
+        if not producto_info.empty:
+            for columna in producto_info.columns:
+                valor = producto_info.iloc[0][columna]
+                col9.markdown(f'<div style="text-align: right;">{columna}</div>', unsafe_allow_html=True)
+                col10.markdown(f'<div style="text-align: left;">{valor}</div>', unsafe_allow_html=True)
         else:
-            st.write("Familia de productos: Amortizable AUTO")
-            st.write("Interés: A cargo del cliente")
-            st.write("Carencia: No aplicable")
-            st.write("Comisión de apertura: En función del baremo y el PROCOM. Capitalizada")
-            st.write("Secuencia financiera: Única")
-            st.write("Producto asegurable (Vida y Vida+). Prima única capitalizada")
-            st.write("Mínimo entre fecha de financiación y el primer vencimiento: Debe haber una fecha de bloqueo")    
+            st.write("Producto no encontrado.")
+            
+        # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
         if idx == 3 or idx == 5:
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
+
+
         
+    # Chivatos de la simulación a suprimir en la versión definitiva
+    # Chivatos de la simulación a suprimir en la versión definitiva
     # Chivatos de la simulación a suprimir en la versión definitiva
     st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
     st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
@@ -204,6 +181,13 @@ if st.session_state.get("simular", False):
     st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
 
 
-    
 # Mostrar pie
 st.write('¡Streamlit está funcionando correctamente!')
+
+    # Chivatos de la simulación a suprimir en la versión definitiva
+    # Chivatos de la simulación a suprimir en la versión definitiva
+    # Chivatos de la simulación a suprimir en la versión definitiva
+    
+
+
+    

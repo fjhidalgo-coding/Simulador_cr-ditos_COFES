@@ -8,8 +8,19 @@ import pandas as pd
 
 ''' Definir los parámetros básicos para realizar las simulaciones'''
 
-LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
 LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
+LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
+PRODUCTOS_DICCIONARIO = {
+"Nombre del producto": ["CREDITO FUSION", "Crédito Proyecto", "Compra a plazos", "Compra a plazos Vorwerk", "Compra financiada", "COMPRA FINANCIADA VORWERK", "AMORTIZABLE OPTION PH IP", "AMORTIZABLE OPTION PH IC", "CREDITO FINANCIACION AUTO OCASION", "CREDITO FINANCIACION MOTO OCASION", "CREDITO FINANCIACION AUTO NUEVO", "CREDITO FINANCIACION MOTO NUEVO"],
+"Código de producto POPS": ["B 2141650000", "B 2150850001", "B 2460050000", "B 2460050001", "B 2460050002", "B 2460050003", "B 2460050004", "B 2460050005", "B 2460050006", "B 2460050007", "B 2460050008", "B 2460050009"],
+"Familia de productos": ["Amortizable Rachat Directo ", "Amortizable Directo ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable OPTION+ ", "Amortizable OPTION+", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO "],
+"Interés": ["A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del partner ", "A cargo del partner ", "A cargo del partner ", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente"],
+"Carencia": ["Hasta 2 meses en función del PROCOM ", "No aplicable ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "No aplicable ", "No aplicable ", "No aplicable ", "No aplicable "],
+"Comisión de apertura": ["En función del PROCOM y parametrización TACT. Presentada en el primer vencimiento ", "No aplicable", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada "],
+"Secuencia financiera": ["Única ", "Única ", "Única ", "Única ", "Única ", "Única ", "Doble ", "Doble ", "Única ", "Única ", "Única ", "Única "],
+"Producto de seguro asociado": ["ADE", "ADE", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada "],
+"Mínimo entre fecha de financiación y el primer vencimiento": ["Debe transcurrir un mínimo de 14 días", "Debe transcurrir un mínimo de 14 días", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo"],
+}
 DIAS_BASE = 360
 
 capital_prestado = 0.00
@@ -25,13 +36,17 @@ fechas_bloqueo = fechas_bloqueo.sort_values(by='Fecha_BLOQUEO')
 
 ''' Crear las funciones necesarias para la simulación '''
 
-def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura):
+def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura, comision_apertura_capitalizada):
     '''Calcular la comisión de apertura en base al capital prestado y el porcentaje definido'''
     comision_apertura = round(capital_prestado * tasa_comision_apertura / 100, 2)
     if comision_apertura > imp_max_com_apertura and imp_max_com_apertura > 0:
         '''Comprobar que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
         comision_apertura = imp_max_com_apertura
-    return comision_apertura
+    if comision_apertura_capitalizada:
+        capitalizacion_comision_apertura = comision_apertura
+    else:
+        capitalizacion_comision_apertura = 0.00
+    return comision_apertura, capitalizacion_comision_apertura
 
 def obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2):
     if seguro_titular_1 == "Seguro ADE" and seguro_titular_2 == "Seguro ADE":
@@ -43,57 +58,48 @@ def obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2):
     return tasa_ADE
 
 def obtener_tasa_seguro_AUTO(plazo, tipo_seguro):
-    # Cada tupla: (plazo_máximo, tasa_vida_plus, tasa_otro)
+    # Cada tupla: (plazo_máximo, tasa_vida_plus, tasa_vida, tasa_otro)
     rangos = [
-        (24, 0.04760, 0.01410),
-        (36, 0.05550, 0.02200),
-        (48, 0.06350, 0.03000),
-        (60, 0.06910, 0.03560),
-        (72, 0.07820, 0.04470),
-        (84, 0.08820, 0.05470),
-        (96, 0.09920, 0.06570),
-        (108, 0.11100, 0.07750),
-        (float('inf'), 0.12410, 0.09060)
+        (24, 0.04760, 0.01410, 0.0),
+        (36, 0.05550, 0.02200, 0.0),
+        (48, 0.06350, 0.03000, 0.0),
+        (60, 0.06910, 0.03560, 0.0),
+        (72, 0.07820, 0.04470, 0.0),
+        (84, 0.08820, 0.05470, 0.0),
+        (96, 0.09920, 0.06570, 0.0),
+        (108, 0.11100, 0.07750, 0.0),
+        (float('inf'), 0.12410, 0.09060, 0.0)
     ]
-    for max_plazo, tasa_plus, tasa_otro in rangos:
+    for max_plazo, tasa_vida_plus, tasa_plus, tasa_otro in rangos:
         if plazo < max_plazo + 1:
-            return tasa_plus if tipo_seguro == "VIDA PLUS" else tasa_otro
+            return (
+                tasa_vida_plus if tipo_seguro == "VIDA PLUS"
+                else tasa_plus if tipo_seguro == "VIDA"
+                else tasa_otro
+                )
     return 0.0
 
-def calcular_seguro_capitalizado(etiqueta_producto, capital_prestado, plazo, seguro_titular_1, seguro_titular_2, comision):
+def calcular_seguro_capitalizado(capital_com_apertura, plazo, seguro_titular_1, seguro_titular_2):
     '''Calcular el seguro de vida en base al capital prestado, el tipo de seguro, el número de personas aseguradas y la duración del préstamo'''
-    capital_prestado += comision #Incrementar la base de cálculo del seguro con la comisión de apertura capitalizada
-    if LISTA_PRODUCTOS.index(etiqueta_producto) > 7 and (seguro_titular_1 != "SIN SEGURO" or seguro_titular_2 != "SIN SEGURO"):
-        if seguro_titular_1 != "SIN SEGURO":
-            tasa_titular_1 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_1)
-        else:
-            tasa_titular_1 = 0.00
-        if seguro_titular_2 != "SIN SEGURO":
-            tasa_titular_2 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_2)
-        else:
-            tasa_titular_2 = 0.00
-        seguro_capitalizado = round(capital_prestado * tasa_titular_1, 2) + round(capital_prestado * tasa_titular_2, 2)
-    else:
-        seguro_capitalizado = 0.00
+    tasa_titular_1 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_1)
+    tasa_titular_2 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_2)
+    seguro_capitalizado = round(capital_com_apertura * tasa_titular_1, 2) + round(capital_com_apertura * tasa_titular_2, 2)
     return seguro_capitalizado
 
-def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, carencia, tasa, comision_apertura, comision_apertura_capitalizada, seguro_capitalizado, seguro_titular_1, seguro_titular_2, tasa_2SEC, capital_2SEC, plazo_2SEC):
-    if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
-        tasa = 0.00
-    tasa += obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2)
+def calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC):
+    '''Función para calcular la mensualidad estándar de los productos amortizables de Cofidis España'''
     
-    '''Incrementar el capital prestado con la comisión de apertura capitalizada y el seguro capitalizado'''
-    capital_prestado += comision_apertura + seguro_capitalizado
-    
+    '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
     if carencia > 0:
-        '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
-        capital_prestado += round((capital_prestado * tasa / 1200),2) * carencia
+        importe_crédito += round((importe_crédito * tasa_global / 1200),2) * carencia
     
     '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
-    if tasa == 0.00:
-        cuota_1SEC = math.ceil((capital_prestado - capital_2SEC) / plazo * 100) / 100
+    if tasa_global == 0.00:
+        cuota_1SEC = math.ceil((importe_crédito - capital_2SEC) / plazo * 100) / 100
     else:
-        cuota_1SEC = math.ceil(capital_2SEC * tasa / 1200 * 100) / 100 + math.ceil((capital_prestado - capital_2SEC) * tasa / 1200 * ((1 + (tasa / 1200)) ** plazo) / (((1 + (tasa / 1200)) ** plazo) - 1) * 100 ) / 100
+        cuota_1SEC = math.ceil(capital_2SEC * tasa_global / 1200 * 100) / 100 + math.ceil((importe_crédito - capital_2SEC) * tasa_global / 1200 * ((1 + (tasa_global / 1200)) ** plazo) / (((1 + (tasa_global / 1200)) ** plazo) - 1) * 100 ) / 100
+    
+    '''Calcular la mensualidad de la segunda secuencia en caso de que exista'''
     if capital_2SEC != 0.00:
         if tasa_2SEC == 0.00:
             cuota_2SEC = math.ceil(capital_2SEC / plazo_2SEC * 100) / 100
@@ -101,6 +107,7 @@ def calcular_mensualidad_estandar(etiqueta_producto, capital_prestado, plazo, ca
             cuota_2SEC = math.ceil(capital_2SEC * tasa_2SEC / 1200 * ((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) / (((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) - 1) * 100 ) / 100
     else:
         cuota_2SEC = 0.00
+    
     return cuota_1SEC, cuota_2SEC
 
 def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
@@ -141,11 +148,72 @@ def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
 
     return fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento
 
+def truncar_decimal(valor, decimales):
+    factor = 10 ** decimales
+    return int(valor * factor) / factor
+
+def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
+    '''Función para calcular el descuento partner de los productos amortizables de Cofidis España'''
+    
+    if tasa != 0.00:
+        # En este cálculo, asumimos que la capitalización de la comisión de apertura debe ser abonada por el partner
+        # Existe un descuadre con simulador excel si el tipo de interés no es entero -- A revisar en cuanto sea posible ¿corrige el error que tenía el excel?
+        duracion_total = plazo + plazo_2SEC
+        capital_mensual = truncar_decimal(importe_crédito / duracion_total, 10)
+        tasa_mensual = 1 + truncar_decimal(tasa / 1200, 10)
+        tasa_descuento = 1 - truncar_decimal(tasa_mensual ** -duracion_total, 10)
+        ajuste_carencia = truncar_decimal(tasa_mensual ** -carencia, 10)
+        capital_mensual_ajustado = truncar_decimal(capital_mensual * tasa_descuento, 10) * 1200
+        capital_ajustado = truncar_decimal(capital_mensual_ajustado / tasa * ajuste_carencia, 10)
+        
+        descuento = round(importe_crédito - capital_ajustado, 2)
+    else:
+        descuento = 0.00
+
+    return descuento
+
+def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura):
+    '''Función principal para la simulación de los productos amortizables de Cofidis España'''
+    
+    '''Calcular la comisión de apertura'''
+    comision_apertura, capitalizacion_comision_apertura = calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura, comision_apertura_capitalizada)
+    
+    '''Calcular la base de cálculo del seguro AUTO'''
+    capital_com_apertura = capital_prestado + capitalizacion_comision_apertura
+    
+    '''Calcular el seguro de vida capitalizado'''
+    seguro_capitalizado = calcular_seguro_capitalizado(capital_com_apertura, plazo, seguro_titular_1, seguro_titular_2)
+    
+    '''Calcular el importe del crédito para un producto AUTO'''
+    importe_crédito = capital_com_apertura + seguro_capitalizado
+    
+    '''Calcular el descuento y m.odificar la tasa de interés de los productos con interés partner'''
+    descuento = descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC)
+    if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
+        tasa = 0.00
+    
+    '''Calcular la tasa del seguro ADE'''
+    tasa_ADE = obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2)
+    
+    '''Calcular la tasa a utilizar para el cálculo de la mensualidad (incluye el seguro ADE; de la primera secuencia para los productos con 2 secuencias)'''
+    tasa_global = tasa + tasa_ADE
+    
+    '''Calcular las mensualidades contractuales de todas las secuencias del contrato'''
+    cuota_1SEC, cuota_2SEC = calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC)
+    
+    fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia)
 
 
 
 
 
+
+
+    
+    
+    coste_seguro = seguro_capitalizado
+    
+    return comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento
 
 
 
