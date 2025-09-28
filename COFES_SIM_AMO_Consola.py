@@ -29,10 +29,32 @@ tasa_comision_apertura = 0.00
 imp_max_com_apertura = 0.00
 comision_apertura_capitalizada = False
 etiqueta_producto = ""
-fechas_bloqueo = pd.read_csv('COFES_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True)
-fechas_bloqueo = fechas_bloqueo.sort_values(by='Fecha_BLOQUEO')
+fechas_bloqueo = pd.read_csv('COFES_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
+Tipo_vencimiento = []
+Numero_Vencimiento = []
+Fecha_Vencimiento = []
+Capital_inicial = []
+Mensualidad_vencimiento = []
+Intereses_vencimiento = []
+Intereses_diferidos_vencimiento = []
+Intereses_capitalizados_vencimiento = []
+Seguro_vencimiento = []
+Seguro_diferidos_vencimiento = []
+Seguro_capitalizados_vencimiento = []
+Comisiones_vencimiento = []
+Capital_financiado_periodo = []
+Capital_vencimiento = []
+Capital_Pendiente = []
+Cuota_TAE = []
 
         
+
+def truncar_decimal(valor, decimales):
+    '''Función para truncar un número decimal a un número específico de decimales sin redondear'''
+    factor = 10 ** decimales
+    return int(valor * factor) / factor
+
+
 
 ''' Crear las funciones necesarias para la simulación '''
 
@@ -148,10 +170,6 @@ def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
 
     return fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento
 
-def truncar_decimal(valor, decimales):
-    factor = 10 ** decimales
-    return int(valor * factor) / factor
-
 def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
     '''Función para calcular el descuento partner de los productos amortizables de Cofidis España'''
     
@@ -172,22 +190,51 @@ def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
 
     return descuento
 
+def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fecha_Vencimiento, w_Capital_inicial, w_Mensualidad_vencimiento, w_Intereses_vencimiento, w_Intereses_diferidos_vencimiento, w_Intereses_capitalizados_vencimiento, w_Seguro_vencimiento, w_Seguro_diferidos_vencimiento, w_Seguro_capitalizados_vencimiento, w_Comisiones_vencimiento, w_Capital_financiado_periodo, w_Capital_vencimiento, w_Capital_Pendiente, w_Cuota_TAE):
+    '''Función para almacenar la construcción del cuadro de amortización asociado a la instrucción'''
+    Tipo_vencimiento.append(w_Tipo_vencimiento)
+    Numero_Vencimiento.append(w_Numero_Vencimiento)
+    Fecha_Vencimiento.append(w_Fecha_Vencimiento)
+    Capital_inicial.append(w_Capital_inicial)
+    Mensualidad_vencimiento.append(w_Mensualidad_vencimiento)
+    Intereses_vencimiento.append(w_Intereses_vencimiento)
+    Intereses_diferidos_vencimiento.append(w_Intereses_diferidos_vencimiento)
+    Intereses_capitalizados_vencimiento.append(w_Intereses_capitalizados_vencimiento)
+    Seguro_vencimiento.append(w_Seguro_vencimiento)
+    Seguro_diferidos_vencimiento.append(w_Seguro_diferidos_vencimiento)
+    Seguro_capitalizados_vencimiento.append(w_Seguro_capitalizados_vencimiento)
+    Comisiones_vencimiento.append(w_Comisiones_vencimiento)
+    Capital_financiado_periodo.append(w_Capital_financiado_periodo)
+    Capital_vencimiento.append(w_Capital_vencimiento)
+    Capital_Pendiente.append(w_Capital_Pendiente)
+    Cuota_TAE.append(w_Cuota_TAE)
+
+def calcular_periodo_roto(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
+    '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
+    importe_calculo_periodo_roto = round(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / DIAS_BASE, 2)
+    return importe_calculo_periodo_roto
+
+def calcular_periodo(base_calculo, tasa_a_aplicar):
+    '''Calcular el interés o el seguro cuando el periodo está completo'''
+    importe_calculo_periodo = round(base_calculo * tasa_a_aplicar / 1200, 2)
+    return importe_calculo_periodo
+
 def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura):
     '''Función principal para la simulación de los productos amortizables de Cofidis España'''
     
     '''Calcular la comisión de apertura'''
     comision_apertura, capitalizacion_comision_apertura = calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura, comision_apertura_capitalizada)
     
-    '''Calcular la base de cálculo del seguro AUTO'''
+    '''Calcular variable con la capitalización de la comisión de apertura'''
     capital_com_apertura = capital_prestado + capitalizacion_comision_apertura
     
     '''Calcular el seguro de vida capitalizado'''
     seguro_capitalizado = calcular_seguro_capitalizado(capital_com_apertura, plazo, seguro_titular_1, seguro_titular_2)
     
-    '''Calcular el importe del crédito para un producto AUTO'''
+    '''Calcular el importe del crédito incluyendo capital, comisión de apertura capitalizada y seguro capitalizado'''
     importe_crédito = capital_com_apertura + seguro_capitalizado
     
-    '''Calcular el descuento y m.odificar la tasa de interés de los productos con interés partner'''
+    '''Calcular el descuento y modificar la tasa de interés de los productos con interés partner'''
     descuento = descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC)
     if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
         tasa = 0.00
@@ -201,19 +248,196 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     '''Calcular las mensualidades contractuales de todas las secuencias del contrato'''
     cuota_1SEC, cuota_2SEC = calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC)
     
+    '''Calcular las fechas que nos permiten generar el cuadro de amortización'''
     fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia)
-
-
-
-
-
-
-
+    
+    '''Generar el cuadro de amortización de la operación simulada'''
+    Tipo_vencimiento.clear()
+    Numero_Vencimiento.clear()
+    Fecha_Vencimiento.clear()
+    Capital_inicial.clear()
+    Mensualidad_vencimiento.clear()
+    Intereses_vencimiento.clear()
+    Intereses_diferidos_vencimiento.clear()
+    Intereses_capitalizados_vencimiento.clear()
+    Seguro_vencimiento.clear()
+    Seguro_diferidos_vencimiento.clear()
+    Seguro_capitalizados_vencimiento.clear()
+    Comisiones_vencimiento.clear()
+    Capital_financiado_periodo.clear()
+    Capital_vencimiento.clear()
+    Capital_Pendiente.clear()
+    Cuota_TAE.clear()
+    '''Generar el vencimiento de financiación'''
+    cuadro_amortizacion = pd.DataFrame()
+    w_Fecha_ultimo_vencimiento_tratado = fecha_financiacion
+    w_Capital_Pendiente = importe_crédito
+    w_Intereses_diferidos_vencimiento = 0.00
+    w_Seguro_diferidos_vencimiento = 0.00
+    alimentar_cuadro_amortizacion("Financiación",
+                                  0,
+                                  fecha_financiacion,
+                                  0.00,
+                                  0.00,
+                                  0.00,
+                                  0.00,
+                                  0.00,
+                                  seguro_capitalizado,
+                                  0.00,
+                                  0.00,
+                                  capitalizacion_comision_apertura,
+                                  capital_prestado,
+                                  -importe_crédito,
+                                  importe_crédito,
+                                  -capital_prestado)
+    '''Generar el vencimiento de carencia gratuita forzada'''
+    if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada):        
+        w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_gratuita_forzada
+        alimentar_cuadro_amortizacion("Carencia gratuita forzada",
+                                      0,
+                                      fecha_fin_carencia_gratuita_forzada,
+                                      w_Capital_Pendiente,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      w_Capital_Pendiente,
+                                      0.00)
+    '''Generar el vencimiento de carencia diferida'''
+    if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida):        
+        w_Intereses_diferidos_vencimiento = calcular_periodo_roto(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia_diferida, tasa)
+        w_Seguro_diferidos_vencimiento = calcular_periodo_roto(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia_diferida, tasa_ADE)
+        w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_diferida
+        alimentar_cuadro_amortizacion("Carencia diferida",
+                                      0,
+                                      fecha_fin_carencia_diferida,
+                                      w_Capital_Pendiente,
+                                      0.00,
+                                      0.00,
+                                      w_Intereses_diferidos_vencimiento,
+                                      0.00,
+                                      0.00,
+                                      w_Seguro_diferidos_vencimiento,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      w_Capital_Pendiente,
+                                      0.00)
+    '''Generar el vencimiento de carencia normal'''
+    if fecha_fin_carencia is not None and pd.notnull(fecha_fin_carencia):        
+        w_Capital_inicial = w_Capital_Pendiente
+        w_Intereses_capitalizados_vencimiento = calcular_periodo(w_Capital_Pendiente, tasa)
+        w_Seguro_capitalizados_vencimiento = calcular_periodo(w_Capital_Pendiente, tasa_ADE)
+        w_Capital_Pendiente = w_Capital_inicial + w_Intereses_capitalizados_vencimiento + w_Seguro_capitalizados_vencimiento
+        w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia
+        alimentar_cuadro_amortizacion("Carencia normal",
+                                      0,
+                                      fecha_fin_carencia,
+                                      w_Capital_inicial,
+                                      0.00,
+                                      0.00,
+                                      0.00,
+                                      w_Intereses_capitalizados_vencimiento,
+                                      0.00,
+                                      0.00,
+                                      w_Seguro_capitalizados_vencimiento,
+                                      0.00,
+                                      0.00,
+                                      -w_Intereses_capitalizados_vencimiento - w_Seguro_capitalizados_vencimiento,
+                                      w_Capital_Pendiente,
+                                      0.00)
+    # ¿Falta crear el primer vencimiento antes del bucle?
+    '''Primer vencimiento de amortización'''
+    w_Capital_inicial = w_Capital_Pendiente
+    if pd.to_datetime(w_Fecha_ultimo_vencimiento_tratado).day == pd.to_datetime(fecha_primer_vencimiento).day:
+        w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, tasa) + w_Intereses_diferidos_vencimiento
+        w_Seguro_vencimiento = calcular_periodo(w_Capital_inicial, tasa_ADE) + w_Seguro_diferidos_vencimiento
+        w_ajustes = w_Intereses_diferidos_vencimiento + w_Seguro_diferidos_vencimiento
+    else:
+        w_Intereses_vencimiento = calcular_periodo_roto(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, fecha_primer_vencimiento, tasa) + w_Intereses_diferidos_vencimiento
+        w_Seguro_vencimiento = calcular_periodo_roto(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, fecha_primer_vencimiento, tasa_ADE) + w_Seguro_diferidos_vencimiento
+        w_ajustes = w_Intereses_vencimiento + w_Seguro_vencimiento - calcular_periodo(w_Capital_inicial, tasa) - calcular_periodo(w_Capital_inicial, tasa_ADE)
+    w_comision_apertura = comision_apertura - capitalizacion_comision_apertura
+    w_Mensualidad_vencimiento = cuota_1SEC + w_comision_apertura + w_ajustes
+    w_Capital_vencimiento = w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento - w_comision_apertura
+    w_Capital_Pendiente = w_Capital_inicial - w_Capital_vencimiento
+    w_Fecha_ultimo_vencimiento_tratado = fecha_primer_vencimiento
+    alimentar_cuadro_amortizacion("Amort. 1ª sec.",
+                                  1,
+                                  fecha_primer_vencimiento,
+                                  w_Capital_inicial,
+                                  w_Mensualidad_vencimiento,
+                                  w_Intereses_vencimiento,
+                                  0.00,
+                                  0.00,
+                                  w_Seguro_vencimiento,
+                                  0.00,
+                                  0.00,
+                                  w_comision_apertura,
+                                  0.00,
+                                  w_Capital_vencimiento,
+                                  w_Capital_Pendiente,
+                                  0.00)
+           
+    #'''Generar el resto de los vencimientos de la primera secuencia financiera'''
+    #for i in range(1, plazo + 1):
+    #    # Calcular interés del período
+    #    interes_periodo = saldo_actual * tasa_interes_mensual
+#
+    #    # Calcular capital amortizado del período
+    #    capital_del_periodo = cuota_mensual - interes_periodo
+#
+    #    # Calcular el nuevo saldo
+    #    nuevo_saldo = saldo_actual - capital_del_periodo
+#
+    #    # Almacenar los datos en las listas
+    #    Numero_Vencimiento.append(i)
+    #    saldo_inicial.append(round(saldo_actual, 2))
+    #    intereses.append(round(interes_periodo, 2))
+    #    capital_amortizado.append(round(capital_del_periodo, 2))
+    #    saldo_final.append(round(nuevo_saldo, 2))
+#
+    #    # Actualizar el saldo actual para el próximo período
+    #    saldo_actual = nuevo_saldo
+    
+    datos_amortizacion = {
+    'Tipo vcto' : Tipo_vencimiento,
+    'Nº Vcto' : Numero_Vencimiento,
+    'F_Vcto' : Fecha_Vencimiento,
+    'Cap. inicial' : Capital_inicial,
+    'Mens. vcto' : Mensualidad_vencimiento,
+    'Int. vcto' : Intereses_vencimiento,
+    'Int. DIFF vcto' : Intereses_diferidos_vencimiento,
+    'Int. CAP. vcto' : Intereses_capitalizados_vencimiento,
+    'ASS vcto' : Seguro_vencimiento,
+    'ASS DIFF vcto' : Seguro_diferidos_vencimiento,
+    'ASS CAP. vcto' : Seguro_capitalizados_vencimiento,
+    'Com. vcto' : Comisiones_vencimiento,
+    'Cap. finan.' : Capital_financiado_periodo,
+    'Cap. vcto' : Capital_vencimiento,
+    'Cap. PDTE' : Capital_Pendiente,
+}
+    datos_TAE = {
+    'Fecha_Vencimiento' : Fecha_Vencimiento,
+    'Cuota_TAE' : Cuota_TAE
+}
+    '''Crear el dataframe con el cuadro de amortización a mostrar'''
+    cuadro_amortizacion = pd.DataFrame(datos_amortizacion)
+    
+    
+    
     
     
     coste_seguro = seguro_capitalizado
     
-    return comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento
+    return comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion
 
 
 

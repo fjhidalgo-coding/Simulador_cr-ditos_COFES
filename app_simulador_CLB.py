@@ -130,7 +130,7 @@ with st.sidebar:
 if st.session_state.get("simular", False):
     
     # Realizar los cálculos de la simulación
-    comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
+    comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
     
     # Mostrar resumen de la simulación
     col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
@@ -179,6 +179,7 @@ if st.session_state.get("simular", False):
     st.write(f"TMP - Fecha fin de la carencia diferida: {mostrar_fecha(fecha_fin_carencia_diferida)}")
     st.write(f"TMP - Fecha fin de la carencia: {mostrar_fecha(fecha_fin_carencia)}")
     st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
+    st.dataframe(cuadro_amortizacion,hide_index=True)
 
 
 # Mostrar pie
