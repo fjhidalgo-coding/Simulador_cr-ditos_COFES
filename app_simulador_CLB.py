@@ -164,31 +164,28 @@ if st.session_state.get("simular", False):
         # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
         if idx == 3 or idx == 5:
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
-
-
+    
+    
+    tab1, tab2, tab3 = st.tabs(["Secuencias", "TAMO", "Otros"])
+    with tab1:
+        st.header("Resumen de las secuencias financieras")
         
-    # Chivatos de la simulación a suprimir en la versión definitiva
-    # Chivatos de la simulación a suprimir en la versión definitiva
-    # Chivatos de la simulación a suprimir en la versión definitiva
-    st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
-    st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
+        st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
+        st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
     
-    mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
+        mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
     
-    st.write(f"TMP - Fecha fin carencia forzada gratuita: {mostrar_fecha(fecha_fin_carencia_gratuita_forzada)}")
-    st.write(f"TMP - Fecha fin de la carencia diferida: {mostrar_fecha(fecha_fin_carencia_diferida)}")
-    st.write(f"TMP - Fecha fin de la carencia: {mostrar_fecha(fecha_fin_carencia)}")
-    st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
-    st.dataframe(cuadro_amortizacion,hide_index=True)
-
-
-# Mostrar pie
-st.write('¡Streamlit está funcionando correctamente!')
-
-    # Chivatos de la simulación a suprimir en la versión definitiva
-    # Chivatos de la simulación a suprimir en la versión definitiva
-    # Chivatos de la simulación a suprimir en la versión definitiva
+        st.write(f"TMP - Fecha fin carencia forzada gratuita: {mostrar_fecha(fecha_fin_carencia_gratuita_forzada)}")
+        st.write(f"TMP - Fecha fin de la carencia diferida: {mostrar_fecha(fecha_fin_carencia_diferida)}")
+        st.write(f"TMP - Fecha fin de la carencia: {mostrar_fecha(fecha_fin_carencia)}")
+        st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
     
-
-
+    with tab2:
+        st.header("Cuadro de amortización")
+        st.dataframe(cuadro_amortizacion,hide_index=True)
     
+    with tab3:
+        st.header("Otros")
+        st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+    
+# Final de la aplicación
