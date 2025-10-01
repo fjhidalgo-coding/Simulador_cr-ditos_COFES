@@ -7,8 +7,9 @@
 
 import streamlit as st
 import datetime  as dt
-import COFES_SIM_AMO_Consola as sim
 import pandas as pd
+import COFES_SIM_AMO_Consola as sim
+
 
 
 
@@ -37,7 +38,7 @@ st.markdown(
     """
     <style>
         section[data-testid="stSidebar"] {
-            width: 450px !important; # Set the width to your desired value
+            width: 400px !important; # Set the width to your desired value
         }
     </style>
     """,
@@ -130,21 +131,22 @@ with st.sidebar:
 if st.session_state.get("simular", False):
     
     # Realizar los cálculos de la simulación
-    comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
+    comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
     
     # Mostrar resumen de la simulación
     col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+    
+    col1.metric("TAE", "PDT", "%")
+    col2.metric("Importe total a pagar", f"{importe_total_a_pagar:.2f}", "EUR")
+    col3.metric("Coste total",  f"{coste_total:.2f}", "EUR")
+    col4.metric("Intereses",  f"{intereses:.2f}", "EUR")
+    col5.metric("Prima de seguro", f"{coste_seguro:.2f}", "EUR")
+    col6.metric("Comisión de apertura", f"{comision_apertura:.2f}", "EUR")
+    col7.metric("Capital", f"{capital_prestado:.2f}", "EUR")
     if idx > 7:
-        col1.metric("Importe del crédito", f"{importe_crédito:.2f}", "EUR")
+        col8.metric("Importe del crédito", f"{importe_crédito:.2f}", "EUR")
     if 3 < idx < 7:
-        col1.metric("Descuento Partner", f"{descuento:.2f}", "EUR")
-    col2.metric("Capital", f"{capital_prestado:.2f}", "EUR")
-    col3.metric("Comisión de apertura", f"{comision_apertura:.2f}", "EUR")
-    col4.metric("Prima de seguro", f"{coste_seguro:.2f}", "EUR") # Pendiente evaluar correctamente el seguro
-    col5.metric("Intereses", "PDT", "EUR")
-    col6.metric("Coste total", "PDT", "EUR")
-    col7.metric("TAE", "PDT", "%")
-    col8.metric("Importe total a pagar", "PDT", "EUR")
+        col8.metric("Descuento Partner", f"{descuento:.2f}", "EUR")
     
     # Detallar las características del producto amortizable de la simulación
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
@@ -166,7 +168,7 @@ if st.session_state.get("simular", False):
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
     
     
-    tab1, tab2, tab3 = st.tabs(["Secuencias", "TAMO", "Otros"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Secuencias", "TAMO", "Detalle TAE", "Gráfico amortización"])
     with tab1:
         st.header("Resumen de las secuencias financieras")
         
@@ -185,7 +187,12 @@ if st.session_state.get("simular", False):
         st.dataframe(cuadro_amortizacion,hide_index=True)
     
     with tab3:
-        st.header("Otros")
-        st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+        st.header("Detalle TAE")
+        st.dataframe(input_TAE,hide_index=True)
+    
+    with tab4:
+        st.header("Gráfico amortización")
+        st.write("Columnas del cuadro de amortización:", cuadro_amortizacion.columns.tolist())
+        
     
 # Final de la aplicación

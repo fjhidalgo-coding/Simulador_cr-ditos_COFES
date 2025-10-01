@@ -3,15 +3,16 @@
 
 import math
 import pandas as pd 
+import calendar
 
 
 
 ''' Definir los parámetros básicos para realizar las simulaciones'''
 
 LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
-LISTA_PRODUCTOS = ["CREDITO FUSION","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","COMPRA FINANCIADA VORWERK","AMORTIZABLE OPTION PH IP","AMORTIZABLE OPTION PH IC","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION","CREDITO FINANCIACION AUTO NUEVO","CREDITO FINANCIACION MOTO NUEVO","CREDITO FINANCIACION AUTO OCASION","CREDITO FINANCIACION MOTO OCASION"]
+LISTA_PRODUCTOS = ["Crédito Fusión","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","Compra financiada Vorwerk","Amortizable Option PH IP","Amortizable Option PH IC","Crédito Financiación AUTO Ocasión","Crédito Financiación MOTO Ocasión","Crédito Financiación AUTO Nuevo","Crédito Financiación MOTO Nuevo"]
 PRODUCTOS_DICCIONARIO = {
-"Nombre del producto": ["CREDITO FUSION", "Crédito Proyecto", "Compra a plazos", "Compra a plazos Vorwerk", "Compra financiada", "COMPRA FINANCIADA VORWERK", "AMORTIZABLE OPTION PH IP", "AMORTIZABLE OPTION PH IC", "CREDITO FINANCIACION AUTO OCASION", "CREDITO FINANCIACION MOTO OCASION", "CREDITO FINANCIACION AUTO NUEVO", "CREDITO FINANCIACION MOTO NUEVO"],
+"Nombre del producto": ["Crédito Fusión", "Crédito Proyecto", "Compra a plazos", "Compra a plazos Vorwerk", "Compra financiada", "Compra financiada Vorwerk", "Amortizable Option PH IP", "Amortizable Option PH IC", "Crédito Financiación AUTO Ocasión", "Crédito Financiación MOTO Ocasión", "Crédito Financiación AUTO Nuevo", "Crédito Financiación MOTO Nuevo"],
 "Código de producto POPS": ["B 2141650000", "B 2150850001", "B 2460050000", "B 2460050001", "B 2460050002", "B 2460050003", "B 2460050004", "B 2460050005", "B 2460050006", "B 2460050007", "B 2460050008", "B 2460050009"],
 "Familia de productos": ["Amortizable Rachat Directo ", "Amortizable Directo ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable OPTION+ ", "Amortizable OPTION+", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO "],
 "Interés": ["A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del partner ", "A cargo del partner ", "A cargo del partner ", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente"],
@@ -46,6 +47,7 @@ Capital_financiado_periodo = []
 Capital_vencimiento = []
 Capital_Pendiente = []
 Cuota_TAE = []
+Año_Base = []
 
         
 
@@ -190,7 +192,7 @@ def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
 
     return descuento
 
-def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fecha_Vencimiento, w_Capital_inicial, w_Mensualidad_vencimiento, w_Intereses_vencimiento, w_Intereses_diferidos_vencimiento, w_Intereses_capitalizados_vencimiento, w_Seguro_vencimiento, w_Seguro_diferidos_vencimiento, w_Seguro_capitalizados_vencimiento, w_Comisiones_vencimiento, w_Capital_financiado_periodo, w_Capital_vencimiento, w_Capital_Pendiente, w_Cuota_TAE):
+def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fecha_Vencimiento, w_Capital_inicial, w_Mensualidad_vencimiento, w_Intereses_vencimiento, w_Intereses_diferidos_vencimiento, w_Intereses_capitalizados_vencimiento, w_Seguro_vencimiento, w_Seguro_diferidos_vencimiento, w_Seguro_capitalizados_vencimiento, w_Comisiones_vencimiento, w_Capital_financiado_periodo, w_Capital_vencimiento, w_Capital_Pendiente, w_Cuota_TAE, w_Año_Base):
     '''Función para almacenar la construcción del cuadro de amortización asociado a la instrucción'''
     Tipo_vencimiento.append(w_Tipo_vencimiento)
     Numero_Vencimiento.append(w_Numero_Vencimiento)
@@ -208,6 +210,7 @@ def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fe
     Capital_vencimiento.append(w_Capital_vencimiento)
     Capital_Pendiente.append(w_Capital_Pendiente)
     Cuota_TAE.append(w_Cuota_TAE)
+    Año_Base.append(w_Año_Base)
 
 def calcular_periodo_roto(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
     '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
@@ -268,6 +271,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     Capital_vencimiento.clear()
     Capital_Pendiente.clear()
     Cuota_TAE.clear()
+    Año_Base.clear()
     '''Generar el vencimiento de financiación'''
     cuadro_amortizacion = pd.DataFrame()
     if plazo_2SEC > 0:
@@ -293,7 +297,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                   capital_prestado,
                                   -importe_crédito,
                                   importe_crédito,
-                                  -capital_prestado)
+                                  -capital_prestado,
+                                  366 if calendar.isleap(fecha_financiacion.year) else 365)
     '''Generar el vencimiento de carencia gratuita forzada'''
     if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada):        
         w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_gratuita_forzada
@@ -312,7 +317,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       0.00,
                                       w_Capital_Pendiente,
-                                      0.00)
+                                      0.00,
+                                      366 if calendar.isleap(fecha_fin_carencia_gratuita_forzada.year) else 365)
     '''Generar el vencimiento de carencia diferida'''
     if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida):        
         w_Intereses_diferidos_vencimiento = calcular_periodo_roto(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia_diferida, tasa)
@@ -333,7 +339,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       0.00,
                                       w_Capital_Pendiente,
-                                      0.00)
+                                      0.00,
+                                      366 if calendar.isleap(fecha_fin_carencia_diferida.year) else 365)
     '''Generar el vencimiento de carencia normal'''
     if fecha_fin_carencia is not None and pd.notnull(fecha_fin_carencia):        
         w_Capital_inicial = w_Capital_Pendiente
@@ -356,14 +363,14 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       -w_Intereses_capitalizados_vencimiento - w_Seguro_capitalizados_vencimiento,
                                       w_Capital_Pendiente,
-                                      0.00)
+                                      0.00,
+                                      366 if calendar.isleap(fecha_fin_carencia.year) else 365)
     '''Primer vencimiento de amortización'''
     w_numero_vencimiento = 1
     w_Capital_inicial = w_Capital_Pendiente
     if pd.to_datetime(w_Fecha_ultimo_vencimiento_tratado).day == pd.to_datetime(fecha_primer_vencimiento).day:
         w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, fecha_primer_vencimiento, tasa) + w_Intereses_diferidos_vencimiento
         w_Seguro_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, fecha_primer_vencimiento, tasa_ADE) + w_Seguro_diferidos_vencimiento
-        # Hay un error en el ajuste de la primera mensualidad cuando tiene carencia
         w_ajustes = w_Intereses_diferidos_vencimiento + w_Seguro_diferidos_vencimiento
     else:
         w_Intereses_vencimiento = calcular_periodo_roto(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, fecha_primer_vencimiento, tasa) + w_Intereses_diferidos_vencimiento
@@ -389,7 +396,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                   0.00,
                                   w_Capital_vencimiento,
                                   w_Capital_Pendiente,
-                                  0.00)
+                                  w_Intereses_vencimiento + w_Capital_vencimiento + comision_apertura,  # Forzamos la cuota TAE para que incluya la comisión de apertura (ver SARA)
+                                  366 if calendar.isleap(fecha_primer_vencimiento.year) else 365)
     '''Resto de vencimientos de la primera secuencia'''
     for i in range(2, plazo + 1):
         w_numero_vencimiento += 1
@@ -419,7 +427,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       w_Capital_vencimiento,
                                       w_Capital_Pendiente,
-                                      0.00)
+                                      w_Intereses_vencimiento + w_Capital_vencimiento,
+                                      366 if calendar.isleap(w_Fecha_ultimo_vencimiento_tratado.year) else 365)
     '''Generar los vencimientos de la segunda secuencia en caso de que exista'''
     if plazo_2SEC > 0:
         for i in range(1, plazo_2SEC + 1):
@@ -450,7 +459,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                           0.00,
                                           w_Capital_vencimiento,
                                           w_Capital_Pendiente,
-                                          0.00)
+                                          w_Intereses_vencimiento + w_Capital_vencimiento,
+                                          366 if calendar.isleap(w_Fecha_ultimo_vencimiento_tratado.year) else 365)
 
 
            
@@ -475,90 +485,21 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
 }
     datos_TAE = {
     'Fecha_Vencimiento' : Fecha_Vencimiento,
-    'Cuota_TAE' : Cuota_TAE
+    'Cuota_TAE' : Cuota_TAE,
+    'Año_Base' : Año_Base
 }
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
     cuadro_amortizacion = pd.DataFrame(datos_amortizacion)
     
+    '''Crear el dataframe con el cuadro de amortización a mostrar'''
+    input_TAE = pd.DataFrame(datos_TAE)
+    
+    
+    importe_total_a_pagar = sum(Mensualidad_vencimiento)
+    intereses = sum(Intereses_capitalizados_vencimiento) + sum(Intereses_vencimiento)
+    coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
+    coste_total = intereses + coste_seguro + comision_apertura
     
     
     
-    
-    coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento)
-    
-    return comision_apertura, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion
-
-
-
-#  def cuota_fija(tasa,importe_a_financiar, plazo, cuota_inicial):
-#      '''
-#      La función cuota_fija permite generar la simulación de un cuadro de amortización a partir de las variables de entrada:
-#      tasa                : Contiene el tipo de interés solicitado al usuario
-#      importe_a_financiar : Contiene el capital inicial del préstamos solicitado al cliente
-#      plazo               : Contiene la duración inicial del crédito 
-#      cuota_inicial       : Contiene la mensualidad al inicio de la simulación
-#      '''
-#      
-#      base_liquidador=pd.DataFrame([])
-#      cuota=npf.pmt(tasa, plazo,-importe_a_financiar, 0)
-#      cuotas_iniciales=int(input("Ingrese el valor: "))
-#      if cuotas_iniciales==1:
-#          base_liquidador=pd.DataFrame([])
-#          base_liquidador['Mes_cuota']=["Mes_%s"%(i+1) for i in range(plazo+1)]
-#          base_liquidador['Saldo']=0
-#          base_liquidador['Intereses']=0
-#          base_liquidador['Saldo'][0]=importe_a_financiar
-#          base_liquidador['Saldo'][1]=importe_a_financiar-cuota_inicial 
-#          
-#          base_liquidador['pago_mes']=int(cuota)
-#          base_liquidador['pago_mes'][0]=cuota_inicial
-#          base_liquidador['amortización']=0
-#          base_liquidador['amortización'][0]=cuota_inicial
-#          base_liquidador['tasa_interes']=tasa
-#          base_liquidador['Saldo_final']=0
-#  
-#          for i in range(0, len(base_liquidador)):
-#              base_liquidador['Intereses'][i+1]=(base_liquidador['Saldo'][i]*base_liquidador['tasa_interes'][i])
-#              base_liquidador['amortización'][i]=np.where(base_liquidador['Saldo'][i]>base_liquidador['Intereses'][i],(base_liquidador['pago_mes'][i]-base_liquidador['Intereses'][i]),base_liquidador['Saldo'][i] )
-#              base_liquidador['Saldo'][i+1]=base_liquidador['Saldo'][i]-base_liquidador['amortización'][i]
-#              base_liquidador['pago_mes'][i]=np.where(base_liquidador['Saldo'][i]>base_liquidador['amortización'][i], base_liquidador['pago_mes'][i], base_liquidador['Saldo'][i])
-#              base_liquidador['Saldo_final'][i]=base_liquidador['Saldo'][i]-base_liquidador['amortización'][i] 
-#  
-#      elif cuotas_iniciales==0:
-#          base_liquidador=pd.DataFrame([])
-#          base_liquidador['Mes_cuota']=["Mes_%s"%(i+1) for i in range(plazo)]
-#          base_liquidador['Saldo']=0
-#          base_liquidador['Saldo'][0]=importe_a_financiar
-#          base_liquidador['Intereses']=0
-#          base_liquidador['pago_mes']=int(cuota)
-#          base_liquidador['amortización']=0
-#          base_liquidador['tasa_interes']=tasa
-#          base_liquidador['Saldo_final']=0
-#          
-#          for i in range(0, len(base_liquidador)):
-#              base_liquidador['Intereses'][i]=(base_liquidador['Saldo'][i]*base_liquidador['tasa_interes'][i])
-#              base_liquidador['amortización'][i]=np.where(base_liquidador['Saldo'][i]>base_liquidador['Intereses'][i],(base_liquidador['pago_mes'][i]-base_liquidador['Intereses'][i]),base_liquidador['Saldo'][i] )
-#              base_liquidador['Saldo'][i+1]=base_liquidador['Saldo'][i]-base_liquidador['amortización'][i]
-#              base_liquidador['Saldo_final'][i]=base_liquidador['Saldo'][i]-base_liquidador['amortización'][i]    
-#      else: 
-#          print("Oops!  Este es un valor incorrecto.  Pruebe de nuevo...")    
-#      return base_liquidador
-#  
-#  
-#  # Generación del Cuadro de amortización - TAMO - a partir de la salida de la función cuota_fija 
-#  
-#  print(df)
-#  
-#  
-#  # Generación del gráfico con la caída de capital e intereses 
-#  
-#  plt.figure(figsize=(15,8))
-#  plt.plot(df.Mes_cuota,df.Saldo,label='Saldo')
-#  plt.xlabel('Meses')
-#  plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
-#  plt.title('Saldo de la deuda')
-#  for a,b in zip(df.Mes_cuota,df.Saldo): 
-#      plt.text(a, b, str(b))
-#  plt.legend()
-#  plt.show()
-
+    return comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE
