@@ -134,32 +134,45 @@ if st.session_state.get("simular", False):
     comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
     
     # Mostrar resumen de la simulación
-    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+    with st.expander("", expanded=True):
+        resumen1 = pd.DataFrame(
+        {
+            "TAE": ["PDT"],
+        },
+        index=["%"],
+    )
+        resumen2 = pd.DataFrame(
+        {
+            "Importe total a pagar": [f"{importe_total_a_pagar:.2f}"],
+            "Coste total": [f"{coste_total:.2f}"],
+            "Intereses": [f"{intereses:.2f}"],
+            "Prima de seguro": [f"{coste_seguro:.2f}"],
+            "Comisión de apertura": [f"{comision_apertura:.2f}"],
+            "Capital": [f"{capital_prestado:.2f}"],
+            "Importe del crédito": [f"{importe_crédito:.2f}"],
+            "Descuento Partner": [f"{descuento:.2f}"],
+        },
+        index=["EUR"],
+    )
     
-    col1.metric("TAE", "PDT", "%")
-    col2.metric("Importe total a pagar", f"{importe_total_a_pagar:.2f}", "EUR")
-    col3.metric("Coste total",  f"{coste_total:.2f}", "EUR")
-    col4.metric("Intereses",  f"{intereses:.2f}", "EUR")
-    col5.metric("Prima de seguro", f"{coste_seguro:.2f}", "EUR")
-    col6.metric("Comisión de apertura", f"{comision_apertura:.2f}", "EUR")
-    col7.metric("Capital", f"{capital_prestado:.2f}", "EUR")
-    if idx > 7:
-        col8.metric("Importe del crédito", f"{importe_crédito:.2f}", "EUR")
-    if 3 < idx < 7:
-        col8.metric("Descuento Partner", f"{descuento:.2f}", "EUR")
+        col1, col2 = st.columns([0.08, 0.92], gap="small")
+        col1.table(resumen1)
+        col2.table(resumen2)
+
+    
     
     # Detallar las características del producto amortizable de la simulación
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
         # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
         producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
         
-        col9, col10 = st.columns([0.33, 0.67], gap="medium")
+        col3, col4 = st.columns([0.33, 0.67], gap="medium")
         
         if not producto_info.empty:
             for columna in producto_info.columns:
                 valor = producto_info.iloc[0][columna]
-                col9.markdown(f'<div style="text-align: right;">{columna}</div>', unsafe_allow_html=True)
-                col10.markdown(f'<div style="text-align: left;">{valor}</div>', unsafe_allow_html=True)
+                col3.markdown(f'<div style="text-align: right;">{columna}</div>', unsafe_allow_html=True)
+                col4.markdown(f'<div style="text-align: left;">{valor}</div>', unsafe_allow_html=True)
         else:
             st.write("Producto no encontrado.")
             
@@ -192,7 +205,7 @@ if st.session_state.get("simular", False):
     
     with tab4:
         st.header("Gráfico amortización")
-        st.write("Columnas del cuadro de amortización:", cuadro_amortizacion.columns.tolist())
-        
-    
+
+
+
 # Final de la aplicación

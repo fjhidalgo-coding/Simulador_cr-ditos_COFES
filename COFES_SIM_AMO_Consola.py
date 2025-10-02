@@ -242,7 +242,10 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     importe_crédito = capital_com_apertura + seguro_capitalizado
     
     '''Calcular el descuento y modificar la tasa de interés de los productos con interés partner'''
-    descuento = descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC)
+    if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
+        descuento = descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC)
+    else:
+        descuento = 0.00
     if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
         tasa = 0.00
     
