@@ -181,10 +181,8 @@ if st.session_state.get("simular", False):
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
     
     
-    tab1, tab2, tab3, tab4 = st.tabs(["Secuencias", "TAMO", "Detalle TAE", "Gráfico amortización"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras", "Ejemplo representativo", "Cuadro de amortización", "Detalle TAE"])
     with tab1:
-        st.header("Resumen de las secuencias financieras")
-        
         st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
         st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
     
@@ -196,15 +194,14 @@ if st.session_state.get("simular", False):
         st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
     
     with tab2:
-        st.header("Cuadro de amortización")
+        st.code("Pendiente desarrollo")
+
+    with tab3:
         st.dataframe(cuadro_amortizacion,hide_index=True)
     
-    with tab3:
-        st.header("Detalle TAE")
+    with tab4:
         st.dataframe(input_TAE,hide_index=True)
     
-    with tab4:
-        st.header("Gráfico amortización")
 
 
 
