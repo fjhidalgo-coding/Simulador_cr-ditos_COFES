@@ -16,7 +16,7 @@ PRODUCTOS_DICCIONARIO = {
 "Código de producto POPS": ["B 2141650000", "B 2150850001", "B 2460050000", "B 2460050001", "B 2460050002", "B 2460050003", "B 2460050004", "B 2460050005", "B 2460050006", "B 2460050007", "B 2460050008", "B 2460050009"],
 "Familia de productos": ["Amortizable Rachat Directo ", "Amortizable Directo ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable OPTION+ ", "Amortizable OPTION+", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO "],
 "Interés": ["A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del partner ", "A cargo del partner ", "A cargo del partner ", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente"],
-"Carencia": ["Hasta 2 meses en función del PROCOM ", "No aplicable ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "No aplicable ", "No aplicable ", "No aplicable ", "No aplicable "],
+"Carencia": ["Hasta 2 meses en función del PROCOM. La prima de seguro a capitalizar calculada por días si la carencia es de más de un mes", "No aplicable ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "No aplicable ", "No aplicable ", "No aplicable ", "No aplicable "],
 "Comisión de apertura": ["En función del PROCOM y parametrización TACT. Presentada en el primer vencimiento ", "No aplicable", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada "],
 "Secuencia financiera": ["Única ", "Única ", "Única ", "Única ", "Única ", "Única ", "Doble ", "Doble ", "Única ", "Única ", "Única ", "Única "],
 "Producto de seguro asociado": ["ADE", "ADE", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada "],
@@ -55,6 +55,16 @@ def truncar_decimal(valor, decimales):
     '''Función para truncar un número decimal a un número específico de decimales sin redondear'''
     factor = 10 ** decimales
     return int(valor * factor) / factor
+
+def calcular_periodo_roto(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
+    '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
+    importe_calculo_periodo_roto = round(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / DIAS_BASE, 2)
+    return importe_calculo_periodo_roto
+
+def calcular_periodo(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
+    '''Calcular el interés o el seguro cuando el periodo está completo'''
+    importe_calculo_periodo = round(base_calculo * tasa_a_aplicar / 1200, 2) * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month))
+    return importe_calculo_periodo
 
 
 
@@ -109,30 +119,6 @@ def calcular_seguro_capitalizado(capital_com_apertura, plazo, seguro_titular_1, 
     tasa_titular_2 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_2)
     seguro_capitalizado = round(capital_com_apertura * tasa_titular_1, 2) + round(capital_com_apertura * tasa_titular_2, 2)
     return seguro_capitalizado
-
-def calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC):
-    '''Función para calcular la mensualidad estándar de los productos amortizables de Cofidis España'''
-    
-    '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
-    if carencia > 0:
-        importe_crédito += round((importe_crédito * tasa_global / 1200),2) * carencia
-    
-    '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
-    if tasa_global == 0.00:
-        cuota_1SEC = math.ceil((importe_crédito - capital_2SEC) / plazo * 100) / 100
-    else:
-        cuota_1SEC = round(capital_2SEC * tasa_global / 1200, 2) + math.ceil((importe_crédito - capital_2SEC) * tasa_global / 1200 * ((1 + (tasa_global / 1200)) ** plazo) / (((1 + (tasa_global / 1200)) ** plazo) - 1) * 100 ) / 100
-    
-    '''Calcular la mensualidad de la segunda secuencia en caso de que exista'''
-    if capital_2SEC != 0.00:
-        if tasa_2SEC == 0.00:
-            cuota_2SEC = math.ceil(capital_2SEC / plazo_2SEC * 100) / 100
-        else:
-            cuota_2SEC = math.ceil(capital_2SEC * tasa_2SEC / 1200 * ((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) / (((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) - 1) * 100 ) / 100
-    else:
-        cuota_2SEC = 0.00
-    
-    return cuota_1SEC, cuota_2SEC
 
 def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
     '''Función para calcular las principales fechas de préstamo'''
@@ -192,6 +178,34 @@ def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
 
     return descuento
 
+def calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, tasa, tasa_ADE, fecha_financiacion, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia):
+    '''Función para calcular la mensualidad estándar de los productos amortizables de Cofidis España'''
+    
+    '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
+    if carencia == 1:
+        importe_crédito += round((importe_crédito * tasa_global / 1200),2) * carencia
+    if carencia > 1:
+        w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_gratuita_forzada if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada) else fecha_fin_carencia_diferida if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida) else fecha_financiacion
+        importe_crédito += calcular_periodo_roto(importe_crédito, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ADE)
+        importe_crédito += round((importe_crédito * tasa / 1200),2) * carencia
+        
+    '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
+    if tasa_global == 0.00:
+        cuota_1SEC = math.ceil((importe_crédito - capital_2SEC) / plazo * 100) / 100
+    else:
+        cuota_1SEC = round(capital_2SEC * tasa_global / 1200, 2) + math.ceil((importe_crédito - capital_2SEC) * tasa_global / 1200 * ((1 + (tasa_global / 1200)) ** plazo) / (((1 + (tasa_global / 1200)) ** plazo) - 1) * 100 ) / 100
+    
+    '''Calcular la mensualidad de la segunda secuencia en caso de que exista'''
+    if capital_2SEC != 0.00:
+        if tasa_2SEC == 0.00:
+            cuota_2SEC = math.ceil(capital_2SEC / plazo_2SEC * 100) / 100
+        else:
+            cuota_2SEC = math.ceil(capital_2SEC * tasa_2SEC / 1200 * ((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) / (((1 + (tasa_2SEC / 1200)) ** plazo_2SEC) - 1) * 100 ) / 100
+    else:
+        cuota_2SEC = 0.00
+    
+    return cuota_1SEC, cuota_2SEC
+
 def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fecha_Vencimiento, w_Capital_inicial, w_Mensualidad_vencimiento, w_Intereses_vencimiento, w_Intereses_diferidos_vencimiento, w_Intereses_capitalizados_vencimiento, w_Seguro_vencimiento, w_Seguro_diferidos_vencimiento, w_Seguro_capitalizados_vencimiento, w_Comisiones_vencimiento, w_Capital_financiado_periodo, w_Capital_vencimiento, w_Capital_Pendiente, w_Cuota_TAE, w_Año_Base):
     '''Función para almacenar la construcción del cuadro de amortización asociado a la instrucción'''
     Tipo_vencimiento.append(w_Tipo_vencimiento)
@@ -211,16 +225,6 @@ def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fe
     Capital_Pendiente.append(w_Capital_Pendiente)
     Cuota_TAE.append(w_Cuota_TAE)
     Año_Base.append(w_Año_Base)
-
-def calcular_periodo_roto(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
-    '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
-    importe_calculo_periodo_roto = round(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / DIAS_BASE, 2)
-    return importe_calculo_periodo_roto
-
-def calcular_periodo(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
-    '''Calcular el interés o el seguro cuando el periodo está completo'''
-    importe_calculo_periodo = round(base_calculo * tasa_a_aplicar / 1200, 2) * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month))
-    return importe_calculo_periodo
 
 def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura):
     '''Función principal para la simulación de los productos amortizables de Cofidis España'''
@@ -248,11 +252,11 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     '''Calcular la tasa a utilizar para el cálculo de la mensualidad (incluye el seguro ADE; de la primera secuencia para los productos con 2 secuencias)'''
     tasa_global = tasa + tasa_ADE
     
-    '''Calcular las mensualidades contractuales de todas las secuencias del contrato'''
-    cuota_1SEC, cuota_2SEC = calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC)
-    
     '''Calcular las fechas que nos permiten generar el cuadro de amortización'''
     fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento = calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia)
+    
+    '''Calcular las mensualidades contractuales de todas las secuencias del contrato'''
+    cuota_1SEC, cuota_2SEC = calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, tasa, tasa_ADE, fecha_financiacion, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia)
     
     '''Generar el cuadro de amortización de la operación simulada'''
     Tipo_vencimiento.clear()
@@ -345,7 +349,10 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     if fecha_fin_carencia is not None and pd.notnull(fecha_fin_carencia):        
         w_Capital_inicial = w_Capital_Pendiente
         w_Intereses_capitalizados_vencimiento = calcular_periodo(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa)
-        w_Seguro_capitalizados_vencimiento = calcular_periodo(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ADE)
+        if carencia == 1:
+            w_Seguro_capitalizados_vencimiento = calcular_periodo(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ADE)
+        else:
+            w_Seguro_capitalizados_vencimiento = calcular_periodo_roto(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ADE)
         w_Capital_Pendiente = w_Capital_inicial + w_Intereses_capitalizados_vencimiento + w_Seguro_capitalizados_vencimiento
         w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia
         alimentar_cuadro_amortizacion("Carencia normal",

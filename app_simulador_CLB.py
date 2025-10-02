@@ -153,7 +153,7 @@ if st.session_state.get("simular", False):
         # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
         producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
         
-        col9, col10 = st.columns([0.35, 0.65], gap="medium")
+        col9, col10 = st.columns([0.33, 0.67], gap="medium")
         
         if not producto_info.empty:
             for columna in producto_info.columns:
