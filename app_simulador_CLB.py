@@ -131,13 +131,13 @@ with st.sidebar:
 if st.session_state.get("simular", False):
     
     # Realizar los cálculos de la simulación
-    comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
+    tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
     
     # Mostrar resumen de la simulación
     with st.expander("", expanded=True):
         resumen1 = pd.DataFrame(
         {
-            "TAE": ["PDT"],
+            "TAE": [f"{tae:.2f}"],
         },
         index=["%"],
     )
@@ -183,16 +183,37 @@ if st.session_state.get("simular", False):
     
     tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras", "Ejemplo representativo", "Cuadro de amortización", "Detalle TAE"])
     with tab1:
+        
+        mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
+        
+        cuenta_vencimientos = cuadro_amortizacion['Tipo vcto'].value_counts()
+        primeros = cuadro_amortizacion.groupby('Tipo vcto').head(1)
+        ultimos = cuadro_amortizacion.groupby('Tipo vcto').tail(1)
+        modales = cuadro_amortizacion.groupby('Tipo vcto')['Mens. vcto'].agg(lambda x: x.mode().iat[0] if not x.mode().empty else None)
+
+
+        resumen3 = pd.DataFrame(
+        {
+            "F_1er_VCTO":  [mostrar_fecha(fecha) for fecha in primeros['F_Vcto'].values],
+            "F_INI": [f"{coste_total:.2f}"],
+            "F_FIN":  [mostrar_fecha(fecha) for fecha in ultimos['F_Vcto'].values],
+            "Nº Vencimientos": cuenta_vencimientos.loc[ultimos['Tipo vcto']].values,
+            "IMP_1era_Cuota": primeros['Mens. vcto'].values,
+            "IMP_Cuota": modales.loc[ultimos['Tipo vcto']].values, # Usar la moda no funciona para duraciones de 3 meses
+            "IMP_ULT_Cuota": ultimos['Mens. vcto'].values,
+            "Tipo": "PDTE añadir TIN",
+        },
+        index=ultimos['Tipo vcto'].values,
+    )
+    
+        st.table(resumen3)
+
+        
+        
         st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
         st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
     
-        mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
-    
-        st.write(f"TMP - Fecha fin carencia forzada gratuita: {mostrar_fecha(fecha_fin_carencia_gratuita_forzada)}")
-        st.write(f"TMP - Fecha fin de la carencia diferida: {mostrar_fecha(fecha_fin_carencia_diferida)}")
-        st.write(f"TMP - Fecha fin de la carencia: {mostrar_fecha(fecha_fin_carencia)}")
-        st.write(f"TMP - Fecha del primer recibo: {fecha_primer_vencimiento.strftime('%d/%m/%Y')}")
-    
+        
     with tab2:
         st.code("Pendiente desarrollo")
 
