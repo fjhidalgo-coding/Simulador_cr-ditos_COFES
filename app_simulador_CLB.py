@@ -40,6 +40,9 @@ st.markdown(
         section[data-testid="stSidebar"] {
             width: 400px !important; # Set the width to your desired value
         }
+        .table-right td, .table-right th {
+            text-align: right !important;
+        }
     </style>
     """,
     unsafe_allow_html=True,
@@ -134,6 +137,29 @@ if st.session_state.get("simular", False):
     tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
     
     # Mostrar resumen de la simulación
+    
+    # Detallar las características del producto amortizable de la simulación
+    with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
+        # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
+        producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
+        
+        # Crear dos columnas para mostrar las características del producto simulado
+        col3, col4 = st.columns([0.33, 0.67], gap="medium")
+        
+        # Cuando el producto seleccionado existe, mostrar el detalle recuperado del diccionario
+        if not producto_info.empty:
+            for columna in producto_info.columns:
+                valor = producto_info.iloc[0][columna]
+                col3.markdown(f'<div style="text-align: right;">{columna}</div>', unsafe_allow_html=True)
+                col4.markdown(f'<div style="text-align: left;">{valor}</div>', unsafe_allow_html=True)
+        else:
+            st.write("Producto no encontrado.")
+            
+        # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
+        if idx == 3 or idx == 5:
+            st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
+    
+    
     with st.expander("", expanded=True):
         resumen1 = pd.DataFrame(
         {
@@ -154,65 +180,39 @@ if st.session_state.get("simular", False):
         },
         index=["EUR"],
     )
-    
-        col1, col2 = st.columns([0.08, 0.92], gap="small")
-        col1.table(resumen1)
-        col2.table(resumen2)
+        col1, col2 = st.columns([0.23, 0.77], gap="small")
+        html_table1 = resumen1.to_html(classes='table table-right', index=True)
+        html_table2 = resumen2.to_html(classes='table table-right', index=True)
 
-    
-    
-    # Detallar las características del producto amortizable de la simulación
-    with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
-        # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
-        producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
-        
-        col3, col4 = st.columns([0.33, 0.67], gap="medium")
-        
-        if not producto_info.empty:
-            for columna in producto_info.columns:
-                valor = producto_info.iloc[0][columna]
-                col3.markdown(f'<div style="text-align: right;">{columna}</div>', unsafe_allow_html=True)
-                col4.markdown(f'<div style="text-align: left;">{valor}</div>', unsafe_allow_html=True)
-        else:
-            st.write("Producto no encontrado.")
-            
-        # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
-        if idx == 3 or idx == 5:
-            st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
-    
-    
+        col1.markdown(html_table1, unsafe_allow_html=True)
+        col2.markdown(html_table2, unsafe_allow_html=True)
+
     tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras", "Ejemplo representativo", "Cuadro de amortización", "Detalle TAE"])
     with tab1:
         
         mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
         
+        cuadro_amortizacion= cuadro_amortizacion[cuadro_amortizacion['Tipo vcto'] != "Financiación"]
+        
         cuenta_vencimientos = cuadro_amortizacion['Tipo vcto'].value_counts()
         primeros = cuadro_amortizacion.groupby('Tipo vcto').head(1)
         ultimos = cuadro_amortizacion.groupby('Tipo vcto').tail(1)
-        modales = cuadro_amortizacion.groupby('Tipo vcto')['Mens. vcto'].agg(lambda x: x.mode().iat[0] if not x.mode().empty else None)
-
 
         resumen3 = pd.DataFrame(
         {
-            "F_1er_VCTO":  [mostrar_fecha(fecha) for fecha in primeros['F_Vcto'].values],
-            "F_INI": [f"{coste_total:.2f}"],
-            "F_FIN":  [mostrar_fecha(fecha) for fecha in ultimos['F_Vcto'].values],
+            "F_INI": [mostrar_fecha(fecha) for fecha in primeros['F_Inicio'].values],
+            "IMP_Cuota": primeros['Cuota teórica'].values,
+            "TIN": primeros['TIN'].values,
             "Nº Vencimientos": cuenta_vencimientos.loc[ultimos['Tipo vcto']].values,
+            "F_1er_VCTO":  [mostrar_fecha(fecha) for fecha in primeros['F_Vcto'].values],
             "IMP_1era_Cuota": primeros['Mens. vcto'].values,
-            "IMP_Cuota": modales.loc[ultimos['Tipo vcto']].values, # Usar la moda no funciona para duraciones de 3 meses
+            "F_FIN":  [mostrar_fecha(fecha) for fecha in ultimos['F_Vcto'].values],
             "IMP_ULT_Cuota": ultimos['Mens. vcto'].values,
-            "Tipo": "PDTE añadir TIN",
         },
         index=ultimos['Tipo vcto'].values,
     )
-    
-        st.table(resumen3)
-
-        
-        
-        st.write(f"TMP - Mensualidad primera secuencia: {cuota_1SEC}")
-        st.write(f"TMP - Mensualidad segunda secuencia: {cuota_2SEC}")
-    
+        html_table = resumen3.to_html(classes='table table-right', index=True)
+        st.markdown(html_table, unsafe_allow_html=True)
         
     with tab2:
         st.code("Pendiente desarrollo")
@@ -223,7 +223,4 @@ if st.session_state.get("simular", False):
     with tab4:
         st.dataframe(input_TAE,hide_index=True)
     
-
-
-
 # Final de la aplicación
