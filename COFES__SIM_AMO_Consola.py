@@ -618,7 +618,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
     cuadro_amortizacion = pd.DataFrame(datos_amortizacion)
     
-    '''Crear el dataframe con el cuadro de amortización a mostrar'''
+    '''Crear el dataframe con el cuadro de cálculo TAE a mostrar'''
     input_TAE = pd.DataFrame(datos_TAE)
     
     ''' Crear las varaibles con los sumatorios del cuadro de amortización'''
