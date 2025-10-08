@@ -7,22 +7,15 @@ import calendar
 
 
 
-''' Definir los parámetros básicos para realizar las simulaciones'''
+''' Declarar constantes'''
 
-LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
-LISTA_PRODUCTOS = ["Crédito Fusión","Crédito Proyecto","Compra a plazos","Compra a plazos Vorwerk","Compra financiada","Compra financiada Vorwerk","Amortizable Option PH IP","Amortizable Option PH IC","Crédito Financiación AUTO Ocasión","Crédito Financiación MOTO Ocasión","Crédito Financiación AUTO Nuevo","Crédito Financiación MOTO Nuevo"]
-PRODUCTOS_DICCIONARIO = {
-"Nombre del producto": ["Crédito Fusión", "Crédito Proyecto", "Compra a plazos", "Compra a plazos Vorwerk", "Compra financiada", "Compra financiada Vorwerk", "Amortizable Option PH IP", "Amortizable Option PH IC", "Crédito Financiación AUTO Ocasión", "Crédito Financiación MOTO Ocasión", "Crédito Financiación AUTO Nuevo", "Crédito Financiación MOTO Nuevo"],
-"Código de producto POPS": ["B 2141650000", "B 2150850001", "B 2460050000", "B 2460050001", "B 2460050002", "B 2460050003", "B 2460050004", "B 2460050005", "B 2460050006", "B 2460050007", "B 2460050008", "B 2460050009"],
-"Familia de productos": ["Amortizable Rachat Directo ", "Amortizable Directo ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable Punto de Venta ", "Amortizable OPTION+ ", "Amortizable OPTION+", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO ", "Amortizable AUTO "],
-"Interés": ["A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del partner ", "A cargo del partner ", "A cargo del partner ", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente", "A cargo del cliente"],
-"Carencia": ["Hasta 2 meses en función del PROCOM. La prima de seguro a capitalizar calculada por días si la carencia es de más de un mes", "No aplicable ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "Hasta 4 meses en función del baremo y el PROCOM ", "No aplicable ", "No aplicable ", "No aplicable ", "No aplicable "],
-"Comisión de apertura": ["En función del PROCOM y parametrización TACT. Presentada en el primer vencimiento ", "No aplicable", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada o presentada en el primer vencimiento en función del PROCOM ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada ", "En función del baremo y el PROCOM. Capitalizada "],
-"Secuencia financiera": ["Única ", "Única ", "Única ", "Única ", "Única ", "Única ", "Doble ", "Doble ", "Única ", "Única ", "Única ", "Única "],
-"Producto de seguro asociado": ["ADE", "ADE", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "No asegurable ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada ", "Vida y Vida+. Prima única capitalizada "],
-"Mínimo entre fecha de financiación y el primer vencimiento": ["Debe transcurrir un mínimo de 14 días", "Debe transcurrir un mínimo de 14 días", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo", "Debe haber una fecha de bloqueo"],
-}
 DIAS_BASE = 360
+LISTA_SEGURO = ["Seguro ADE", "SIN SEGURO", "VIDA PLUS", "VIDA"]
+PRODUCTOS_DICCIONARIO = pd.read_csv('COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
+LISTA_PRODUCTOS = list(PRODUCTOS_DICCIONARIO['Nombre del producto'].values)
+
+
+''' Declarar variables globales '''
 
 capital_prestado = 0.00
 comision_apertura = 0.00
@@ -30,7 +23,7 @@ tasa_comision_apertura = 0.00
 imp_max_com_apertura = 0.00
 comision_apertura_capitalizada = False
 etiqueta_producto = ""
-fechas_bloqueo = pd.read_csv('COFES_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
+fechas_bloqueo = pd.read_csv('COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
 Tipo_vencimiento = []
 Numero_Vencimiento = []
 Fecha_Vencimiento = []
@@ -54,26 +47,33 @@ f_inicio_periodo = []
 mensualidad_contractual = []
 tasa_periodo = []
 
-        
+
+
+''' Crear las funciones necesarias para la simulación '''
 
 def truncar_decimal(valor, decimales):
     '''Función para truncar un número decimal a un número específico de decimales sin redondear'''
     factor = 10 ** decimales
+   
     return int(valor * factor) / factor
+
+
 
 def calcular_periodo_roto(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
     '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
     importe_calculo_periodo_roto = round(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / DIAS_BASE, 2)
+    
     return importe_calculo_periodo_roto
+
+
 
 def calcular_periodo(base_calculo, fecha_inicio, fecha_fin, tasa_a_aplicar):
     '''Calcular el interés o el seguro cuando el periodo está completo'''
     importe_calculo_periodo = round(base_calculo * tasa_a_aplicar / 1200, 2) * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month))
+   
     return importe_calculo_periodo
 
 
-
-''' Crear las funciones necesarias para la simulación '''
 
 def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura, comision_apertura_capitalizada):
     '''Calcular la comisión de apertura en base al capital prestado y el porcentaje definido'''
@@ -85,7 +85,10 @@ def calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max
         capitalizacion_comision_apertura = comision_apertura
     else:
         capitalizacion_comision_apertura = 0.00
+   
     return comision_apertura, capitalizacion_comision_apertura
+
+
 
 def obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2):
     if seguro_titular_1 == "Seguro ADE" and seguro_titular_2 == "Seguro ADE":
@@ -94,7 +97,10 @@ def obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2):
         tasa_ADE = 4.44
     else:
         tasa_ADE = 0.00
+    
     return tasa_ADE
+
+
 
 def obtener_tasa_seguro_AUTO(plazo, tipo_seguro):
     # Cada tupla: (plazo_máximo, tasa_vida_plus, tasa_vida, tasa_otro)
@@ -116,14 +122,20 @@ def obtener_tasa_seguro_AUTO(plazo, tipo_seguro):
                 else tasa_plus if tipo_seguro == "VIDA"
                 else tasa_otro
                 )
+    
     return 0.0
+
+
 
 def calcular_seguro_capitalizado(capital_com_apertura, plazo, seguro_titular_1, seguro_titular_2):
     '''Calcular el seguro de vida en base al capital prestado, el tipo de seguro, el número de personas aseguradas y la duración del préstamo'''
     tasa_titular_1 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_1)
     tasa_titular_2 = obtener_tasa_seguro_AUTO(plazo, seguro_titular_2)
     seguro_capitalizado = round(capital_com_apertura * tasa_titular_1, 2) + round(capital_com_apertura * tasa_titular_2, 2)
+    
     return seguro_capitalizado
+
+
 
 def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
     '''Función para calcular las principales fechas de préstamo'''
@@ -163,9 +175,10 @@ def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
 
     return fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento
 
+
+
 def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
     '''Función para calcular el descuento partner de los productos amortizables de Cofidis España'''
-    
     if tasa != 0.00:
         # En este cálculo, asumimos que la capitalización de la comisión de apertura debe ser abonada por el partner
         # Existe un descuadre con simulador excel si el tipo de interés no es entero -- A revisar en cuanto sea posible ¿corrige el error que tenía el excel?
@@ -176,12 +189,13 @@ def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
         ajuste_carencia = truncar_decimal(tasa_mensual ** -carencia, 10)
         capital_mensual_ajustado = truncar_decimal(capital_mensual * tasa_descuento, 10) * 1200
         capital_ajustado = truncar_decimal(capital_mensual_ajustado / tasa * ajuste_carencia, 10)
-        
         descuento = round(importe_crédito - capital_ajustado, 2)
     else:
         descuento = 0.00
 
     return descuento
+
+
 
 def calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, tasa, tasa_ADE, fecha_financiacion, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia):
     '''Función para calcular la mensualidad estándar de los productos amortizables de Cofidis España'''
@@ -211,6 +225,8 @@ def calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia
     
     return cuota_1SEC, cuota_2SEC
 
+
+
 def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,w_Fecha_ultimo_vencimiento_tratado, w_dia_año):
     '''Función para calcular la fracción del año entre la fecha de financiación y el vencimiento tratado'''
     w_dia_año_anterior = 366 if calendar.isleap(w_Fecha_ultimo_vencimiento_tratado.year - 1) else 365
@@ -232,6 +248,7 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,w_Fech
     return round(fraccion_año, 7)
 
 
+
 def calcular_tae(Cuota_TAE, Tiempo, tasa, tolerancia=0.000001, max_iteraciones=1000):
     '''Función para calcular la TAE de la operación'''
     tae = (1 + tasa / 1200) ** 12 - 1  # TAE inicial aproximada
@@ -247,9 +264,10 @@ def calcular_tae(Cuota_TAE, Tiempo, tasa, tolerancia=0.000001, max_iteraciones=1
             tae -= 0.0001
         else:
             tae += 0.0001
-               
         
     return round(tae * 100,2)
+
+
 
 def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fecha_Vencimiento, w_Capital_inicial, w_Mensualidad_vencimiento, w_Intereses_vencimiento, w_Intereses_diferidos_vencimiento, w_Intereses_capitalizados_vencimiento, w_Seguro_vencimiento, w_Seguro_diferidos_vencimiento, w_Seguro_capitalizados_vencimiento, w_Comisiones_vencimiento, w_Capital_financiado_periodo, w_Capital_vencimiento, w_Capital_Pendiente, w_Cuota_TAE, w_Año_Base, w_Tiempo, w_f_inicio_periodo, w_mensualidad_contractual, w_tasa_periodo):
     '''Función para almacenar la construcción del cuadro de amortización asociado a la instrucción'''
@@ -274,6 +292,7 @@ def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fe
     f_inicio_periodo.append(w_f_inicio_periodo)
     mensualidad_contractual.append(w_mensualidad_contractual)
     tasa_periodo.append(w_tasa_periodo)
+
 
 
 def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura):
@@ -334,6 +353,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     f_inicio_periodo.clear()
     mensualidad_contractual.clear()
     tasa_periodo.clear()
+
     '''Generar el vencimiento de financiación'''
     cuadro_amortizacion = pd.DataFrame()
     if plazo_2SEC > 0:
@@ -365,6 +385,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                   fecha_financiacion,
                                   0.00,
                                   0.00)
+
     '''Generar el vencimiento de carencia gratuita forzada'''
     if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada):        
         alimentar_cuadro_amortizacion("Carencia gratuita forzada",
@@ -389,6 +410,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       0.00)
         w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_gratuita_forzada
+
     '''Generar el vencimiento de carencia diferida'''
     if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida):        
         w_Intereses_diferidos_vencimiento = calcular_periodo_roto(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia_diferida, tasa)
@@ -415,6 +437,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       tasa)
         w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_diferida
+
     '''Generar el vencimiento de carencia normal'''
     if fecha_fin_carencia is not None and pd.notnull(fecha_fin_carencia):        
         w_Capital_inicial = w_Capital_Pendiente
@@ -446,6 +469,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       0.00,
                                       tasa)
         w_Fecha_ultimo_vencimiento_tratado = fecha_fin_carencia
+
     '''Primer vencimiento de amortización'''
     w_numero_vencimiento = 1
     w_Capital_inicial = w_Capital_Pendiente
@@ -484,6 +508,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                   cuota_1SEC,
                                   tasa)
     w_Fecha_ultimo_vencimiento_tratado = fecha_primer_vencimiento
+
     '''Resto de vencimientos de la primera secuencia'''
     for i in range(2, plazo + 1):
         w_numero_vencimiento += 1
@@ -520,6 +545,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                       cuota_1SEC,
                                       tasa)
         w_Fecha_ultimo_vencimiento_tratado = w_Fecha_vencimiento_calculado
+
     '''Generar los vencimientos de la segunda secuencia en caso de que exista'''
     if plazo_2SEC > 0:
         for i in range(1, plazo_2SEC + 1):
@@ -558,8 +584,10 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                                           tasa_2SEC)
             w_Fecha_ultimo_vencimiento_tratado = w_Fecha_vencimiento_calculado
     
+    ''' Calcular la TAE de la operación con el listado de "Cuota_TAE", la fracción temporal entre la financiación y el vencimiento y el TIN'''
     tae = calcular_tae(Cuota_TAE, Tiempo, tasa)
     
+    ''' Crear el diccionario con los datos del cuadro de amortización y de la TAE'''
     datos_amortizacion = {
     'Tipo vcto' : Tipo_vencimiento,
     'Nº Vcto' : Numero_Vencimiento,
@@ -593,12 +621,10 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
     input_TAE = pd.DataFrame(datos_TAE)
     
-    
+    ''' Crear las varaibles con los sumatorios del cuadro de amortización'''
     importe_total_a_pagar = sum(Mensualidad_vencimiento)
     intereses = sum(Intereses_capitalizados_vencimiento) + sum(Intereses_vencimiento)
     coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
     coste_total = intereses + coste_seguro + comision_apertura
-    
-    
     
     return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE
