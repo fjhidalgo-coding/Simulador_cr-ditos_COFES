@@ -189,23 +189,10 @@ if st.session_state.get("simular", False):
 
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
         # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
-
         producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
         
-        # Crear dos columnas para mostrar las características del producto simulado
-
-        col3, col4 = st.columns([0.33, 0.67], gap="medium")
-        
-        # Cuando el producto seleccionado existe, mostrar el detalle recuperado del diccionario
-
-        if not producto_info.empty:
-            for columna in producto_info.columns:
-                valor = producto_info.iloc[0][columna]
-                col3.markdown(f'<div style="text-align: right;">{columna}</div>', unsafe_allow_html=True)
-                col4.markdown(f'<div style="text-align: left;">{valor}</div>', unsafe_allow_html=True)
-        else:
-            st.write("Producto no encontrado.")
-            
+        st.dataframe(producto_info.T, use_container_width=True)
+           
         # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
 
         if idx == 3 or idx == 5:
