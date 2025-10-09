@@ -181,15 +181,15 @@ def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
     '''Función para calcular el descuento partner de los productos amortizables de Cofidis España'''
     if tasa != 0.00:
         # En este cálculo, asumimos que la capitalización de la comisión de apertura debe ser abonada por el partner
-        # Existe un descuadre con simulador excel si el tipo de interés no es entero -- A revisar en cuanto sea posible ¿corrige el error que tenía el excel?
+        # Existe un descuadre en las operaciones con carencia --> El excel de EI no contenía la manera de calcular con carencia
         duracion_total = plazo + plazo_2SEC
-        capital_mensual = truncar_decimal(importe_crédito / duracion_total, 10)
-        tasa_mensual = 1 + truncar_decimal(tasa / 1200, 10)
-        tasa_descuento = 1 - truncar_decimal(tasa_mensual ** -duracion_total, 10)
-        ajuste_carencia = truncar_decimal(tasa_mensual ** -carencia, 10)
-        capital_mensual_ajustado = truncar_decimal(capital_mensual * tasa_descuento, 10) * 1200
-        capital_ajustado = truncar_decimal(capital_mensual_ajustado / tasa * ajuste_carencia, 10)
-        descuento = round(importe_crédito - capital_ajustado, 2)
+        capital_mensual = truncar_decimal(importe_crédito / duracion_total, 7)
+        tasa_mensual = 1 + truncar_decimal(tasa / 1200, 7)
+        tasa_descuento = 1 - truncar_decimal(tasa_mensual ** -duracion_total, 7)
+        ajuste_carencia = truncar_decimal(tasa_mensual ** -carencia, 7)
+        capital_mensual_ajustado = truncar_decimal(capital_mensual * tasa_descuento, 7) * 1200
+        descuento = truncar_decimal(capital_mensual_ajustado / tasa * ajuste_carencia, 7)
+        descuento = truncar_decimal(importe_crédito - descuento, 2)
     else:
         descuento = 0.00
 

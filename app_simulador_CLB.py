@@ -31,7 +31,7 @@ productos_descripcion = pd.DataFrame(PRODUCTOS_DICCIONARIO)
 st.title('Simulador de préstamos amortizables')
 st.set_page_config(
    page_title="Simulador de préstamos amortizables",
-   page_icon="💱",
+   page_icon= ":material/calculate:",
    layout="wide",
    initial_sidebar_state="expanded",
 )
