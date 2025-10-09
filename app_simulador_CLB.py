@@ -191,7 +191,7 @@ if st.session_state.get("simular", False):
         # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
         producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
         
-        st.dataframe(producto_info.T, use_container_width=True)
+        st.dataframe(producto_info.T, width='stretch')
            
         # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
 
