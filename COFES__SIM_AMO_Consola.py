@@ -446,7 +446,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
             w_Seguro_capitalizados_vencimiento = calcular_periodo(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ADE)
         else:
             w_Seguro_capitalizados_vencimiento = calcular_periodo_roto(w_Capital_Pendiente, w_Fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ADE)
-        w_Capital_Pendiente = w_Capital_inicial + w_Intereses_capitalizados_vencimiento + w_Seguro_capitalizados_vencimiento
+        w_Capital_Pendiente = round(w_Capital_inicial + w_Intereses_capitalizados_vencimiento + w_Seguro_capitalizados_vencimiento, 2)
         alimentar_cuadro_amortizacion("Carencia normal",
                                       0,
                                       fecha_fin_carencia,
@@ -483,8 +483,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
         w_ajustes = w_Intereses_vencimiento + w_Seguro_vencimiento - calcular_periodo(w_Capital_inicial, fecha_primer_vencimiento + pd.DateOffset(months=-1), fecha_primer_vencimiento, tasa) - calcular_periodo(w_Capital_inicial, fecha_primer_vencimiento + pd.DateOffset(months=-1), fecha_primer_vencimiento, tasa_ADE)
     w_comision_apertura = comision_apertura - capitalizacion_comision_apertura
     w_Mensualidad_vencimiento = cuota_1SEC + w_comision_apertura + w_ajustes
-    w_Capital_vencimiento = w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento - w_comision_apertura
-    w_Capital_Pendiente = w_Capital_inicial - w_Capital_vencimiento
+    w_Capital_vencimiento = round(w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento - w_comision_apertura, 2)
+    w_Capital_Pendiente = round(w_Capital_inicial - w_Capital_vencimiento, 2)
     w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
     alimentar_cuadro_amortizacion(w_tipo_vencimiento,
                                   w_numero_vencimiento,
@@ -520,8 +520,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
             w_Mensualidad_vencimiento = cuota_1SEC
         else:
             w_Mensualidad_vencimiento = w_Capital_inicial + w_Intereses_vencimiento + w_Seguro_vencimiento - capital_2SEC
-        w_Capital_vencimiento = w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento
-        w_Capital_Pendiente = w_Capital_inicial - w_Capital_vencimiento
+        w_Capital_vencimiento = round(w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento, 2)
+        w_Capital_Pendiente = round(w_Capital_inicial - w_Capital_vencimiento, 2)
         w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
         alimentar_cuadro_amortizacion(w_tipo_vencimiento,
                                       w_numero_vencimiento,
@@ -558,8 +558,8 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
                 w_Mensualidad_vencimiento = cuota_2SEC
             else:
                 w_Mensualidad_vencimiento = w_Capital_inicial + w_Intereses_vencimiento + w_Seguro_vencimiento
-            w_Capital_vencimiento = w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento
-            w_Capital_Pendiente = w_Capital_inicial - w_Capital_vencimiento
+            w_Capital_vencimiento = round(w_Mensualidad_vencimiento - w_Intereses_vencimiento - w_Seguro_vencimiento, 2)
+            w_Capital_Pendiente = round(w_Capital_inicial - w_Capital_vencimiento, 2)
             w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
             alimentar_cuadro_amortizacion("Amort. 2ª sec.",
                                           w_numero_vencimiento,
