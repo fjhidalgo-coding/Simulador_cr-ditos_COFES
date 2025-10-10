@@ -131,7 +131,7 @@ with st.sidebar:
 
 
     # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
-    if etiqueta_producto == LISTA_PRODUCTOS[6] or etiqueta_producto == LISTA_PRODUCTOS[7]:
+    if LISTA_PRODUCTOS.index(etiqueta_producto) == 6 or LISTA_PRODUCTOS.index(etiqueta_producto) == 7:
         with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
             on = st.toggle("Cuota residual porcentual")
             tasa_2SEC = st.number_input("Tipo de Interés Deudor", min_value=0.0, max_value=20.00, step=0.05, value=0.00, help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
