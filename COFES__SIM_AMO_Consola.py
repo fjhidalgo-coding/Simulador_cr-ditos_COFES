@@ -627,4 +627,32 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
     coste_total = intereses + coste_seguro + comision_apertura
     
-    return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE
+    mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
+        
+    cuadro_secuencias = cuadro_amortizacion[cuadro_amortizacion['Tipo vcto'] != "Financiación"]
+    
+    cuenta_vencimientos = cuadro_secuencias['Tipo vcto'].value_counts()
+    primeros = cuadro_secuencias.groupby('Tipo vcto').head(1)
+    ultimos = cuadro_secuencias.groupby('Tipo vcto').tail(1)
+
+    resumen3 = pd.DataFrame(
+    {
+        "Nº Vencimientos": cuenta_vencimientos.loc[ultimos['Tipo vcto']].values,
+        "TIN": primeros['TIN'].values,
+        "F_INI": [mostrar_fecha(fecha) for fecha in primeros['F_Inicio'].values],
+        "IMP_Cuota": primeros['Cuota teórica'].values,
+        "F_1er_VCTO":  [mostrar_fecha(fecha) for fecha in primeros['F_Vcto'].values],
+        "IMP_1era_Cuota": primeros['Mens. vcto'].values,
+        "F_FIN":  [mostrar_fecha(fecha) for fecha in ultimos['F_Vcto'].values],
+        "IMP_ULT_Cuota": ultimos['Mens. vcto'].values,
+    },
+    index=ultimos['Tipo vcto'].values,
+    )
+    
+    ejemplo_representativo = "No disponible. En construcción"
+    
+    if LISTA_PRODUCTOS.index(etiqueta_producto) == 1:
+        ejemplo_representativo = f"Para un ejemplo de importe de {importe_crédito} € para “XXXXXXXXXX”, {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values} cuotas mensuales de {primeros['Cuota teórica'].values}€ y una última residual de {ultimos['Mens. vcto'].values} €. El importe total adeudado será de {importe_total_a_pagar} €. Coste total del préstamo/importe de los intereses: {intereses} €. Sistema de amortización francés. TAE: {tae}%. TIN: {tasa}%."
+    
+    
+    return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo
