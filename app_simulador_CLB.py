@@ -151,7 +151,7 @@ if st.session_state.get("simular", True):
 
     # Obtener los resultados de la simulación llamando a la función simular_prestamo_CLB de la librería COFES_SIM_AMO_Consola
 
-    tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
+    tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo, sum_Capital_vencimiento = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
 
 
 
@@ -169,6 +169,13 @@ if st.session_state.get("simular", True):
 
         if LISTA_PRODUCTOS.index(etiqueta_producto) == 3 or LISTA_PRODUCTOS.index(etiqueta_producto) == 5:
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
+
+
+
+    # Mensajes de error
+
+    if round(sum_Capital_vencimiento,2) != 0.00:
+        st.error(f"❌ La simulación contiene errores: El capital de los vencimientos no coincide con el capital del préstamo (inicial + conceptos capitalizados). Diferencia = {sum_Capital_vencimiento:.2f}")
 
 
 

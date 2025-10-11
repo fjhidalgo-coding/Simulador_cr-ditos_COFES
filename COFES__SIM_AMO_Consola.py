@@ -514,8 +514,11 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
         w_numero_vencimiento += 1
         w_Capital_inicial = w_Capital_Pendiente
         w_Fecha_vencimiento_calculado = w_Fecha_ultimo_vencimiento_tratado + pd.DateOffset(months=1)
-        w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa)
         w_Seguro_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_ADE)
+        if w_numero_vencimiento == plazo and cuota_1SEC < calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa) + w_Capital_inicial + w_Seguro_vencimiento - capital_2SEC:
+            w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa) - (calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa) + w_Capital_inicial + w_Seguro_vencimiento - capital_2SEC - cuota_1SEC)
+        else:
+            w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa)
         if cuota_1SEC < w_Capital_inicial + w_Intereses_vencimiento + w_Seguro_vencimiento - capital_2SEC:
             w_Mensualidad_vencimiento = cuota_1SEC
         else:
@@ -552,8 +555,11 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
             w_numero_vencimiento += 1
             w_Capital_inicial = w_Capital_Pendiente
             w_Fecha_vencimiento_calculado = w_Fecha_ultimo_vencimiento_tratado + pd.DateOffset(months=1)
-            w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC)
             w_Seguro_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_ADE)
+            if w_numero_vencimiento == plazo_2SEC + plazo and cuota_2SEC < calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa) + w_Capital_inicial + w_Seguro_vencimiento:
+                w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC) - (calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC) + w_Capital_inicial + w_Seguro_vencimiento - cuota_2SEC)
+            else:
+                w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC)
             if cuota_2SEC < w_Capital_inicial + w_Intereses_vencimiento + w_Seguro_vencimiento:
                 w_Mensualidad_vencimiento = cuota_2SEC
             else:
@@ -626,6 +632,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     intereses = sum(Intereses_capitalizados_vencimiento) + sum(Intereses_vencimiento)
     coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
     coste_total = intereses + coste_seguro + comision_apertura
+    sum_Capital_vencimiento = sum(Capital_vencimiento)
     
     mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
         
@@ -655,4 +662,4 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
         ejemplo_representativo = f"Para un ejemplo de importe de {importe_crédito} € para “XXXXXXXXXX”, {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values} cuotas mensuales de {primeros['Cuota teórica'].values}€ y una última residual de {ultimos['Mens. vcto'].values} €. El importe total adeudado será de {importe_total_a_pagar} €. Coste total del préstamo/importe de los intereses: {intereses} €. Sistema de amortización francés. TAE: {tae}%. TIN: {tasa}%."
     
     
-    return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo
+    return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo, sum_Capital_vencimiento
