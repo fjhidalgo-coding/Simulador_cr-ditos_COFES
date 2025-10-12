@@ -698,8 +698,8 @@ def simular_prestamo_CLB(etiqueta_producto,
     input_TAE = pd.DataFrame(datos_TAE)
     
     ''' Crear las variables con los sumatorios del cuadro de amortización'''
-    intereses = sum(Intereses_capitalizados_vencimiento) + sum(Intereses_vencimiento)
-    coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
+    intereses = sum(Intereses_vencimiento) + sum(Intereses_capitalizados_vencimiento) 
+    coste_seguro = sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
     coste_total = intereses + comision_apertura # + coste_seguro
     importe_total_a_pagar = sum(Mensualidad_vencimiento)
     
@@ -721,11 +721,11 @@ def simular_prestamo_CLB(etiqueta_producto,
     resumen2 = pd.DataFrame(
         {
             "Importe total a pagar": [f"{importe_total_a_pagar:.2f}"],
+            "Capital": [f"{capital_prestado:.2f}"],
+            "Prima de seguro": [f"{coste_seguro:.2f}"],
             "Coste total": [f"{coste_total:.2f}"],
             "Intereses": [f"{intereses:.2f}"],
-            "Prima de seguro": [f"{coste_seguro:.2f}"],
             "Comisión de apertura": [f"{comision_apertura:.2f}"],
-            "Capital": [f"{capital_prestado:.2f}"],
             "Importe del crédito": [f"{importe_crédito:.2f}"],
             "Descuento Partner": [f"{descuento:.2f}"],
         },
