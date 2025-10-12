@@ -85,7 +85,9 @@ with st.sidebar:
 
     with st.expander("Personalizar las fechas"):
         fecha_financiacion = st.date_input("Fecha de financiación", dt.date.today())
-        dia_pago = st.number_input("Día de vencimiento", min_value=1, max_value=12, step=1, value=2, help="Se debe indicar el día de pago seleccionado por el cliente")
+        dia_pago = st.number_input("Día de vencimiento", 
+                                   min_value=1, max_value=12, step=1, value=2, 
+                                   help="Se debe indicar el día de pago seleccionado por el cliente")
 
 
 
@@ -106,27 +108,40 @@ with st.sidebar:
 
     if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
         with st.expander("Gestionar la comisión de apertura"):
-            tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura", min_value=0.00, max_value=5.00, step=0.05, help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
+            tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura", 
+                                                     min_value=0.00, max_value=5.00, step=0.05, 
+                                                     help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
             
             if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
-                comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",value=True, disabled=True)
+                comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
+                                                             value=True, disabled=True)
             elif LISTA_PRODUCTOS.index(etiqueta_producto) in (2, 3, 4, 5, 6, 7):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
             
-            imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)", min_value=0.00, step=1.00, help="Se debe indicar el importe que no debería superar la comisión de apertura")
+            imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)", 
+                                                   min_value=0.00, step=1.00, 
+                                                   help="Se debe indicar el importe que no debería superar la comisión de apertura")
 
 
 
     # Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
-    tasa = st.number_input("Tipo de Interés Deudor", min_value=0.0, max_value=20.00, step=0.05, value=5.95, help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
-    capital_prestado = st.number_input("Importe solicitado (EUR)", min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, help="Se debe indicar el importe del capital solicitado en el préstamo")
-    plazo = st.number_input("Nº de mensualidades", min_value=3, max_value=120, step=1, value=12, help="Se debe indicar la duración en meses del plazo de amortización")
+    tasa = st.number_input("Tipo de Interés Deudor", 
+                           min_value=0.0, max_value=20.00, step=0.05, value=5.95, 
+                           help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
+    capital_prestado = st.number_input("Importe solicitado (EUR)", 
+                                       min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, 
+                                       help="Se debe indicar el importe del capital solicitado en el préstamo")
+    plazo = st.number_input("Nº de mensualidades", 
+                            min_value=3, max_value=120, step=1, value=12, 
+                            help="Se debe indicar la duración en meses del plazo de amortización")
 
 
 
     # Mostrar el campo para indicar la carencia en los productos que lo permiten
     if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
-        carencia = st.number_input("Meses de carencia", min_value=0, max_value=4, step=1, help="Se debe indicar la duración de la carencia total inicial")
+        carencia = st.number_input("Meses de carencia", 
+                                   min_value=0, max_value=4, step=1, 
+                                   help="Se debe indicar la duración de la carencia total inicial")
 
 
 
@@ -134,12 +149,20 @@ with st.sidebar:
     if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
         with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
             on = st.toggle("Cuota residual porcentual")
-            tasa_2SEC = st.number_input("Tipo de Interés Deudor", min_value=0.0, max_value=20.00, step=0.05, value=0.00, help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
+            tasa_2SEC = st.number_input("Tipo de Interés Deudor", 
+                                        min_value=0.0, max_value=20.00, step=0.05, value=0.00, 
+                                        help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
             if on:
-                capital_2SEC = round(capital_prestado * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", min_value=5.00, max_value=70.00, step=5.00, value=30.00, help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")/100, 2)
+                capital_2SEC = round(capital_prestado * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", 
+                                                                        min_value=5.00, max_value=70.00, step=5.00, value=30.00, 
+                                                                        help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")/100, 2)
             else:
-                capital_2SEC = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", min_value=50.00, max_value=30000.00, step=50.00, help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
-            plazo_2SEC = st.number_input("Duración de la segunda secuencia", min_value=1, max_value=60, step=1, help="Se debe indicar la duración en meses del segundo tramo de amortización")   
+                capital_2SEC = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", 
+                                               min_value=50.00, max_value=30000.00, step=50.00, 
+                                               help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
+            plazo_2SEC = st.number_input("Duración de la segunda secuencia", 
+                                         min_value=1, max_value=60, step=1, 
+                                         help="Se debe indicar la duración en meses del segundo tramo de amortización")   
 
 
 
