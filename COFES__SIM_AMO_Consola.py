@@ -153,7 +153,7 @@ def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
         fecha_fin_carencia_gratuita_forzada = fecha_primer_vencimiento + pd.DateOffset(months=-1)
     
     '''Recalculamos la fecha del primer vencimiento de los amortizables de directos para evitar que haya menos de 14 días entre la fecha de financiación y el primer recibo'''
-    if LISTA_PRODUCTOS.index(etiqueta_producto) < 2 and carencia == 0 and (fecha_primer_vencimiento - fecha_financiacion).days  < 14:
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1) and carencia == 0 and (fecha_primer_vencimiento - fecha_financiacion).days  < 14:
         fecha_primer_vencimiento += pd.DateOffset(months=1)
     
     if carencia != 0:
@@ -311,12 +311,11 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     importe_crédito = capital_com_apertura + seguro_capitalizado
     
     '''Calcular el descuento y modificar la tasa de interés de los productos con interés partner'''
-    if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (4, 5, 6):
         descuento = descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC)
+        tasa = 0.00
     else:
         descuento = 0.00
-    if 3 < LISTA_PRODUCTOS.index(etiqueta_producto) < 7:
-        tasa = 0.00
     
     '''Calcular la tasa del seguro ADE'''
     tasa_ADE = obtener_tasa_seguro_ADE(seguro_titular_1, seguro_titular_2)
@@ -556,7 +555,7 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
             w_Capital_inicial = w_Capital_Pendiente
             w_Fecha_vencimiento_calculado = w_Fecha_ultimo_vencimiento_tratado + pd.DateOffset(months=1)
             w_Seguro_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_ADE)
-            if w_numero_vencimiento == plazo_2SEC + plazo and cuota_2SEC < calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa) + w_Capital_inicial + w_Seguro_vencimiento:
+            if w_numero_vencimiento == plazo_2SEC + plazo and cuota_2SEC < calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC) + w_Capital_inicial + w_Seguro_vencimiento:
                 w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC) - (calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC) + w_Capital_inicial + w_Seguro_vencimiento - cuota_2SEC)
             else:
                 w_Intereses_vencimiento = calcular_periodo(w_Capital_inicial, w_Fecha_ultimo_vencimiento_tratado, w_Fecha_vencimiento_calculado, tasa_2SEC)
@@ -627,12 +626,12 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     '''Crear el dataframe con el cuadro de cálculo TAE a mostrar'''
     input_TAE = pd.DataFrame(datos_TAE)
     
-    ''' Crear las varaibles con los sumatorios del cuadro de amortización'''
-    importe_total_a_pagar = sum(Mensualidad_vencimiento)
+    ''' Crear las variables con los sumatorios del cuadro de amortización'''
     intereses = sum(Intereses_capitalizados_vencimiento) + sum(Intereses_vencimiento)
     coste_seguro = seguro_capitalizado + sum(Seguro_vencimiento) + sum(Seguro_capitalizados_vencimiento)
-    coste_total = intereses + coste_seguro + comision_apertura
+    coste_total = intereses + comision_apertura # + coste_seguro
     sum_Capital_vencimiento = sum(Capital_vencimiento)
+    importe_total_a_pagar = sum(Mensualidad_vencimiento)
     
     mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
         
@@ -641,6 +640,27 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
     cuenta_vencimientos = cuadro_secuencias['Tipo vcto'].value_counts()
     primeros = cuadro_secuencias.groupby('Tipo vcto').head(1)
     ultimos = cuadro_secuencias.groupby('Tipo vcto').tail(1)
+
+    resumen1 = pd.DataFrame(
+        {
+            "TAE": [f"{tae:.2f}"],
+        },
+    index=["%"],
+    )
+
+    resumen2 = pd.DataFrame(
+        {
+            "Importe total a pagar": [f"{importe_total_a_pagar:.2f}"],
+            "Coste total": [f"{coste_total:.2f}"],
+            "Intereses": [f"{intereses:.2f}"],
+            "Prima de seguro": [f"{coste_seguro:.2f}"],
+            "Comisión de apertura": [f"{comision_apertura:.2f}"],
+            "Capital": [f"{capital_prestado:.2f}"],
+            "Importe del crédito": [f"{importe_crédito:.2f}"],
+            "Descuento Partner": [f"{descuento:.2f}"],
+        },
+    index=["EUR"],
+    )
 
     resumen3 = pd.DataFrame(
     {
@@ -662,4 +682,4 @@ def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, 
         ejemplo_representativo = f"Para un ejemplo de importe de {importe_crédito} € para “XXXXXXXXXX”, {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values} cuotas mensuales de {primeros['Cuota teórica'].values}€ y una última residual de {ultimos['Mens. vcto'].values} €. El importe total adeudado será de {importe_total_a_pagar} €. Coste total del préstamo/importe de los intereses: {intereses} €. Sistema de amortización francés. TAE: {tae}%. TIN: {tasa}%."
     
     
-    return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo, sum_Capital_vencimiento
+    return tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen1, resumen2, resumen3, ejemplo_representativo, sum_Capital_vencimiento

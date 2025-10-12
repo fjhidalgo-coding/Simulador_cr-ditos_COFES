@@ -91,9 +91,9 @@ with st.sidebar:
 
     # Mostrar los campos para gestionar el seguro en los productos que lo permiten
 
-    if LISTA_PRODUCTOS.index(etiqueta_producto) < 2 or LISTA_PRODUCTOS.index(etiqueta_producto) > 7:
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
         with st.expander("Gestionar el seguro"):
-            if LISTA_PRODUCTOS.index(etiqueta_producto) < 2:
+            if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
                 seguro_titular_1 = st.selectbox("Seguro titular 1", LISTA_SEGURO[:2], index=1)
                 seguro_titular_2 = st.selectbox("Seguro titular 2", LISTA_SEGURO[:2], index=1)
             else:
@@ -108,9 +108,9 @@ with st.sidebar:
         with st.expander("Gestionar la comisión de apertura"):
             tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura", min_value=0.00, max_value=5.00, step=0.05, help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
             
-            if LISTA_PRODUCTOS.index(etiqueta_producto) > 7:
+            if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",value=True, disabled=True)
-            elif LISTA_PRODUCTOS.index(etiqueta_producto) > 1:
+            elif LISTA_PRODUCTOS.index(etiqueta_producto) in (2, 3, 4, 5, 6, 7):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
             
             imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)", min_value=0.00, step=1.00, help="Se debe indicar el importe que no debería superar la comisión de apertura")
@@ -125,13 +125,13 @@ with st.sidebar:
 
 
     # Mostrar el campo para indicar la carencia en los productos que lo permiten
-    if LISTA_PRODUCTOS.index(etiqueta_producto) != 1 and LISTA_PRODUCTOS.index(etiqueta_producto) < 8:
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
         carencia = st.number_input("Meses de carencia", min_value=0, max_value=4, step=1, help="Se debe indicar la duración de la carencia total inicial")
 
 
 
     # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
-    if LISTA_PRODUCTOS.index(etiqueta_producto) == 6 or LISTA_PRODUCTOS.index(etiqueta_producto) == 7:
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
         with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
             on = st.toggle("Cuota residual porcentual")
             tasa_2SEC = st.number_input("Tipo de Interés Deudor", min_value=0.0, max_value=20.00, step=0.05, value=0.00, help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
@@ -151,7 +151,7 @@ if st.session_state.get("simular", True):
 
     # Obtener los resultados de la simulación llamando a la función simular_prestamo_CLB de la librería COFES_SIM_AMO_Consola
 
-    tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen3, ejemplo_representativo, sum_Capital_vencimiento = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
+    tae, comision_apertura, importe_total_a_pagar, coste_total, intereses, coste_seguro, importe_crédito, descuento, tasa, cuota_1SEC, cuota_2SEC, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia, fecha_primer_vencimiento, cuadro_amortizacion, input_TAE, resumen1, resumen2, resumen3, ejemplo_representativo, sum_Capital_vencimiento = sim.simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura)
 
 
 
@@ -167,7 +167,7 @@ if st.session_state.get("simular", True):
            
         # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
 
-        if LISTA_PRODUCTOS.index(etiqueta_producto) == 3 or LISTA_PRODUCTOS.index(etiqueta_producto) == 5:
+        if LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5):
             st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
 
 
@@ -182,25 +182,6 @@ if st.session_state.get("simular", True):
     # Mostrar el resumen económico de la simulación
 
     with st.expander("", expanded=True):
-        resumen1 = pd.DataFrame(
-        {
-            "TAE": [f"{tae:.2f}"],
-        },
-        index=["%"],
-    )
-        resumen2 = pd.DataFrame(
-        {
-            "Importe total a pagar": [f"{importe_total_a_pagar:.2f}"],
-            "Coste total": [f"{coste_total:.2f}"],
-            "Intereses": [f"{intereses:.2f}"],
-            "Prima de seguro": [f"{coste_seguro:.2f}"],
-            "Comisión de apertura": [f"{comision_apertura:.2f}"],
-            "Capital": [f"{capital_prestado:.2f}"],
-            "Importe del crédito": [f"{importe_crédito:.2f}"],
-            "Descuento Partner": [f"{descuento:.2f}"],
-        },
-        index=["EUR"],
-    )
         col1, col2 = st.columns([0.08, 0.92], gap="small")
         html_table1 = resumen1.to_html(classes='table table-right', index=True)
         html_table2 = resumen2.to_html(classes='table table-right', index=True)
