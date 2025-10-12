@@ -1,5 +1,5 @@
 #!
-'''Programa para la simulación de los productos amortizables de Cofidis España'''
+'''Programa para la simulación de los productos amortizables de COF_ES'''
 
 import math
 import pandas as pd 
@@ -178,7 +178,7 @@ def calculo_fechas(etiqueta_producto, fecha_financiacion, dia_pago, carencia):
 
 
 def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
-    '''Función para calcular el descuento partner de los productos amortizables de Cofidis España'''
+    '''Función para calcular el descuento partner de los productos amortizables de COF_ES'''
     if tasa != 0.00:
         # En este cálculo, asumimos que la capitalización de la comisión de apertura debe ser abonada por el partner
         # Existe un descuadre en las operaciones con carencia --> El excel de EI no contenía la manera de calcular con carencia
@@ -198,7 +198,7 @@ def descuento_partner(importe_crédito, tasa, carencia, plazo, plazo_2SEC):
 
 
 def calcular_mensualidad_estandar(importe_crédito, tasa_global, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, tasa, tasa_ADE, fecha_financiacion, fecha_fin_carencia_gratuita_forzada, fecha_fin_carencia_diferida, fecha_fin_carencia):
-    '''Función para calcular la mensualidad estándar de los productos amortizables de Cofidis España'''
+    '''Función para calcular la mensualidad estándar de los productos amortizables de COF_ES'''
     
     '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
     if carencia == 1:
@@ -296,7 +296,7 @@ def alimentar_cuadro_amortizacion(w_Tipo_vencimiento, w_Numero_Vencimiento, w_Fe
 
 
 def simular_prestamo_CLB(etiqueta_producto, fecha_financiacion, dia_pago, tasa, capital_prestado, plazo, carencia, tasa_2SEC, capital_2SEC, plazo_2SEC, seguro_titular_1, seguro_titular_2, tasa_comision_apertura, comision_apertura_capitalizada, imp_max_com_apertura):
-    '''Función principal para la simulación de los productos amortizables de Cofidis España'''
+    '''Función principal para la simulación de los productos amortizables de COF_ES'''
     
     '''Calcular la comisión de apertura'''
     comision_apertura, capitalizacion_comision_apertura = calcular_comision_apertura(capital_prestado, tasa_comision_apertura, imp_max_com_apertura, comision_apertura_capitalizada)

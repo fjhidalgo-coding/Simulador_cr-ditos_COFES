@@ -1,5 +1,5 @@
 #!
-# Aplicación Streamlit para simular operaciones de los productos amortizables de Cofidis España
+# Aplicación Streamlit para simular operaciones de los productos amortizables de COF_ES
 
 
 
@@ -149,7 +149,7 @@ if st.session_state.get("simular", True):
 
 
 
-    # Obtener los resultados de la simulación llamando a la función simular_prestamo_CLB de la librería COFES_SIM_AMO_Consola
+    # Obtener los resultados de la simulación llamando a la función visualizar_simulacion_unitaria de la librería COFES_SIM_AMO_Consola
 
     resumen1, resumen2, resumen3, ejemplo_representativo, cuadro_amortizacion, input_TAE = sim.visualizar_simulacion_unitaria(etiqueta_producto,
                                                                                                                               fecha_financiacion,
