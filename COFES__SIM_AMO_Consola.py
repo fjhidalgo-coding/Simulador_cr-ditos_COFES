@@ -713,21 +713,21 @@ def simular_prestamo_CLB(etiqueta_producto,
 
     resumen1 = pd.DataFrame(
         {
-            "TAE": [f"{tae:.2f}"],
+            "TAE": [f"{tae:.2f}".replace('.', ',')],
         },
     index=["%"],
     )
 
     resumen2 = pd.DataFrame(
         {
-            "Importe total a pagar": [f"{importe_total_a_pagar:.2f}"],
-            "Capital": [f"{capital_prestado:.2f}"],
-            "Prima de seguro": [f"{coste_seguro:.2f}"],
-            "Coste total": [f"{coste_total:.2f}"],
-            "Intereses": [f"{intereses:.2f}"],
-            "Comisión de apertura": [f"{comision_apertura:.2f}"],
-            "Importe del crédito": [f"{importe_crédito:.2f}"],
-            "Descuento Partner": [f"{descuento:.2f}"],
+            "Importe total a pagar": [f"{importe_total_a_pagar:.2f}".replace('.', ',')],
+            "Capital": [f"{capital_prestado:.2f}".replace('.', ',')],
+            "Prima de seguro": [f"{coste_seguro:.2f}".replace('.', ',')],
+            "Coste total": [f"{coste_total:.2f}".replace('.', ',')],
+            "Intereses": [f"{intereses:.2f}".replace('.', ',')],
+            "Comisión de apertura": [f"{comision_apertura:.2f}".replace('.', ',')],
+            "Importe del crédito": [f"{importe_crédito:.2f}".replace('.', ',')],
+            "Descuento Partner": [f"{descuento:.2f}".replace('.', ',')],
         },
     index=["EUR"],
     )
@@ -735,22 +735,60 @@ def simular_prestamo_CLB(etiqueta_producto,
     resumen3 = pd.DataFrame(
     {
         "Nº Vencimientos": cuenta_vencimientos.loc[ultimos['Tipo vcto']].values,
-        "TIN": primeros['TIN'].values,
+        "TIN": [f"{tin:.2f}".replace('.', ',') for tin in primeros['TIN'].values],
         "F_INI": [mostrar_fecha(fecha) for fecha in primeros['F_Inicio'].values],
-        "IMP_Cuota": primeros['Cuota teórica'].values,
+        "IMP_Cuota": [f"{cuota:.2f}".replace('.', ',') for cuota in primeros['Cuota teórica'].values],
         "F_1er_VCTO":  [mostrar_fecha(fecha) for fecha in primeros['F_Vcto'].values],
-        "IMP_1era_Cuota": primeros['Mens. vcto'].values,
+        "IMP_1era_Cuota": [f"{prim_vcto :.2f}".replace('.', ',') for prim_vcto in primeros['Mens. vcto'].values],
         "F_FIN":  [mostrar_fecha(fecha) for fecha in ultimos['F_Vcto'].values],
-        "IMP_ULT_Cuota": ultimos['Mens. vcto'].values,
+        "IMP_ULT_Cuota": [f"{ult_vcto :.2f}".replace('.', ',') for ult_vcto in ultimos['Mens. vcto'].values],
     },
     index=ultimos['Tipo vcto'].values,
     )
     
-    ejemplo_representativo = "No disponible. En construcción"
+    ej_repr_seccion_1 = f"Ejemplo representativo:\n\nPara un préstamo de importe/PVP {f'{capital_prestado:.2f}'.replace('.', ',')} €, con un tipo de interés fijo del {f'{tasa:.2f}'.replace('.', ',')} % anual y TAE de {f'{tae:.2f}'.replace('.', ',')} %, "
+
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
+        if primeros['Cuota teórica'].values[-2] == ultimos['Mens. vcto'].values[-2] and primeros['Cuota teórica'].values[-2] == primeros['Mens. vcto'].values[-2]:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, de {f'{primeros['Cuota teórica'].values[-2]:.2f}'.replace('.', ',')} € al mes. "
+        elif primeros['Cuota teórica'].values[-2] != ultimos['Mens. vcto'].values[-2] and primeros['Cuota teórica'].values[-2] == primeros['Mens. vcto'].values[-2]:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, por importe de {f'{primeros['Cuota teórica'].values[-2]:.2f}'.replace('.', ',')} € al mes, y la última mensualidad de {f'{ultimos['Mens. vcto'].values[-2]:.2f}'.replace('.', ',')} € "
+        elif primeros['Cuota teórica'].values[-2] == ultimos['Mens. vcto'].values[-2] and primeros['Cuota teórica'].values[-2] != primeros['Mens. vcto'].values[-2]:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, por importe de {f'{primeros['Cuota teórica'].values[-2]:.2f}'.replace('.', ',')} € al mes, la primera mensualidad de {f'{primeros['Mens. vcto'].values[-2]:.2f}'.replace('.', ',')} € "
+        else:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, por importe de {f'{primeros['Cuota teórica'].values[-2]:.2f}'.replace('.', ',')} € al mes, la primera mensualidad de {f'{primeros['Mens. vcto'].values[-2]:.2f}'.replace('.', ',')} € y la última mensualidad de {f'{ultimos['Mens. vcto'].values[-2]:.2f}'.replace('.', ',')} € "
+        if primeros['Cuota teórica'].values[-1] == ultimos['Mens. vcto'].values[-1] and primeros['Cuota teórica'].values[-1] == primeros['Mens. vcto'].values[-1]:
+            ej_repr_seccion_2 = ej_repr_seccion_2 + f"y {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades con un tipo de interés fijo del {f'{tasa_2SEC:.2f}'.replace('.', ',')} % anual, de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes. "
+        elif primeros['Cuota teórica'].values[-1] != ultimos['Mens. vcto'].values[-1] and primeros['Cuota teórica'].values[-1] == primeros['Mens. vcto'].values[-1]:
+            ej_repr_seccion_2 = ej_repr_seccion_2 + f"y {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades con un tipo de interés fijo del {f'{tasa_2SEC:.2f}'.replace('.', ',')} % anual, por importe de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes, y la última mensualidad de {f'{ultimos['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} €. "
+        elif primeros['Cuota teórica'].values[-1] == ultimos['Mens. vcto'].values[-1] and primeros['Cuota teórica'].values[-1] != primeros['Mens. vcto'].values[-1]:
+            ej_repr_seccion_2 = ej_repr_seccion_2 + f"y {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades con un tipo de interés fijo del {f'{tasa_2SEC:.2f}'.replace('.', ',')} % anual, por importe de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes, la primera mensualidad de {f'{primeros['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} €. "
+        else:
+            ej_repr_seccion_2 = ej_repr_seccion_2 + f"y {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades con un tipo de interés fijo del {f'{tasa_2SEC:.2f}'.replace('.', ',')} % anual, por importe de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes, la primera mensualidad de {f'{primeros['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} € y la última mensualidad de {f'{ultimos['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} €. "
+    else:
+        if primeros['Cuota teórica'].values[-1] == ultimos['Mens. vcto'].values[-1] and primeros['Cuota teórica'].values[-1] == primeros['Mens. vcto'].values[-1]:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades, de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes. "
+        elif primeros['Cuota teórica'].values[-1] != ultimos['Mens. vcto'].values[-1] and primeros['Cuota teórica'].values[-1] == primeros['Mens. vcto'].values[-1]:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades, por importe de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes, y la última mensualidad de {f'{ultimos['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} €. "
+        elif primeros['Cuota teórica'].values[-1] == ultimos['Mens. vcto'].values[-1] and primeros['Cuota teórica'].values[-1] != primeros['Mens. vcto'].values[-1]:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades, por importe de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes, la primera mensualidad de {f'{primeros['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} €. "
+        else:
+            ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-1]} mensualidades, por importe de {f'{primeros['Cuota teórica'].values[-1]:.2f}'.replace('.', ',')} € al mes, la primera mensualidad de {f'{primeros['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} € y la última mensualidad de {f'{ultimos['Mens. vcto'].values[-1]:.2f}'.replace('.', ',')} €. "
+    if carencia >0:
+        ej_repr_seccion_2 = f"con un período de carencia de {carencia} meses, " + ej_repr_seccion_2
+
+    if comision_apertura > 0:
+        if comision_apertura_capitalizada:
+            ej_repr_seccion_3 = f"Comisión de apertura financiada: {f'{comision_apertura:.2f}'.replace('.', ',')} € (del {f'{tasa_comision_apertura:.2f}'.replace('.', ',')} %). Importe total de los intereses: {f'{intereses:.2f}'.replace('.', ',')} €. Coste total del préstamo: {f'{coste_total:.2f}'.replace('.', ',')} €. "
+        else:
+            ej_repr_seccion_3 = f"Comisión de apertura en la primera mensualidad: {f'{comision_apertura:.2f}'.replace('.', ',')} € (del {f'{tasa_comision_apertura:.2f}'.replace('.', ',')} %). Importe total de los intereses: {f'{intereses:.2f}'.replace('.', ',')} €. Coste total del préstamo: {f'{coste_total:.2f}'.replace('.', ',')} €. "
+    else:
+        ej_repr_seccion_3 = f"Coste total del préstamo / Importe total de intereses: {f'{coste_total:.2f}'.replace('.', ',')} €. "
+
+    ej_repr_seccion_4 = f"Importe total adeudado/precio total a plazos: {f'{importe_total_a_pagar:.2f}'.replace('.', ',')} €. Sistema de amortización francés."
     
-    if LISTA_PRODUCTOS.index(etiqueta_producto) == 1:
-        ejemplo_representativo = f"Para un ejemplo de importe de {importe_crédito} € para “XXXXXXXXXX”, {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values} cuotas mensuales de {primeros['Cuota teórica'].values}€ y una última residual de {ultimos['Mens. vcto'].values} €. El importe total adeudado será de {importe_total_a_pagar} €. Coste total del préstamo/importe de los intereses: {intereses} €. Sistema de amortización francés. TAE: {tae}%. TIN: {tasa}%."
     
+    ejemplo_representativo = ej_repr_seccion_1 + ej_repr_seccion_2 + ej_repr_seccion_3 + ej_repr_seccion_4
     
     return (tae,
             comision_apertura,
