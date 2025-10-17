@@ -29,9 +29,9 @@ productos_descripcion = pd.DataFrame(PRODUCTOS_DICCIONARIO)
 # Inicializar variables
 
 carencia = 0
-tasa_2SEC = 0.00
-capital_2SEC = 0
-plazo_2SEC = 0
+tasa_2sec = 0.00
+capital_2sec = 0
+plazo_2sec = 0
 seguro_titular_1 = "SIN SEGURO"
 seguro_titular_2 = "SIN SEGURO"
 tasa_comision_apertura = 0.0
@@ -115,7 +115,7 @@ with st.sidebar:
             if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
                                                              value=True, disabled=True)
-            elif LISTA_PRODUCTOS.index(etiqueta_producto) in (2, 3, 4, 5, 6, 7):
+            elif LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
             
             imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)", 
@@ -149,18 +149,18 @@ with st.sidebar:
     if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
         with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
             on = st.toggle("Cuota residual porcentual")
-            tasa_2SEC = st.number_input("Tipo de Interés Deudor", 
+            tasa_2sec = st.number_input("Tipo de Interés Deudor", 
                                         min_value=0.0, max_value=20.00, step=0.05, value=0.00, 
                                         help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
             if on:
-                capital_2SEC = round(capital_prestado * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", 
+                capital_2sec = round(capital_prestado * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", 
                                                                         min_value=5.00, max_value=70.00, step=5.00, value=30.00, 
                                                                         help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")/100, 2)
             else:
-                capital_2SEC = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", 
+                capital_2sec = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", 
                                                min_value=50.00, max_value=30000.00, step=50.00, 
                                                help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
-            plazo_2SEC = st.number_input("Duración de la segunda secuencia", 
+            plazo_2sec = st.number_input("Duración de la segunda secuencia", 
                                          min_value=1, max_value=60, step=1, 
                                          help="Se debe indicar la duración en meses del segundo tramo de amortización")   
 
@@ -174,16 +174,16 @@ if st.session_state.get("simular", True):
 
     # Obtener los resultados de la simulación llamando a la función visualizar_simulacion_unitaria de la librería COFES_SIM_AMO_Consola
 
-    resumen1, resumen2, resumen3, ejemplo_representativo, cuadro_amortizacion, input_TAE = sim.visualizar_simulacion_unitaria(etiqueta_producto,
+    resumen1, resumen2, resumen3, ejemplo_representativo, cuadro_amortizacion, input_tae = sim.visualizar_simulacion_unitaria(etiqueta_producto,
                                                                                                                               fecha_financiacion,
                                                                                                                               dia_pago,
                                                                                                                               tasa,
                                                                                                                               capital_prestado,
                                                                                                                               plazo,
                                                                                                                               carencia,
-                                                                                                                              tasa_2SEC,
-                                                                                                                              capital_2SEC,
-                                                                                                                              plazo_2SEC,
+                                                                                                                              tasa_2sec,
+                                                                                                                              capital_2sec,
+                                                                                                                              plazo_2sec,
                                                                                                                               seguro_titular_1,
                                                                                                                               seguro_titular_2,
                                                                                                                               tasa_comision_apertura,
@@ -252,7 +252,7 @@ if st.session_state.get("simular", True):
     # Mostrar contenido de la pestaña "Detalle TAE"
 
     with tab4:
-        st.dataframe(input_TAE,hide_index=True)
+        st.dataframe(input_tae,hide_index=True)
 
 
 
