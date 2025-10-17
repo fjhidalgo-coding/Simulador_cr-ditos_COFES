@@ -132,7 +132,7 @@ with st.sidebar:
                                        min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, 
                                        help="Se debe indicar el importe del capital solicitado en el préstamo")
     plazo = st.number_input("Nº de mensualidades", 
-                            min_value=3, max_value=120, step=1, value=12, 
+                            min_value=1, max_value=240, step=1, value=12, 
                             help="Se debe indicar la duración en meses del plazo de amortización")
 
 
