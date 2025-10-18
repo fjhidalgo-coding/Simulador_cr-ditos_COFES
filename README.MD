@@ -122,13 +122,13 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 - Date de blocage del año 2025 (SA56843696).
 - Date de blocage del año 2026.
 
-### v0.5.1 (2022-02-28)
+### v0.6.1 (2022-12-27)
 
 **Closed issues:**
 
 - Date de blocage del año 2023.
 
-### v0.5 (2021-11-03)
+### v0.6 (2022-02-28)
 
 **Mejoras implementadas:**
 
@@ -136,19 +136,19 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 - Adaptación a la recapitalización (forzada) de la comisión de apertura partners (PTPA0143).
 - Permitir recálculos de financiaciones de hasta 360 mensualidades.
 
-### v0.4.2 (2021-09-20)
+### v0.5.2 (2021-11-03)
 
 **Fixed bugs:**
 
 - Corrección en el cómputo de días del cálculo de la TAE para los vencimientos cuya fecha valor es la fecha de financiación (TAE mal simulada en los meses de enero posteriores a un año bisiesto).
 
-### v0.4.1 (2021-05-19)
+### v0.5.1 (2021-09-20)
 
 **Fixed bugs:**
 
 - Cálculo correcto de la prima de seguro del periodo de carencia para CFUSION + CPROYECTO (SA45573947).
 
-### v0.4 (2021-05-18)
+### v0.5 (2021-05-18)
 
 **Mejoras implementadas:**
 
@@ -174,13 +174,19 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 - Date de blocage del año 2021.
 - Date de blocage del año 2022.
 
-### v0.3.3 (2017-12-22)
+### v0.4 (2020-05-19)
+
+**Mejoras implementadas:**
+
+- Inclusión del seguro en la cuota TAE cuando éste sea obligatorio.
+
+### v0.3.3 (2018-06-25)
 
 **Closed issues:**
 
 - Date de blocage del año 2019.
 
-### v0.3.2 (2017-12-18)
+### v0.3.2 (2017-12-22)
 
 **Mejoras implementadas:**
 
@@ -190,14 +196,14 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 
 - Según SA34319500, los intereses (¿y seguro?) de carencia a recapitalizar se calculan mes a mes redondeándolos.
 
-### v0.3.1 (2017-12-05)
+### v0.3.1 (2017-12-18)
 
 **Fixed bugs:**
 
 - Corrección en la validación asociada al campo "F_Blocage posterior a la financiación" ya que no estaba validando la fecha ADC de la colección correspondiente.
 - Control TIN 0,00% Partner.
 
-### v0.3 (2017-11-26)
+### v0.3 (2017-12-05)
 
 **Mejoras implementadas:**
 
@@ -211,7 +217,7 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 - Cálculo de los intereses del 1er vencimiento cuando financiación = fecha échéance se calcula por días naturales en lugar de por periodos.
 - Para los productos Vorwerk no se puede calcular différés ya que aumentaría el importe de la primera mensualidad.
 
-### v0.2 (2017-10-16)
+### v0.2 (2017-11-26)
 
 **Mejoras implementadas:**
 
@@ -224,7 +230,7 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 - Ajuste última cuota "leasing" forzando el vencimiento de todo el capital disminuyendo el interés devengado.
 - Redondeado del valor residual cuando éste es calculado con un porcentaje.
 
-### v0.1 (2017-06-15)
+### v0.1 (2017-10-16)
 
 **Mejoras implementadas:**
 
