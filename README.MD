@@ -96,13 +96,13 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 
 ## Changelog
 
-### v0.9 (2025-10-17)
+### v1.0.0.BETA (2025-10-20)
 
 **Mejoras implementadas:**
 
 - Refactorización en Python + Streamlit (publicación en [Cloud Streamlit](https://cofes-app-simulador-clb.streamlit.app/)).
 - Añadir posibilidad de Option+ con segunda secuencia % respecto al financiado.
-- Generar automáticamente las frase de los pies legales.
+- Generar el ejemplo representativo de manera automática.
 
 **Fixed bugs:**
 

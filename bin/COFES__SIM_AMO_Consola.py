@@ -11,7 +11,7 @@ import calendar
 
 DIAS_BASE = 360
 LISTA_SEGURO = ["Seguro ADE", "Sin seguro", "Vida Plus", "Vida"]
-PRODUCTOS_DICCIONARIO = pd.read_csv('COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
+PRODUCTOS_DICCIONARIO = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
 LISTA_PRODUCTOS = list(PRODUCTOS_DICCIONARIO['Nombre del producto'].values)
 
 
@@ -23,7 +23,7 @@ tasa_comision_apertura = 0.00
 imp_max_com_apertura = 0.00
 comision_apertura_capitalizada = False
 etiqueta_producto = ""
-fechas_bloqueo = pd.read_csv('COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
+fechas_bloqueo = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
 tipo_vencimiento = []
 numero_vencimiento = []
 fecha_vencimiento = []
