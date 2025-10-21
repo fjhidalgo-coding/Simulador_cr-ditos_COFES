@@ -269,11 +269,11 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,w_fech
 
 def calcular_tae(cuota_tae, tiempo, tasa, tolerancia=0.000001, max_iteraciones=1000):
     '''Función para calcular la TAE de la operación'''
-    tae = (1 + tasa / 1200) ** 12 - 1  # TAE inicial aproximada
+    tae = (1 + tasa / 1200) ** 12 - 1 # TAE inicial aproximada
     for _ in range(max_iteraciones):
         van_cuota_tae.clear()
         for i in range(len(cuota_tae)):
-            van_cuota_tae.append(round(cuota_tae[i] / ((1 + tae) ** tiempo[i]),7))
+            van_cuota_tae.append(cuota_tae[i] / ((1 + tae) ** tiempo[i]))
             
         if abs(sum(van_cuota_tae)) < tolerancia:  # Comprueba si el VAN está dentro de la tolerancia
             return tae
