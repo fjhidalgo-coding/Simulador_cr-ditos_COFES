@@ -252,7 +252,7 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,w_fech
     w_aniversario_fecha_financiación = fecha_financiacion + pd.DateOffset(years=delta_años)
     
     if w_dia_año != w_dia_año_anterior and w_fecha_ultimo_vencimiento_tratado < w_aniversario_fecha_financiación:
-        delta_años = delta_años - 1 if delta_años > 1 else 0
+        delta_años = delta_años - 2 if delta_años > 1 else 0
         w_aniversario_fecha_financiación += pd.DateOffset(years=-1)
         fraccion_año = (delta_años + ((w_dia_año_anterior - pd.to_datetime(w_aniversario_fecha_financiación).dayofyear) / w_dia_año_anterior)  
                        + ((pd.to_datetime(w_fecha_ultimo_vencimiento_tratado).dayofyear) / w_dia_año))
