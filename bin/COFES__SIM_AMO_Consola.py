@@ -547,7 +547,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                      - calcular_periodo(w_capital_inicial, fecha_primer_vencimiento + pd.DateOffset(months=-1), fecha_primer_vencimiento, tasa) 
                      - calcular_periodo(w_capital_inicial, fecha_primer_vencimiento + pd.DateOffset(months=-1), fecha_primer_vencimiento, tasa_ade))
     w_comision_apertura = comision_apertura - capitalizacion_comision_apertura
-    w_mensualidad_vencimiento = cuota_1sec + w_comision_apertura + w_ajustes
+    w_mensualidad_vencimiento = round(cuota_1sec + w_comision_apertura + w_ajustes, 2)
     w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento - w_comision_apertura, 2)
     w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
     w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
@@ -590,7 +590,7 @@ def simular_prestamo_CLB(etiqueta_producto,
         if cuota_1sec < w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento - capital_2sec:
             w_mensualidad_vencimiento = cuota_1sec
         else:
-            w_mensualidad_vencimiento = w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento - capital_2sec
+            w_mensualidad_vencimiento = round(w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento - capital_2sec, 2)
         w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento, 2)
         w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
         w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
@@ -634,7 +634,7 @@ def simular_prestamo_CLB(etiqueta_producto,
             if cuota_2sec < w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento:
                 w_mensualidad_vencimiento = cuota_2sec
             else:
-                w_mensualidad_vencimiento = w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento
+                w_mensualidad_vencimiento = round(w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento, 2)
             w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento, 2)
             w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
             w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
