@@ -1,9 +1,52 @@
 #!
-# Aplicación Streamlit para simular operaciones de los productos amortizables de COF_ES
+# Aplicación Streamlit para simular masivamente operaciones de los productos amortizables de COF_ES
 
+
+
+# Importar los módulos a utilizar en la aplicación
+
+import datetime  as dt
 import streamlit as st
+import pandas as pd
+import bin.COFES__SIM_AMO_Consola as sim
 
 
+
+#  Declarar las listas de productos tanto de crédito como de seguro
+
+LISTA_SEGURO = sim.LISTA_SEGURO
+LISTA_PRODUCTOS = sim.LISTA_PRODUCTOS
+PRODUCTOS_DICCIONARIO = sim.PRODUCTOS_DICCIONARIO
+
+
+
+# Convertir el diccionario de productos en un dataframe para facilitar su manejo
+
+productos_descripcion = pd.DataFrame(PRODUCTOS_DICCIONARIO)
+
+
+
+# Inicializar variables
+
+carencia = 0
+tasa_2sec = 0.00
+capital_2sec = 0
+plazo_2sec = 0
+seguro_titular_1 = "SIN SEGURO"
+seguro_titular_2 = "SIN SEGURO"
+tasa_comision_apertura = 0.0
+comision_apertura_capitalizada = False
+imp_max_com_apertura = 0.0
+fecha_financiacion = dt.date.today()
+dia_pago = 2
+etiqueta_producto = LISTA_PRODUCTOS[1]
+
+
+
+#  Iniciar la aplicación / Configuración del título y de la barra lateral / CSS
+
+st.title('Simulador masivo de préstamos amortizables')
+st.warning('Funcionalidad en construcción', icon="⚠️")
 st.set_page_config(
    page_title="Simulador de préstamos amortizables",
    page_icon= ":material/calculate:",
@@ -26,5 +69,109 @@ st.markdown(
 
 
 
-st.title('Simulador masivo de préstamos amortizables')
-st.warning('Funcionalidad en construcción', icon="⚠️")
+# Crear selector del producto amortizable a simular
+
+etiqueta_producto = st.selectbox('Elige el producto contratado:', LISTA_PRODUCTOS, index=1)
+
+
+
+with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
+    # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
+    producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
+    
+    st.dataframe(producto_info.T, width='stretch')
+       
+    # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5):
+        st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
+
+
+
+# Mostrar las opciones de fecha de simulación y día de pago
+
+with st.expander("Personalizar las fechas"):
+     fecha_financiacion = st.date_input("Fecha de financiación", dt.date.today())
+     dia_pago = st.number_input("Día de vencimiento", 
+                                min_value=1, max_value=12, step=1, value=2, 
+                                help="Se debe indicar el día de pago seleccionado por el cliente")
+
+
+
+# Mostrar los campos para gestionar el seguro en los productos que lo permiten
+
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
+    with st.expander("Gestionar el seguro"):
+        col_ass_1, col_ass_2 = st.columns([0.5, 0.5], gap="small")
+        if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
+            seguro_titular_1 = col_ass_1.selectbox("Seguro titular 1", LISTA_SEGURO[:2], index=1)
+            seguro_titular_2 = col_ass_2.selectbox("Seguro titular 2", LISTA_SEGURO[:2], index=1)
+        else:
+            seguro_titular_1 = col_ass_1.selectbox("Seguro titular 1", LISTA_SEGURO[1:], index=0)
+            seguro_titular_2 = col_ass_2.selectbox("Seguro titular 2", LISTA_SEGURO[1:], index=0)
+
+
+
+# Mostrar los campos para gestionar la comisión de apertura en los productos que lo permiten
+
+if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
+    with st.expander("Gestionar la comisión de apertura"):
+        if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
+            comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
+                                                         value=True, disabled=True)
+        elif LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
+            comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
+        
+        col_ca_1, col_ca_2 = st.columns([0.5, 0.5], gap="small")
+        
+        tasa_comision_apertura = col_ca_1.number_input("Porcentaje comisión de apertura",
+                                                       min_value=0.00, max_value=5.00, step=0.05,
+                                                       help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
+        
+        imp_max_com_apertura = col_ca_2.number_input("Importe máximo de la comisión de apertura (EUR)",
+                                                     min_value=0.00, step=1.00,
+                                                     help="Se debe indicar el importe que no debería superar la comisión de apertura")
+
+
+
+# Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
+
+tasa = st.number_input("Tipo de Interés Deudor", 
+                       min_value=0.0, max_value=20.00, step=0.05, value=5.95, 
+                       help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
+capital_prestado = st.number_input("Importe solicitado (EUR)", 
+                                   min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, 
+                                   help="Se debe indicar el importe del capital solicitado en el préstamo")
+plazos = st.slider("Rango de mensualidades a simular",
+                   min_value=1, max_value=360, step=12 if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11) else 1, value=(12, 60),
+                   help="Se debe indicar la duración en meses del plazo de amortización")
+st.write("Valores:", plazos)
+
+# Mostrar el campo para indicar la carencia en los productos que lo permiten
+
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
+    carencias = st.slider("Rango de meses de carencia",
+                          min_value=0, max_value=4, step=1, value=(0, 0),
+                          help="Se debe indicar la duración de la carencia total inicial")
+
+
+
+# Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
+
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
+    with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
+        on = st.toggle("Cuota residual porcentual")
+        tasa_2sec = st.number_input("Tipo de Interés Deudor", 
+                                    min_value=0.0, max_value=20.00, step=0.05, value=0.00, 
+                                    help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
+        if on:
+            capital_2sec = round(capital_prestado * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", 
+                                                                    min_value=5.00, max_value=70.00, step=5.00, value=30.00, 
+                                                                    help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")/100, 2)
+        else:
+            capital_2sec = st.number_input("Importe a amortizar en la segunda secuencia (EUR)", 
+                                           min_value=50.00, max_value=30000.00, step=50.00, 
+                                           help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
+        plazo_2sec = st.number_input("Duración de la segunda secuencia", 
+                                     min_value=1, max_value=60, step=1, 
+                                     help="Se debe indicar la duración en meses del segundo tramo de amortización")   
+
