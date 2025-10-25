@@ -1,9 +1,9 @@
 #!
 '''Programa para la simulación de los productos amortizables de COF_ES'''
 
-import math
-import pandas as pd 
-import calendar
+import datetime, calendar, math
+import pandas as pd
+import numpy as np
 
 
 
@@ -46,7 +46,37 @@ van_cuota_tae = []
 f_inicio_periodo = []
 mensualidad_contractual = []
 tasa_periodo = []
-
+acumulado_tae = []
+acumulado_comision_apertura = []
+acumulado_importe_total_a_pagar = []
+acumulado_coste_total = []
+acumulado_intereses = []
+acumulado_coste_seguro = []
+acumulado_importe_crédito = []
+acumulado_descuento = []
+acumulado_tasa = []
+acumulado_cuota_1sec = []
+acumulado_cuota_2sec = []
+acumulado_fecha_fin_carencia_gratuita_forzada = []
+acumulado_fecha_fin_carencia_diferida = []
+acumulado_fecha_fin_carencia = []
+acumulado_fecha_primer_vencimiento = []
+acumulado_ejemplo_representativo = []
+acumulado_capital_2sec = []
+acumulado_carencia = []
+acumulado_comision_apertura_capitalizada = []
+acumulado_dia_pago = []
+acumulado_etiqueta_producto = []
+acumulado_fecha_financiacion = []
+acumulado_imp_max_com_apertura = []
+acumulado_capital_prestado = []
+acumulado_on = []
+acumulado_plazo_2sec = []
+acumulado_plazos = []
+acumulado_seguro_titular_1 = []
+acumulado_seguro_titular_2 = []
+acumulado_tasa_2sec = []
+acumulado_tasa_comision_apertura = []
 
 
 ''' Crear las funciones necesarias para la simulación '''
@@ -704,7 +734,7 @@ def simular_prestamo_CLB(etiqueta_producto,
     coste_total = intereses + comision_apertura # + coste_seguro
     importe_total_a_pagar = sum(mensualidad_vencimiento)
     
-    mostrar_fecha = lambda fecha: fecha.strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
+    mostrar_fecha = lambda fecha: pd.to_datetime(fecha).strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else "No disponible"
         
     cuadro_secuencias = cuadro_amortizacion[cuadro_amortizacion['Tipo vcto'] != "Financiación"]
     
@@ -878,3 +908,188 @@ def visualizar_simulacion_unitaria(etiqueta_producto,
     )
         
     return resumen1, resumen2, resumen3, ejemplo_representativo, cuadro_amortizacion, input_tae
+
+def simular_masivamente(capital_2sec,
+                        carencias,
+                        comision_apertura_capitalizada,
+                        dia_pago,
+                        etiqueta_producto,
+                        fechas_financiacion,
+                        imp_max_com_apertura,
+                        importes_prestado,
+                        on,
+                        plazo_2sec,
+                        plazos,
+                        seguro_titular_1,
+                        seguro_titular_2,
+                        tasa,
+                        tasa_2sec,
+                        tasa_comision_apertura):
+
+
+    ''' Inicializar los acumulados de resultados de la simulación masiva '''
+    acumulado_tae.clear()
+    acumulado_comision_apertura.clear()
+    acumulado_importe_total_a_pagar.clear()
+    acumulado_coste_total.clear()
+    acumulado_intereses.clear()
+    acumulado_coste_seguro.clear()
+    acumulado_importe_crédito.clear()
+    acumulado_descuento.clear()
+    acumulado_tasa.clear()
+    acumulado_cuota_1sec.clear()
+    acumulado_cuota_2sec.clear()
+    acumulado_fecha_fin_carencia_gratuita_forzada.clear()
+    acumulado_fecha_fin_carencia_diferida.clear()
+    acumulado_fecha_fin_carencia.clear()
+    acumulado_fecha_primer_vencimiento.clear()
+    acumulado_ejemplo_representativo.clear()
+    acumulado_capital_2sec.clear()
+    acumulado_carencia.clear()
+    acumulado_comision_apertura_capitalizada.clear()
+    acumulado_dia_pago.clear()
+    acumulado_etiqueta_producto.clear()
+    acumulado_fecha_financiacion.clear()
+    acumulado_imp_max_com_apertura.clear()
+    acumulado_capital_prestado.clear()
+    acumulado_on.clear()
+    acumulado_plazo_2sec.clear()
+    acumulado_plazos.clear()
+    acumulado_seguro_titular_1.clear()
+    acumulado_seguro_titular_2.clear()
+    acumulado_tasa_2sec.clear()
+    acumulado_tasa_comision_apertura.clear()
+
+    mostrar_fecha = lambda fecha: pd.to_datetime(fecha).strftime('%d/%m/%Y') if fecha is not None and pd.notnull(fecha) else None
+    
+    ''' Desplegar las listas de duraciones / importes / carencia '''
+    w_capital_2sec = capital_2sec
+    fechas_financiacion = pd.date_range(start=fechas_financiacion[0],
+                                        end=fechas_financiacion[1],
+                                        freq='D')
+    if len(carencias) > 1:
+        carencias = [i for i in range(carencias[0], carencias[1] + 1, 1)]
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
+        importes_prestado = list(np.arange(importes_prestado[0], importes_prestado[1] + 1.0, 500.0))
+        plazos = [i for i in range(plazos[0], plazos[1] + 1, 12)]
+    else:
+        importes_prestado = list(np.arange(importes_prestado[0], importes_prestado[1] + 1.0, 50.0))
+        plazos = [i for i in range(plazos[0], plazos[1] + 1, 1)]
+    
+    ''' Función la simulación masiva de préstamos amortizables '''
+    for fecha_financiacion in fechas_financiacion:
+        for capital_prestado in importes_prestado:
+            if on:
+                capital_2sec = round(capital_prestado * w_capital_2sec / 100, 2)
+            for carencia in carencias:
+                for plazo in plazos:
+                    (
+                        tae,
+                        comision_apertura,
+                        importe_total_a_pagar,
+                        coste_total,
+                        intereses,
+                        coste_seguro,
+                        importe_crédito,
+                        descuento,
+                        tasa,
+                        cuota_1sec,
+                        cuota_2sec,
+                        fecha_fin_carencia_gratuita_forzada,
+                        fecha_fin_carencia_diferida,
+                        fecha_fin_carencia,
+                        fecha_primer_vencimiento,
+                        cuadro_amortizacion,
+                        input_tae,
+                        resumen1,
+                        resumen2,
+                        resumen3,
+                        ejemplo_representativo
+                    ) = simular_prestamo_CLB(
+                        etiqueta_producto,
+                        fecha_financiacion,
+                        dia_pago,
+                        tasa,
+                        capital_prestado,
+                        plazo,
+                        carencia,
+                        tasa_2sec,
+                        capital_2sec,
+                        plazo_2sec,
+                        seguro_titular_1,
+                        seguro_titular_2,
+                        tasa_comision_apertura,
+                        comision_apertura_capitalizada,
+                        imp_max_com_apertura
+                    )
+                    ''' Acumular los resultados de la simulación masiva '''
+                    acumulado_tae.append(f"{tae:.2f}".replace('.', ','))
+                    acumulado_comision_apertura.append(f"{comision_apertura:.2f}".replace('.', ','))
+                    acumulado_importe_total_a_pagar.append(f"{importe_total_a_pagar:.2f}".replace('.', ','))
+                    acumulado_coste_total.append(f"{coste_total:.2f}".replace('.', ','))
+                    acumulado_intereses.append(f"{intereses:.2f}".replace('.', ','))
+                    acumulado_coste_seguro.append(f"{coste_seguro:.2f}".replace('.', ','))
+                    acumulado_importe_crédito.append(f"{importe_crédito:.2f}".replace('.', ','))
+                    acumulado_descuento.append(f"{descuento:.2f}".replace('.', ','))
+                    acumulado_tasa.append(f"{tasa:.2f}".replace('.', ','))
+                    acumulado_cuota_1sec.append(f"{cuota_1sec:.2f}".replace('.', ','))
+                    acumulado_cuota_2sec.append(f"{cuota_2sec:.2f}".replace('.', ','))
+                    acumulado_fecha_fin_carencia_gratuita_forzada.append(mostrar_fecha(fecha_fin_carencia_gratuita_forzada))
+                    acumulado_fecha_fin_carencia_diferida.append(mostrar_fecha(fecha_fin_carencia_diferida))
+                    acumulado_fecha_fin_carencia.append(mostrar_fecha(fecha_fin_carencia))
+                    acumulado_fecha_primer_vencimiento.append(mostrar_fecha(fecha_primer_vencimiento))
+                    acumulado_ejemplo_representativo.append(ejemplo_representativo)
+                    acumulado_capital_2sec.append(f"{capital_2sec:.2f}".replace('.', ','))
+                    acumulado_carencia.append(f"{carencia:.2f}".replace('.', ','))
+                    acumulado_comision_apertura_capitalizada.append(comision_apertura_capitalizada)
+                    acumulado_dia_pago.append(dia_pago)
+                    acumulado_etiqueta_producto.append(etiqueta_producto)
+                    acumulado_fecha_financiacion.append(mostrar_fecha(fecha_financiacion))
+                    acumulado_imp_max_com_apertura.append(f"{imp_max_com_apertura:.2f}".replace('.', ','))
+                    acumulado_capital_prestado.append(f"{capital_prestado:.2f}".replace('.', ','))
+                    acumulado_on.append(on)
+                    acumulado_plazo_2sec.append(plazo_2sec)
+                    acumulado_plazos.append(plazo)
+                    acumulado_seguro_titular_1.append(seguro_titular_1)
+                    acumulado_seguro_titular_2.append(seguro_titular_2)
+                    acumulado_tasa_2sec.append(f"{tasa_2sec:.2f}".replace('.', ','))
+                    acumulado_tasa_comision_apertura.append(f"{tasa_comision_apertura:.2f}".replace('.', ','))    
+
+    ''' Crear el diccionario con los datos del cuadro de amortización y de la TAE'''
+    resultado_simulacion_masiva = {
+        'TAE' : acumulado_tae,
+        'Ejemplo Representativo' : acumulado_ejemplo_representativo,
+        'Etiqueta producto': acumulado_etiqueta_producto,
+        'Capital prestado': acumulado_capital_prestado,
+        'Carencia': acumulado_carencia,
+        'Plazos': acumulado_plazos,
+        'TIN' : acumulado_tasa,
+        'Cuota residual porcentual': acumulado_on,
+        'Capital 2sec': acumulado_capital_2sec,
+        'Tasa 2sec': acumulado_tasa_2sec,
+        'Plazo 2sec': acumulado_plazo_2sec,
+        'Comision apertura capitalizada': acumulado_comision_apertura_capitalizada,
+        'Tasa comision apertura': acumulado_tasa_comision_apertura,
+        'Imp max com apertura': acumulado_imp_max_com_apertura,
+        'Dia pago': acumulado_dia_pago,
+        'Fecha financiacion': acumulado_fecha_financiacion,
+        'Seguro titular 1': acumulado_seguro_titular_1,
+        'Seguro titular 2': acumulado_seguro_titular_2,
+        'Imp. Total a Pagar' : acumulado_importe_total_a_pagar,
+        'Coste Total' : acumulado_coste_total,
+        'Intereses' : acumulado_intereses,
+        'Imp. Com. Apert.' : acumulado_comision_apertura,
+        'Coste Seguro' : acumulado_coste_seguro,
+        'Imp. Crédito' : acumulado_importe_crédito,
+        'Descuento Partner' : acumulado_descuento,
+        'Mens. 1º Sec.' : acumulado_cuota_1sec,
+        'Mens. 2ª Sec.' : acumulado_cuota_2sec,
+        'F_Fin carencia forzada' : acumulado_fecha_fin_carencia_gratuita_forzada,
+        'F_Fin carencia diferida' : acumulado_fecha_fin_carencia_diferida,
+        'F_Fin carencia' : acumulado_fecha_fin_carencia,
+        'F_1er_Vcto' : acumulado_fecha_primer_vencimiento,
+        }
+    '''Crear el dataframe con el cuadro de amortización a mostrar'''
+    resultado_simulacion_masiva = pd.DataFrame(resultado_simulacion_masiva)
+    
+    return resultado_simulacion_masiva
