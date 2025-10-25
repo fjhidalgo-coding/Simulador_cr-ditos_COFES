@@ -208,7 +208,5 @@ if st.button("Simular"):
                                                           tasa_2sec,
                                                           tasa_comision_apertura)
     
-    columnas_a_resaltar = ['TAE']
-    resultado_simulacion_masiva = resultado_simulacion_masiva.style.highlight_max(subset=columnas_a_resaltar, color='lightgreen').highlight_min(subset=columnas_a_resaltar, color='orange')
     st.dataframe(resultado_simulacion_masiva,hide_index=True)
     
