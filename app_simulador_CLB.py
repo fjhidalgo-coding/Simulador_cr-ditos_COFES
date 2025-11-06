@@ -20,12 +20,6 @@ PRODUCTOS_DICCIONARIO = sim.PRODUCTOS_DICCIONARIO
 
 
 
-# Convertir el diccionario de productos en un dataframe para facilitar su manejo
-
-productos_descripcion = pd.DataFrame(PRODUCTOS_DICCIONARIO)
-
-
-
 # Inicializar variables
 
 carencia = 0
@@ -197,8 +191,8 @@ if st.session_state.get("simular", True):
     # Detallar las características del producto amortizable de la simulación
 
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
-        # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
-        producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
+        # Filtrar el dataframe "PRODUCTOS_DICCIONARIO" con el producto seleccionado en la simulación
+        producto_info = PRODUCTOS_DICCIONARIO[PRODUCTOS_DICCIONARIO["Nombre del producto"] == etiqueta_producto]
         
         st.dataframe(producto_info.T, width='stretch')
            

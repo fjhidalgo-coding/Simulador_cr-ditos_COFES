@@ -17,14 +17,7 @@ import bin.COFES__SIM_AMO_Consola as sim
 LISTA_SEGURO = sim.LISTA_SEGURO
 LISTA_PRODUCTOS = sim.LISTA_PRODUCTOS
 PRODUCTOS_DICCIONARIO = sim.PRODUCTOS_DICCIONARIO
-
-
-
-# Convertir el diccionario de productos en un dataframe para facilitar su manejo
-
-productos_descripcion = pd.DataFrame(PRODUCTOS_DICCIONARIO)
-fechas_bloqueo = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
-
+FECHAS_BLOQUEO = sim.FECHAS_BLOQUEO
 
 
 # Inicializar variables
@@ -42,7 +35,6 @@ fecha_financiacion = dt.date.today()
 dia_pago = 2
 etiqueta_producto = LISTA_PRODUCTOS[1]
 on = False
-
 
 
 #  Iniciar la aplicación / Configuración del título y de la barra lateral / CSS
@@ -73,8 +65,8 @@ st.markdown(
 # Seleccionar rango de fechas de la simulación a realizar
 
 fechas_financiacion = st.slider("Rango de fechas de financiación",
-                                min_value=min(fechas_bloqueo['Fecha_BLOQUEO']).to_pydatetime(), max_value=max(fechas_bloqueo['Fecha_BLOQUEO']).to_pydatetime(),
-                                value=[(max(fechas_bloqueo['Fecha_BLOQUEO']) - pd.DateOffset(years=4)).to_pydatetime(), max(fechas_bloqueo['Fecha_BLOQUEO']).to_pydatetime()])
+                                min_value=min(FECHAS_BLOQUEO['Fecha_BLOQUEO']).to_pydatetime(), max_value=max(FECHAS_BLOQUEO['Fecha_BLOQUEO']).to_pydatetime(),
+                                value=[(max(FECHAS_BLOQUEO['Fecha_BLOQUEO']) - pd.DateOffset(years=4)).to_pydatetime(), max(FECHAS_BLOQUEO['Fecha_BLOQUEO']).to_pydatetime()])
 
 
 
@@ -176,8 +168,8 @@ if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
 # Detalle del producto seleccionado
  
 with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
-    # Filtrar el dataframe "productos_descripcion" con el producto seleccionado en la simulación
-    producto_info = productos_descripcion[productos_descripcion["Nombre del producto"] == etiqueta_producto]
+    # Filtrar el dataframe "PRODUCTOS_DICCIONARIO" con el producto seleccionado en la simulación
+    producto_info = PRODUCTOS_DICCIONARIO[PRODUCTOS_DICCIONARIO["Nombre del producto"] == etiqueta_producto]
     
     st.dataframe(producto_info.T, width='stretch')
        
