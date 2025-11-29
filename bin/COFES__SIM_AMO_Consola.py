@@ -648,7 +648,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                       w_seguro_capitalizados_vencimiento,
                                       0.00,
                                       0.00,
-                                      -w_intereses_capitalizados_vencimiento - w_seguro_capitalizados_vencimiento,
+                                      round(-w_intereses_capitalizados_vencimiento - w_seguro_capitalizados_vencimiento, 2),
                                       w_capital_pendiente,
                                       0.00,
                                       366 if calendar.isleap(fecha_fin_carencia.year) else 365,
@@ -690,7 +690,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                         fecha_primer_vencimiento + pd.DateOffset(months=-1),
                                         fecha_primer_vencimiento,
                                         tasa_ade))
-    w_comision_apertura = comision_apertura - capitalizacion_comision_apertura
+    w_comision_apertura = round(comision_apertura - capitalizacion_comision_apertura, 2)
     w_mensualidad_vencimiento = round(cuota_1sec + w_comision_apertura + w_ajustes, 2)
     w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento - w_comision_apertura, 2)
     w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
@@ -700,17 +700,17 @@ def simular_prestamo_CLB(etiqueta_producto,
                                   mostrar_fecha(fecha_primer_vencimiento),
                                   w_capital_inicial,
                                   w_mensualidad_vencimiento,
-                                  w_intereses_vencimiento,
+                                  round(w_intereses_vencimiento, 2),
                                   0.00,
                                   0.00,
-                                  w_seguro_vencimiento,
+                                  round(w_seguro_vencimiento, 2),
                                   0.00,
                                   0.00,
                                   w_comision_apertura,
                                   0.00,
                                   w_capital_vencimiento,
                                   w_capital_pendiente,
-                                  w_intereses_vencimiento + w_capital_vencimiento + comision_apertura,  # Forzamos la cuota TAE para que incluya la comisión de apertura (ver SARA)
+                                  round(w_intereses_vencimiento + w_capital_vencimiento + comision_apertura, 2),  # Forzamos la cuota TAE para que incluya la comisión de apertura (ver SARA)
                                   w_dia_año,
                                   calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion, fecha_primer_vencimiento,w_dia_año),
                                   mostrar_fecha(w_fecha_ultimo_vencimiento_tratado + pd.DateOffset(days=1)),
@@ -928,7 +928,7 @@ def simular_prestamo_CLB(etiqueta_producto,
             if primeros['Cuota teórica'].values[-2] == ultimos['Mens. vcto'].values[-2] and primeros['Cuota teórica'].values[-2] == primeros['Mens. vcto'].values[-2]:
                 ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, de {formatear_decimales(primeros['Cuota teórica'].values[-2])} € al mes. "
             elif primeros['Cuota teórica'].values[-2] != ultimos['Mens. vcto'].values[-2] and primeros['Cuota teórica'].values[-2] == primeros['Mens. vcto'].values[-2]:
-                ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, por importe de {formatear_decimales(primeros['Cuota teórica'])} € al mes, y la última mensualidad de {formatear_decimales(ultimos['Mens. vcto'].values[-2])} € "
+                ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, por importe de {formatear_decimales(primeros['Cuota teórica'].values[-2])} € al mes, y la última mensualidad de {formatear_decimales(ultimos['Mens. vcto'].values[-2])} € "
             elif primeros['Cuota teórica'].values[-2] == ultimos['Mens. vcto'].values[-2] and primeros['Cuota teórica'].values[-2] != primeros['Mens. vcto'].values[-2]:
                 ej_repr_seccion_2 = f"se paga en {cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2]} mensualidades, por importe de {formatear_decimales(primeros['Cuota teórica'].values[-2])} € al mes, la primera mensualidad de {formatear_decimales(primeros['Mens. vcto'].values[-2])} € "
             else:

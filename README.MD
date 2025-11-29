@@ -2,34 +2,47 @@
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![Streamlit](https://img.shields.io/badge/Framework-Streamlit-brightgreen)
 
-Aplicación desarrollada en **Streamlit** para simular operaciones de productos amortizables de COF_ES. Permite configurar las condiciones de un préstamo, visualizar el cuadro de amortización, el cálculo de la TAE y obtener un ejemplo representativo del producto seleccionado.
+Aplicación Streamlit para simular productos amortizables de COF_ES: cálculo de cuotas, cuadro de amortización, TAE y ejemplo representativo.
 
 ---
 
 ## Estructura del Proyecto
 
-- **app_simulador_CLB.py**  
-  Archivo principal de la aplicación Streamlit. Gestiona la interfaz de usuario, la entrada de datos y la visualización de resultados.
+- **requirements.txt**
+- **app_simulador_CLB.py** - Interfaz principal con el simulador operaciones unitarias
+- **/pages/**
+  - **1_Simulación_masiva.py** — Simulación masiva de operaciones.
+  - **2_Simulación_curso_vida.py** — (En construcción) Simulación de operaciones en curso de vida del préstamo.
+- **/data/**
 
-- **COFES\_\_SIM_AMO_Consola.py**  
-  Módulo con la lógica de simulación y cálculo de préstamos, generación de cuadros de amortización y cálculo de TAE.
+  - **COFES_00_PRODUCTOS_DICCIONARIO.csv** - Contiene el detalle de los productos
+  - **COFES_01_Date_Blocage.csv** - Contiene el listado de fechas de cierre contable
 
-- **COFES_00_PRODUCTOS_DICCIONARIO.csv**  
-  Fichero con el diccionario con el listado de productos y sus características.
+- **/bin/**
 
-- **COFES_01_Date_Blocage.csv**  
-  Fichero con el listado de fechas de bloqueo (date de blocage).
+  - **COFES\_\_SIM_AMO_Consola.py** - Funciones para realizar las simulaciones de préstamo
 
 ---
 
 ## 🚀 Instalación
 
+Creación y activación del entorno virtual e instalación de las dependencias:
+
 ```bash
-# Instala dependencias
-pip install streamlit pandas
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-Coloca los archivos en una carpeta y ejecuta la aplicación:
+requirements.txt:
+
+```
+streamlit
+pandas
+numpy
+```
+
+Ejecuta la aplicación:
 
 ```bash
 # Ejecuta la aplicación
@@ -68,6 +81,7 @@ streamlit run app_simulador_CLB.py
 
 - [Streamlit](https://streamlit.io/)
 - [Pandas](https://pandas.pydata.org/)
+- [Numpy](https://pypi.org/project/numpy/)
 
 ---
 
