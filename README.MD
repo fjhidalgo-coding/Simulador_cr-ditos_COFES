@@ -120,7 +120,7 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 
 **Fixed bugs:**
 
-- El cálculo de la TAE --> Error en las CAP capitalizadas.
+- ~~El cálculo de la TAE --> Error en las CAP capitalizadas~~.
 - El cálculo de la prima de seguro AUTO NO debe redondear en el paso final de los cálculos sino en el cálculo de la prima por asegurado.
 - Error en los intereses cuando el contrato tiene carencia ya que duplicamos el contador al contabilidad los intereses capitalizados.
 - Cuando seleccionamos el producto OPTION+ gratuito, el simulador no aplica interés en la segunda secuencia.
