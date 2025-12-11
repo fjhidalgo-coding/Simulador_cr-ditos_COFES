@@ -298,7 +298,10 @@ def calcular_mensualidad_estandar(importe_crédito,
     '''Función para calcular la mensualidad estándar de los productos amortizables de COF_ES'''
     
     '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
-    if carencia != 0:
+    if carencia == 1:
+        importe_crédito += round((importe_crédito * tasa_global / 1200),2) * carencia
+
+    if carencia > 1:
         w_fecha_ultimo_vencimiento_tratado = (fecha_fin_carencia_gratuita_forzada if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada)
                                                                                   else fecha_fin_carencia_diferida
                                                                                   if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida)
@@ -622,10 +625,16 @@ def simular_prestamo_CLB(etiqueta_producto,
                                                                  w_fecha_ultimo_vencimiento_tratado,
                                                                  fecha_fin_carencia,
                                                                  tasa)
-        w_seguro_capitalizados_vencimiento = calcular_periodo_roto(w_capital_pendiente,
-                                                                   w_fecha_ultimo_vencimiento_tratado,
-                                                                   fecha_fin_carencia,
-                                                                   tasa_ade)
+        if carencia == 1:
+          w_seguro_capitalizados_vencimiento = calcular_periodo(w_capital_pendiente,
+                                                                w_fecha_ultimo_vencimiento_tratado,
+                                                                fecha_fin_carencia,
+                                                                tasa_ade)
+        else:
+          w_seguro_capitalizados_vencimiento = calcular_periodo_roto(w_capital_pendiente,
+                                                                     w_fecha_ultimo_vencimiento_tratado,
+                                                                     fecha_fin_carencia,
+                                                                     tasa_ade)
         w_capital_pendiente = round(w_capital_inicial + w_intereses_capitalizados_vencimiento + w_seguro_capitalizados_vencimiento, 2)
         alimentar_cuadro_amortizacion("Carencia normal",
                                       0,
