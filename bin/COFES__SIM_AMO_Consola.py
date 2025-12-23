@@ -588,9 +588,12 @@ def simular_prestamo_CLB(etiqueta_producto,
 
     '''Generar el vencimiento de carencia diferida'''
     if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida):        
-        w_intereses_diferidos_vencimiento = calcular_periodo_roto(w_capital_pendiente,
-                                                                  w_fecha_ultimo_vencimiento_tratado,
-                                                                  fecha_fin_carencia_diferida, tasa)
+        if LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5):
+            w_intereses_diferidos_vencimiento = 0.00
+        else:
+            w_intereses_diferidos_vencimiento = calcular_periodo_roto(w_capital_pendiente,
+                                                                      w_fecha_ultimo_vencimiento_tratado,
+                                                                      fecha_fin_carencia_diferida, tasa)
         w_seguro_diferidos_vencimiento = calcular_periodo_roto(w_capital_pendiente,
                                                                w_fecha_ultimo_vencimiento_tratado,
                                                                fecha_fin_carencia_diferida,
@@ -615,7 +618,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                       0,
                                       mostrar_fecha(w_fecha_ultimo_vencimiento_tratado + pd.DateOffset(days=1)),
                                       0.00,
-                                      tasa)
+                                      0.00 if LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5) else tasa)
         w_fecha_ultimo_vencimiento_tratado = fecha_fin_carencia_diferida
 
     '''Generar el vencimiento de carencia normal'''
@@ -1192,7 +1195,7 @@ def simular_masivamente(capital_2sec,
                     acumulado_etiqueta_producto.append(etiqueta_producto)
                     acumulado_fecha_financiacion.append(mostrar_fecha(fecha_financiacion))
                     acumulado_imp_max_com_apertura.append(formatear_decimales(imp_max_com_apertura))
-                    acumulado_capital_prestado.append(formatear_decimales(capital_prestado))
+                    acumulado_capital_prestado.append(formatear_decimales(float(capital_prestado)))
                     acumulado_on.append(on)
                     acumulado_plazo_2sec.append(plazo_2sec)
                     acumulado_plazos.append(plazo)
