@@ -103,7 +103,7 @@ with st.sidebar:
     if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
         with st.expander("Gestionar la comisión de apertura"):
             tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura", 
-                                                     min_value=0.00, max_value=5.00, step=0.05, 
+                                                     min_value=0.00, max_value=10.00, step=0.05, 
                                                      help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
             
             if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
