@@ -31,6 +31,7 @@ Creación y activación del entorno virtual e instalación de las dependencias:
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
+source .venv/Scripts/activate
 pip install -r requirements.txt
 ```
 

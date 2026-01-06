@@ -2,6 +2,7 @@
 '''Programa para la simulación de los productos amortizables de COF_ES'''
 
 import datetime, calendar, math
+from decimal import Decimal, ROUND_HALF_UP
 import pandas as pd
 import numpy as np
 
@@ -91,6 +92,13 @@ def truncar_decimal(valor,
 
 
 
+def redondear_decimal(valor):
+
+    '''Función para redondear un número decimal a 2 decimales'''
+    return float(Decimal(valor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+
+
 def mostrar_fecha(fecha):
 
     ''' Función para devolver la fecha formateada a dd/mm/yyyy '''
@@ -115,7 +123,7 @@ def calcular_periodo_roto(base_calculo,
                           tasa_a_aplicar):
 
     '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
-    importe_calculo_periodo_roto = round(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / DIAS_BASE, 2)
+    importe_calculo_periodo_roto = redondear_decimal(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / DIAS_BASE)
     
     return importe_calculo_periodo_roto
 
@@ -127,7 +135,7 @@ def calcular_periodo(base_calculo,
                      tasa_a_aplicar):
 
     '''Calcular el interés o el seguro cuando el periodo está completo'''
-    importe_calculo_periodo = round(base_calculo * tasa_a_aplicar / 1200, 2) * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month))
+    importe_calculo_periodo = redondear_decimal(base_calculo * tasa_a_aplicar / 1200) * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month))
    
     return importe_calculo_periodo
 
@@ -139,7 +147,7 @@ def calcular_comision_apertura(capital_prestado,
                                comision_apertura_capitalizada):
 
     '''Calcular la comisión de apertura en base al capital prestado y el porcentaje definido'''
-    comision_apertura = round(capital_prestado * tasa_comision_apertura / 100, 2)
+    comision_apertura = redondear_decimal(capital_prestado * tasa_comision_apertura / 100)
     if comision_apertura > imp_max_com_apertura and imp_max_com_apertura > 0:
         '''Comprobar que la comisión calculada no supera el límite marcado; si fuese el caso, actualizamos el valor de la comisión con el límite'''
         comision_apertura = imp_max_com_apertura
@@ -204,7 +212,7 @@ def calcular_seguro_capitalizado(capital_com_apertura,
                                               seguro_titular_1)
     tasa_titular_2 = obtener_tasa_seguro_auto(plazo,
                                               seguro_titular_2)
-    seguro_capitalizado = round(capital_com_apertura * tasa_titular_1, 2) + round(capital_com_apertura * tasa_titular_2, 2)
+    seguro_capitalizado = redondear_decimal(capital_com_apertura * tasa_titular_1) + redondear_decimal(capital_com_apertura * tasa_titular_2)
     
     return seguro_capitalizado
 
@@ -299,7 +307,7 @@ def calcular_mensualidad_estandar(importe_crédito,
     
     '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
     if carencia == 1:
-        importe_crédito += round((importe_crédito * tasa_global / 1200),2) * carencia
+        importe_crédito += redondear_decimal(importe_crédito * tasa_global / 1200) * carencia
 
     if carencia > 1:
         w_fecha_ultimo_vencimiento_tratado = (fecha_fin_carencia_gratuita_forzada if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada)
@@ -307,13 +315,13 @@ def calcular_mensualidad_estandar(importe_crédito,
                                                                                   if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida)
                                                                                   else fecha_financiacion)
         importe_crédito += calcular_periodo_roto(importe_crédito, w_fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ade)
-        importe_crédito += round((importe_crédito * tasa / 1200),2) * carencia
+        importe_crédito += redondear_decimal(importe_crédito * tasa / 1200) * carencia
         
     '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
     if tasa_global == 0.00:
         cuota_1sec = math.ceil((importe_crédito - capital_2sec) / plazo * 100) / 100
     else:
-        cuota_1sec = (round(capital_2sec * tasa_global / 1200, 2) 
+        cuota_1sec = (redondear_decimal(capital_2sec * tasa_global / 1200) 
                       + math.ceil((importe_crédito - capital_2sec) * tasa_global / 1200 * ((1 + (tasa_global / 1200)) ** plazo) / (((1 + (tasa_global / 1200)) ** plazo) - 1) * 100 ) / 100)
     
 
@@ -353,7 +361,7 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,
         w_aniversario_fecha_financiación += pd.DateOffset(years=-1)
         fraccion_año = delta_años + ((pd.to_datetime(w_fecha_ultimo_vencimiento_tratado).dayofyear - pd.to_datetime(w_aniversario_fecha_financiación).dayofyear) / w_dia_año)
 
-    return round(fraccion_año, 7)
+    return truncar_decimal(fraccion_año, 7)
 
 
 
@@ -378,7 +386,7 @@ def calcular_tae(cuota_tae,
         else:
             tae += 0.0001
         
-    return round(tae * 100,2)
+    return redondear_decimal(tae * 100)
 
 
 
@@ -451,7 +459,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                                                                      imp_max_com_apertura,
                                                                                      comision_apertura_capitalizada)
     
-    '''Calcular variable con la capitalización de la comisión de apertura'''
+    '''Calcular capital capitalizando la comisión de apertura'''
     capital_com_apertura = capital_prestado + capitalizacion_comision_apertura
     
     '''Calcular el seguro de vida capitalizado'''
@@ -554,7 +562,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                   capital_prestado,
                                   -importe_crédito,
                                   importe_crédito,
-                                  round(-capital_prestado - seguro_capitalizado, 2),
+                                  redondear_decimal(-capital_prestado - seguro_capitalizado),
                                   366 if calendar.isleap(fecha_financiacion.year) else 365,
                                   0,
                                   mostrar_fecha(fecha_financiacion),
@@ -638,7 +646,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                                                      w_fecha_ultimo_vencimiento_tratado,
                                                                      fecha_fin_carencia,
                                                                      tasa_ade)
-        w_capital_pendiente = round(w_capital_inicial + w_intereses_capitalizados_vencimiento + w_seguro_capitalizados_vencimiento, 2)
+        w_capital_pendiente = redondear_decimal(w_capital_inicial + w_intereses_capitalizados_vencimiento + w_seguro_capitalizados_vencimiento)
         alimentar_cuadro_amortizacion("Carencia normal",
                                       0,
                                       mostrar_fecha(fecha_fin_carencia),
@@ -652,7 +660,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                                       w_seguro_capitalizados_vencimiento,
                                       0.00,
                                       0.00,
-                                      round(-w_intereses_capitalizados_vencimiento - w_seguro_capitalizados_vencimiento, 2),
+                                      redondear_decimal(-w_intereses_capitalizados_vencimiento - w_seguro_capitalizados_vencimiento),
                                       w_capital_pendiente,
                                       0.00,
                                       366 if calendar.isleap(fecha_fin_carencia.year) else 365,
@@ -694,27 +702,27 @@ def simular_prestamo_CLB(etiqueta_producto,
                                         fecha_primer_vencimiento + pd.DateOffset(months=-1),
                                         fecha_primer_vencimiento,
                                         tasa_ade))
-    w_comision_apertura = round(comision_apertura - capitalizacion_comision_apertura, 2)
-    w_mensualidad_vencimiento = round(cuota_1sec + w_comision_apertura + w_ajustes, 2)
-    w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento - w_comision_apertura, 2)
-    w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
+    w_comision_apertura = redondear_decimal(comision_apertura - capitalizacion_comision_apertura)
+    w_mensualidad_vencimiento = redondear_decimal(cuota_1sec + w_comision_apertura + w_ajustes)
+    w_capital_vencimiento = redondear_decimal(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento - w_comision_apertura)
+    w_capital_pendiente = redondear_decimal(w_capital_inicial - w_capital_vencimiento)
     w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
     alimentar_cuadro_amortizacion(w_tipo_vencimiento,
                                   w_numero_vencimiento,
                                   mostrar_fecha(fecha_primer_vencimiento),
                                   w_capital_inicial,
                                   w_mensualidad_vencimiento,
-                                  round(w_intereses_vencimiento, 2),
+                                  redondear_decimal(w_intereses_vencimiento),
                                   0.00,
                                   0.00,
-                                  round(w_seguro_vencimiento, 2),
+                                  redondear_decimal(w_seguro_vencimiento),
                                   0.00,
                                   0.00,
                                   w_comision_apertura,
                                   0.00,
                                   w_capital_vencimiento,
                                   w_capital_pendiente,
-                                  round(w_intereses_vencimiento + w_capital_vencimiento + w_comision_apertura, 2),
+                                  redondear_decimal(w_intereses_vencimiento + w_capital_vencimiento + w_comision_apertura),
                                   w_dia_año,
                                   calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion, fecha_primer_vencimiento,w_dia_año),
                                   mostrar_fecha(w_fecha_ultimo_vencimiento_tratado + pd.DateOffset(days=1)),
@@ -753,9 +761,9 @@ def simular_prestamo_CLB(etiqueta_producto,
         if cuota_1sec < w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento - capital_2sec:
             w_mensualidad_vencimiento = cuota_1sec
         else:
-            w_mensualidad_vencimiento = round(w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento - capital_2sec, 2)
-        w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento, 2)
-        w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
+            w_mensualidad_vencimiento = redondear_decimal(w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento - capital_2sec)
+        w_capital_vencimiento = redondear_decimal(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento)
+        w_capital_pendiente = redondear_decimal(w_capital_inicial - w_capital_vencimiento)
         w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
         alimentar_cuadro_amortizacion(w_tipo_vencimiento,
                                       w_numero_vencimiento,
@@ -812,9 +820,9 @@ def simular_prestamo_CLB(etiqueta_producto,
             if cuota_2sec < w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento:
                 w_mensualidad_vencimiento = cuota_2sec
             else:
-                w_mensualidad_vencimiento = round(w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento, 2)
-            w_capital_vencimiento = round(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento, 2)
-            w_capital_pendiente = round(w_capital_inicial - w_capital_vencimiento, 2)
+                w_mensualidad_vencimiento = redondear_decimal(w_capital_inicial + w_intereses_vencimiento + w_seguro_vencimiento)
+            w_capital_vencimiento = redondear_decimal(w_mensualidad_vencimiento - w_intereses_vencimiento - w_seguro_vencimiento)
+            w_capital_pendiente = redondear_decimal(w_capital_inicial - w_capital_vencimiento)
             w_dia_año = 366 if calendar.isleap(fecha_primer_vencimiento.year) else 365
             alimentar_cuadro_amortizacion("Amort. 2ª sec.",
                                           w_numero_vencimiento,
@@ -1129,7 +1137,7 @@ def simular_masivamente(capital_2sec,
     for fecha_financiacion in fechas_financiacion:
         for capital_prestado in importes_prestado:
             if on:
-                capital_2sec = round(capital_prestado * w_capital_2sec / 100, 2)
+                capital_2sec = redondear_decimal(capital_prestado * w_capital_2sec / 100)
             for carencia in carencias:
                 for plazo in plazos:
                     (
