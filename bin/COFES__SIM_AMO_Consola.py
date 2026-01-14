@@ -314,8 +314,7 @@ def calcular_mensualidad_estandar(importe_crédito,
                                                                                   else fecha_fin_carencia_diferida
                                                                                   if fecha_fin_carencia_diferida is not None and pd.notnull(fecha_fin_carencia_diferida)
                                                                                   else fecha_financiacion)
-        importe_crédito += calcular_periodo_roto(importe_crédito, w_fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ade)
-        importe_crédito += redondear_decimal(importe_crédito * tasa / 1200) * carencia
+        importe_crédito += (calcular_periodo_roto(importe_crédito, w_fecha_ultimo_vencimiento_tratado, fecha_fin_carencia, tasa_ade) + (redondear_decimal(importe_crédito * tasa / 1200) * carencia))
         
     '''Calcular la mensualidad contractual del préstamo rendondeando al céntimo superior para asegurar la ventilación de todo el capital'''
     if tasa_global == 0.00:
