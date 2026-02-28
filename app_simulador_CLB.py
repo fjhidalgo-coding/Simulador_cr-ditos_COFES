@@ -109,6 +109,9 @@ with st.sidebar:
             if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
                                                              value=True, disabled=True)
+            elif LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+                comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
+                                                             value=True)
             elif LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
             
@@ -119,12 +122,24 @@ with st.sidebar:
 
 
     # Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+
+        importe_bien = st.number_input("Importe del bien adquirido (EUR)", 
+                                           min_value=50.00, max_value=60000.00, step=50.00, value=15000.00, 
+                                           help="Se debe indicar el importe del bien adquirido con el préstamo")
+        entrega_a_cuenta = st.number_input("Importe entregado a cuenta (EUR)", 
+                                           min_value=0.00, max_value=60000.00, step=50.00, value=2000.00, 
+                                           help="Se debe indicar el importe entregado a cuenta por el cliente")
+        capital_prestado = st.number_input("Importe solicitado (EUR)", 
+                                           value=(importe_bien - entrega_a_cuenta if importe_bien > entrega_a_cuenta else 0), disabled=True,
+                                           help="Se debe indicar el importe del capital solicitado en el préstamo")
+    else:
+        capital_prestado = st.number_input("Importe solicitado (EUR)", 
+                                           min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, 
+                                           help="Se debe indicar el importe del capital solicitado en el préstamo")
     tasa = st.number_input("Tipo de Interés Deudor", 
                            min_value=0.0, max_value=20.00, step=0.05, value=5.95, 
                            help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
-    capital_prestado = st.number_input("Importe solicitado (EUR)", 
-                                       min_value=50.00, max_value=60000.00, step=50.00, value=1500.00, 
-                                       help="Se debe indicar el importe del capital solicitado en el préstamo")
     plazo = st.number_input("Nº de mensualidades", 
                             min_value=1, max_value=360, step=1, value=12, 
                             help="Se debe indicar la duración en meses del plazo de amortización")
@@ -132,7 +147,7 @@ with st.sidebar:
 
 
     # Mostrar el campo para indicar la carencia en los productos que lo permiten
-    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7, 12, 13):
         carencia = st.number_input("Meses de carencia", 
                                    min_value=0, max_value=4, step=1, 
                                    help="Se debe indicar la duración de la carencia total inicial")
@@ -140,14 +155,14 @@ with st.sidebar:
 
 
     # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
-    if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
+    if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
         with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
             on = st.toggle("Cuota residual porcentual")
             tasa_2sec = st.number_input("Tipo de Interés Deudor", 
                                         min_value=0.0, max_value=20.00, step=0.05, value=0.00, 
                                         help="Se debe indicar el porcentaje del TIN a aplicar en la segunda secuencia")
             if on:
-                capital_2sec = round(capital_prestado * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", 
+                capital_2sec = round((importe_bien if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13) else capital_prestado) * st.number_input("Porcentaje a amortizar en la segunda secuencia (%)", 
                                                                         min_value=5.00, max_value=70.00, step=5.00, value=30.00, 
                                                                         help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")/100, 2)
             else:

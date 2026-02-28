@@ -107,7 +107,11 @@ if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
 
     if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
         comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada",
-                                                         value=True, disabled=True)
+                                                         value=True, disabled=True)      
+
+    elif LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+        comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada",
+                                                     value=True)
     elif LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
         comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada")
 
@@ -115,9 +119,26 @@ if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
 
 # Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
 
-col_val_1, col_val_2, col_val_3 = st.columns([0.34, 0.33, 0.33], gap="small")
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+    col_val_1, col_val_2, col_val_3, col_val_4 = st.columns([0.40, 0.20, 0.20, 0.20], gap="small")
+    
+else:
+    col_val_1, col_val_2, col_val_3 = st.columns([0.34, 0.33, 0.33], gap="small")
 
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+    importes_prestado = col_val_1.slider("Rango del bien adquirido (EUR)",
+                                              min_value=3000.00, max_value=60000.00, step=500.00, value=[4500.00,9500.00],
+                                              help="Se debe indicar el importe del capital solicitado en el préstamo")
+
+    entrega_a_cuenta = col_val_2.number_input("Importe entregado a cuenta (EUR)",
+                                       min_value=0.00, max_value=60000.00, step=50.00, value=2000.00,
+                                       help="Se debe indicar el importe entregado a cuenta por el cliente")
+
+    plazos = col_val_3.slider("Rango de mensualidades a simular",
+                              min_value=12, max_value=360, step=12, value=[24, 60],
+                              help="Se debe indicar la duración en meses del plazo de amortización")
+
+elif LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
     importes_prestado = col_val_1.slider("Rango de importe solicitado (EUR)",
                                               min_value=3000.00, max_value=60000.00, step=500.00, value=[4500.00,9500.00],
                                               help="Se debe indicar el importe del capital solicitado en el préstamo")
@@ -125,6 +146,9 @@ if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
     plazos = col_val_2.slider("Rango de mensualidades a simular",
                               min_value=12, max_value=360, step=12, value=[24, 60],
                               help="Se debe indicar la duración en meses del plazo de amortización")
+    
+    entrega_a_cuenta = 0.00
+
 else:
     importes_prestado = col_val_1.slider("Rango de importe solicitado (EUR)",
                                               min_value=50.00, max_value=12000.00, step=50.00, value=[500.00,1500.00],
@@ -133,6 +157,8 @@ else:
     plazos = col_val_2.slider("Rango de mensualidades a simular",
                               min_value=1, max_value=120, step=1, value=[12, 60],
                               help="Se debe indicar la duración en meses del plazo de amortización")
+    
+    entrega_a_cuenta = 0.00
 
 # Mostrar el campo para indicar la carencia en los productos que lo permiten
 
@@ -140,12 +166,17 @@ if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
     carencias = col_val_3.slider("Rango de meses de carencia",
                           min_value=0, max_value=4, step=1, value=[0, 0],
                           help="Se debe indicar la duración de la carencia total inicial")
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+    carencias = col_val_4.slider("Rango de meses de carencia",
+                          min_value=0, max_value=4, step=1, value=[0, 0],
+                          help="Se debe indicar la duración de la carencia total inicial")
+
 
 
 
 # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
 
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
+if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
     with st.expander("Gestionar la segunda secuencia financiera", expanded=True):
         on = st.toggle("Cuota residual porcentual")
         tasa_2sec = st.number_input("Tipo de Interés Deudor", 
@@ -187,6 +218,7 @@ if st.button("Simular"):
                                                           carencias,
                                                           comision_apertura_capitalizada,
                                                           dia_pago,
+                                                          entrega_a_cuenta,
                                                           etiqueta_producto,
                                                           fechas_financiacion,
                                                           imp_max_com_apertura,
