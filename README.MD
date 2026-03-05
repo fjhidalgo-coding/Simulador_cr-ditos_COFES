@@ -47,7 +47,7 @@ Ejecuta la aplicación:
 
 ```bash
 # Ejecuta la aplicación
-streamlit run app_simulador_CLB.py
+streamlit run Simulacion_amortizable_unitaria.py
 ```
 
 ---

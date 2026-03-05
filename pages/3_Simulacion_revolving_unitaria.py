@@ -26,5 +26,5 @@ st.markdown(
 
 
 
-st.title('Simulador de préstamos amortizables en curso de vida')
+st.title('Simulador de créditos revolving')
 st.warning('Funcionalidad en construcción', icon="⚠️")
