@@ -128,7 +128,7 @@ def simular_prestamo_4CB(capital_prestado_4CB,
         w_capital_inicial = w_capital_pendiente
 
     ''' Calcular la TAE de la operación con el listado de "cuota_tae", la fracción temporal entre la financiación y el vencimiento y el TIN'''
-    tae = tools_tae.calcular_tae(cuota_tae, tiempo, tasa_comision_apertura_4CB, van_cuota_tae)
+    tae = tools_tae.calcular_tae(cuota_tae, tiempo, tasa_comision_apertura_4CB * 10, van_cuota_tae)
     
     ''' Crear el diccionario con los datos del cuadro de amortización y de la TAE'''
     datos_amortizacion = {
@@ -160,12 +160,6 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     coste_total = comision_apertura
     importe_total_a_pagar = sum(mensualidad_vencimiento)
     
-    cuadro_secuencias = cuadro_amortizacion[cuadro_amortizacion['Tipo vcto'] != "Financiación"]
-    
-    cuenta_vencimientos = cuadro_secuencias['Tipo vcto'].value_counts()
-    primeros = cuadro_secuencias.groupby('Tipo vcto').head(1)
-    ultimos = cuadro_secuencias.groupby('Tipo vcto').tail(1)
-
     resumen1 = pd.DataFrame(
         {
             "TAE": [tools.formatear_decimales(tae)],
@@ -183,7 +177,14 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     index=["EUR"],
     )
 
-    ejemplo_representativo = "En curso de desarrollo..."
+    ''' Crear el ejemplo representativo de la operación simulada '''
+    ej_repr_seccion_1 = (f"Ejemplo representativo:\n\nPara un préstamo de importe/PVP {tools.formatear_decimales(capital_prestado_4CB)} €, con un tipo de interés fijo del 0,00 % anual y TAE de {tools.formatear_decimales(tae)} %, ")
+    ej_repr_seccion_2 = f"se paga en 4 mensualidades, de {tools.formatear_decimales(cuota_4CB)} € al mes. "
+    ej_repr_seccion_3 = f"Comisión de apertura financiada: {tools.formatear_decimales(comision_apertura)} € (del {tools.formatear_decimales(tasa_comision_apertura_4CB)} %). Importe total de los intereses: 0,00 €. Coste total del préstamo: {tools.formatear_decimales(coste_total)} €. "
+    ej_repr_seccion_4 = f"Importe total adeudado/precio total a plazos: {tools.formatear_decimales(importe_total_a_pagar)} €. Sistema de amortización francés."
+    
+    ejemplo_representativo = ej_repr_seccion_1 + ej_repr_seccion_2 + ej_repr_seccion_3 + ej_repr_seccion_4
+
     
     return (tae,
             comision_apertura,
@@ -238,39 +239,35 @@ def simular_masivamente(importes_prestado_4CB,
 
     ''' Desplegar las listas de duraciones / importes / carencia '''
     importes_prestado_4CB = list(np.arange(importes_prestado_4CB[0], importes_prestado_4CB[1] + 1.0, 0.01))
-    fechas_financiacion_4CB = pd.date_range(start=fechas_financiacion_4CB[0],
-                                            end=fechas_financiacion_4CB[1],
-                                            freq='D')
     tasas_comision_apertura_4CB = list(np.arange(tasas_comision_apertura_4CB[0], tasas_comision_apertura_4CB[1] + 0.01, 0.10))
     
     ''' Función la simulación masiva de préstamos amortizables '''
-    for fecha_financiacion_4CB in fechas_financiacion_4CB:
-        for capital_prestado_4CB in importes_prestado_4CB:
-            for tasa_comision_apertura_4CB in tasas_comision_apertura_4CB:
-                (
-                    tae,
-                    comision_apertura,
-                    importe_total_a_pagar,
-                    coste_total, 
-                    cuadro_amortizacion, 
-                    input_tae, 
-                    resumen1, 
-                    resumen2, 
-                    ejemplo_representativo
-                ) = simular_prestamo_4CB(
-                    capital_prestado_4CB,
-                    tasa_comision_apertura_4CB,
-                    fecha_financiacion_4CB
-                )
-                ''' Acumular los resultados de la simulación masiva '''
-                acumulado_tae.append(tools.formatear_decimales(tae))
-                acumulado_comision_apertura.append(tools.formatear_decimales(comision_apertura))
-                acumulado_importe_total_a_pagar.append(tools.formatear_decimales(importe_total_a_pagar))
-                acumulado_coste_total.append(tools.formatear_decimales(coste_total))
-                acumulado_ejemplo_representativo.append(ejemplo_representativo)
-                acumulado_fecha_financiacion.append(tools.mostrar_fecha(fecha_financiacion_4CB))
-                acumulado_capital_prestado.append(tools.formatear_decimales(float(capital_prestado_4CB)))
-                acumulado_tasa_comision_apertura.append(tools.formatear_decimales(tasa_comision_apertura_4CB))
+    for capital_prestado_4CB in importes_prestado_4CB:
+        for tasa_comision_apertura_4CB in tasas_comision_apertura_4CB:
+            (
+                tae,
+                comision_apertura,
+                importe_total_a_pagar,
+                coste_total, 
+                cuadro_amortizacion, 
+                input_tae, 
+                resumen1, 
+                resumen2, 
+                ejemplo_representativo
+            ) = simular_prestamo_4CB(
+                capital_prestado_4CB,
+                tasa_comision_apertura_4CB,
+                fechas_financiacion_4CB
+            )
+            ''' Acumular los resultados de la simulación masiva '''
+            acumulado_tae.append(tools.formatear_decimales(tae))
+            acumulado_comision_apertura.append(tools.formatear_decimales(comision_apertura))
+            acumulado_importe_total_a_pagar.append(tools.formatear_decimales(importe_total_a_pagar))
+            acumulado_coste_total.append(tools.formatear_decimales(coste_total))
+            acumulado_ejemplo_representativo.append(ejemplo_representativo)
+            acumulado_fecha_financiacion.append(tools.mostrar_fecha(fechas_financiacion_4CB))
+            acumulado_capital_prestado.append(tools.formatear_decimales(float(capital_prestado_4CB)))
+            acumulado_tasa_comision_apertura.append(tools.formatear_decimales(tasa_comision_apertura_4CB))
 
     ''' Crear el diccionario con los datos del cuadro de amortización y de la TAE'''
     resultado_simulacion_masiva = {

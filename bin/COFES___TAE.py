@@ -42,7 +42,7 @@ def calcular_tae(cuota_tae,
                  tasa,
                  van_cuota_tae=[],
                  tolerancia=0.000001,
-                 max_iteraciones=10000):
+                 max_iteraciones=1000):
 
     '''Función para calcular la TAE de la operación'''
     tae = (1 + tasa / 1200) ** 12 - 1 # TAE inicial aproximada
@@ -52,7 +52,7 @@ def calcular_tae(cuota_tae,
             van_cuota_tae.append(cuota_tae[i] / ((1 + tae) ** tiempo[i]))
             
         if abs(sum(van_cuota_tae)) < tolerancia:  # Comprueba si el VAN está dentro de la tolerancia
-            return tae
+            return tools.redondear_decimal(tae * 100)
         
         if sum(van_cuota_tae) < 0:
             tae -= 0.0001

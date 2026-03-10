@@ -105,9 +105,7 @@ else:
                                                  min_value=0.00, max_value=2.80, step=0.05, value=[2.60,2.80],
                                                  help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
         
-    fechas_financiacion_4CB = col_varios_6.slider("Rango de fechas de financiación",
-                                min_value=dt.date.today() - dt.timedelta(days=365*4), max_value=(dt.date.today() + dt.timedelta(days=365*4)),
-                                value=[(dt.date.today() - dt.timedelta(days=15)), (dt.date.today() + dt.timedelta(days=15))])
+    fechas_financiacion_4CB = col_varios_6.date_input("Fecha de financiación", dt.date.today())
     
     if st.button("Simular"):
         with st.spinner("Simulando..."):

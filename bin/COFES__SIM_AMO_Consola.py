@@ -378,7 +378,7 @@ def calcular_tae(cuota_tae,
             van_cuota_tae.append(cuota_tae[i] / ((1 + tae) ** tiempo[i]))
             
         if abs(sum(van_cuota_tae)) < tolerancia:  # Comprueba si el VAN está dentro de la tolerancia
-            return tae
+            return redondear_decimal(tae * 100)
         
         if sum(van_cuota_tae) < 0:
             tae -= 0.0001
