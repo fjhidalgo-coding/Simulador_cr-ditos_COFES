@@ -2,7 +2,15 @@
 '''Funciones comunes a todos los simuladores'''
 
 from decimal import Decimal, ROUND_HALF_UP
+import calendar as cl
 import pandas as pd
+
+
+def dias_ano(fecha):
+
+    '''Función para recuèrar el número de días del año de una fecha dada'''
+    return 366 if cl.isleap(fecha.year) else 365
+
 
 
 def truncar_decimal(valor,

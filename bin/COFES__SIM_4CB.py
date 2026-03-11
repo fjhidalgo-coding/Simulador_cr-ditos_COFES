@@ -1,7 +1,6 @@
 #!
 '''Programa para la simulación de los productos amortizables de COF_ES'''
 
-import calendar as cl
 import datetime as dt
 import pandas as pd
 import numpy as np
@@ -111,7 +110,7 @@ def simular_prestamo_4CB(capital_prestado_4CB,
         w_capital_vencimiento = tools.redondear_decimal(capital_4CB + ajuste_1er_vencimiento) if i == 1 else capital_4CB if i > 1 else -capital_prestado_4CB
         w_capital_pendiente = tools.redondear_decimal(w_capital_inicial - w_capital_vencimiento)
         w_comisiones_vencimiento = tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento) if i > 0 else 0.00
-        w_dia_año = 366 if cl.isleap(w_fecha_vencimiento.year) else 365
+        w_dia_año = tools.dias_ano(w_fecha_vencimiento)
         
         alimentar_cuadro_amortizacion("Amortización" if i > 0 else "Financiación",
                                       i, 
