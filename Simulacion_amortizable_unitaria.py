@@ -8,7 +8,7 @@
 import datetime  as dt
 import streamlit as st
 import pandas as pd
-import bin.COFES__SIM_AMO_Consola as sim
+import bin.COFES__SIM_AMO as sim
 
 
 
