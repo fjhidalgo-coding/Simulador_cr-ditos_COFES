@@ -7,6 +7,8 @@ import bin.COFES__SIM_4CB as sim
 
 
 st.title('Simulador para facilidades de pago 4CB')
+st.info('Funcionalidad en pruebas', icon="⚠️")
+
 st.set_page_config(
    page_title="Simulador para facilidades de pago 4CB",
    page_icon= ":material/calculate:",
@@ -28,8 +30,6 @@ st.markdown(
 )
 
 
-
-st.info('Funcionalidad en pruebas', icon="⚠️")
 
 on = st.toggle("Simulación masiva 4CB", value=False, key="toggle_4CB")
 
