@@ -9,6 +9,7 @@ import datetime  as dt
 import streamlit as st
 import pandas as pd
 import bin.COFES__SIM_AMO as sim
+import bin.COFES___tools as tools
 
 
 
@@ -229,6 +230,16 @@ if st.session_state.get("simular", True):
         col1.markdown(html_table1, unsafe_allow_html=True)
         col2.markdown(html_table2, unsafe_allow_html=True)
 
+    st.download_button(
+        label="📥 Descargar en Excel",
+        data=tools.generar_excel(resumen2,
+                                 cuadro_amortizacion,
+                                 pd.DataFrame({'TAE': [resumen1.at['%','TAE']], 'Ejemplo representativo': [ejemplo_representativo]}),
+                                 input_tae,
+                                 resumen3),
+        file_name="simulacion_amortizable.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 
     # Mostrar las pestañas con los detalles de la simulación

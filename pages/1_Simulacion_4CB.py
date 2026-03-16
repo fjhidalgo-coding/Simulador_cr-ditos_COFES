@@ -3,7 +3,9 @@
 
 import datetime  as dt
 import streamlit as st
+import pandas as pd
 import bin.COFES__SIM_4CB as sim
+import bin.COFES___tools as tools
 
 
 st.title('Simulador para facilidades de pago 4CB')
@@ -53,6 +55,15 @@ if on is False:
         resumen1, resumen2, ejemplo_representativo, cuadro_amortizacion, input_tae = sim.visualizar_simulacion_unitaria(capital_prestado_4CB,
                                                                                                                         tasa_comision_apertura_4CB,
                                                                                                                         fecha_financiacion_4CB)
+        st.download_button(
+            label="📥 Descargar en Excel",
+            data=tools.generar_excel(resumen2,
+                                     cuadro_amortizacion,
+                                     pd.DataFrame({'TAE': [resumen1.at['%','TAE']], 'Ejemplo representativo': [ejemplo_representativo]}),
+                                     input_tae  ),
+            file_name="simulacion_4CB_unitaria.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
         
         # Mostrar resumen de la simulación

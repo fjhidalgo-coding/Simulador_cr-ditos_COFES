@@ -930,7 +930,7 @@ def simular_prestamo_CLB(etiqueta_producto,
     index=ultimos['Tipo vcto'].values,
     )
     
-    ej_repr_seccion_1 = f"Ejemplo representativo:\n\nPara un préstamo de importe/PVP {formatear_decimales(capital_prestado)} €, con un tipo de interés fijo del {formatear_decimales(tasa)} % anual y TAE de {formatear_decimales(tae)} %, "
+    ej_repr_seccion_1 = f"Para un préstamo de importe/PVP {formatear_decimales(capital_prestado)} €, con un tipo de interés fijo del {formatear_decimales(tasa)} % anual y TAE de {formatear_decimales(tae)} %, "
 
     if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7):
         if cuenta_vencimientos.loc[ultimos['Tipo vcto']].values[-2] == 1:

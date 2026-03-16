@@ -146,7 +146,7 @@ if valor is not None and tipo_calculo!="Seleccionar":
     # EXPORTAR A EXCEL
     # ---------------------------------------------------------
     st.download_button(
-        label="📥 Descargar cuadro de amortización en Excel",
+        label="📥 Descargar en Excel",
         data=tools.generar_excel(df_resumen, tabla),
         file_name="simulacion_revolving.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

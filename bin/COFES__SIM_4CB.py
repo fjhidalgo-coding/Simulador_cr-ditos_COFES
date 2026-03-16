@@ -177,7 +177,7 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     )
 
     ''' Crear el ejemplo representativo de la operación simulada '''
-    ej_repr_seccion_1 = (f"Ejemplo representativo:\n\nPara un préstamo de importe/PVP {tools.formatear_decimales(capital_prestado_4CB)} €, con un tipo de interés fijo del 0,00 % anual y TAE de {tools.formatear_decimales(tae)} %, ")
+    ej_repr_seccion_1 = (f"Para un préstamo de importe/PVP {tools.formatear_decimales(capital_prestado_4CB)} €, con un tipo de interés fijo del 0,00 % anual y TAE de {tools.formatear_decimales(tae)} %, ")
     ej_repr_seccion_2 = f"se paga en 4 mensualidades, de {tools.formatear_decimales(cuota_4CB)} € al mes. "
     ej_repr_seccion_3 = f"Comisión de apertura financiada: {tools.formatear_decimales(comision_apertura)} € (del {tools.formatear_decimales(tasa_comision_apertura_4CB)} %). Importe total de los intereses: 0,00 €. Coste total del préstamo: {tools.formatear_decimales(coste_total)} €. "
     ej_repr_seccion_4 = f"Importe total adeudado/precio total a plazos: {tools.formatear_decimales(importe_total_a_pagar)} €. Sistema de amortización francés."
