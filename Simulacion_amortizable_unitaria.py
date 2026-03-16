@@ -222,7 +222,7 @@ if st.session_state.get("simular", True):
 
     # Mostrar el resumen económico de la simulación
 
-    with st.expander("", expanded=True):
+    with st.expander("Resumen", expanded=True):
         col1, col2 = st.columns([0.08, 0.92], gap="small")
         html_table1 = resumen1.to_html(classes='table table-right', index=True)
         html_table2 = resumen2.to_html(classes='table table-right', index=True)
