@@ -86,9 +86,6 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     
     '''Calcular la comisión de apertura'''
     comision_apertura = tools.truncar_decimal(capital_prestado_4CB * tasa_comision_apertura_4CB / 100, 2)
-    print(f"Comisión de apertura: {comision_apertura} €")
-    print(f"Capital prestado: {capital_prestado_4CB} €")
-    print(f"Tasa comisión de apertura: {tasa_comision_apertura_4CB} %")
     
     '''Calcular cuota de la facilidad de pago 4CB'''
     cuota_4CB = tools.truncar_decimal((capital_prestado_4CB + comision_apertura) / 4, 2)
