@@ -49,18 +49,22 @@ def formatear_decimales(value: float) -> str:
 
 
 
-def generar_excel(df_resumen, df_tamo, df_ejemplo=None, df_tae=None, df_secuencias=None):
+def generar_excel(df_resumen=None, df_tamo=None, df_ejemplo=None, df_tae=None, df_secuencias=None,resultado_simulacion_masiva=None):
     output = BytesIO()
 
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df_resumen.to_excel(writer, sheet_name="Resumen", index=False)
+        if df_resumen is not None:
+            df_resumen.to_excel(writer, sheet_name="Resumen", index=False)
         if df_secuencias is not None:
             df_secuencias.to_excel(writer, sheet_name="Secuencias", index=False)
         if df_ejemplo is not None:
             df_ejemplo.to_excel(writer, sheet_name="Ejemplo", index=False)
-        df_tamo.to_excel(writer, sheet_name="Tamo", index=False)
+        if df_tamo is not None:
+            df_tamo.to_excel(writer, sheet_name="Tamo", index=False)
         if df_tae is not None:
             df_tae.to_excel(writer, sheet_name="TAE", index=False)
+        if resultado_simulacion_masiva is not None:
+            resultado_simulacion_masiva.to_excel(writer, sheet_name="Simulación Masiva", index=False)
 
     output.seek(0)
     return output

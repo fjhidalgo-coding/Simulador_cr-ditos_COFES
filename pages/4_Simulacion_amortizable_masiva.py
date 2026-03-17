@@ -9,6 +9,7 @@ import datetime as dt
 import streamlit as st
 import pandas as pd
 import bin.COFES__SIM_AMO as sim
+import bin.COFES___tools as tools
 
 
 
@@ -231,6 +232,13 @@ if st.button("Simular"):
                                                           tasa,
                                                           tasa_2sec,
                                                           tasa_comision_apertura)
+
+    st.download_button(
+                label="📥 Descargar en Excel",
+                data=tools.generar_excel(resultado_simulacion_masiva=resultado_simulacion_masiva),
+                file_name="simulacion_AMO_masiva.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
     
     st.dataframe(resultado_simulacion_masiva,hide_index=True)
     

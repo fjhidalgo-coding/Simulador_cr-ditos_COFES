@@ -126,6 +126,13 @@ else:
 
         st.success("Simulación masiva completada")
 
+        st.download_button(
+            label="📥 Descargar en Excel",
+            data=tools.generar_excel(resultado_simulacion_masiva=resultado_simulacion_masiva),
+            file_name="simulacion_4CB_masiva.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        
         # Mostrar resultados de la simulación masiva
 
         with st.expander("Resultados de la simulación masiva", expanded=True):
