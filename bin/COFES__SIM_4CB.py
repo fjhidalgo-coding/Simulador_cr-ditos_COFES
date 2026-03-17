@@ -86,6 +86,9 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     
     '''Calcular la comisión de apertura'''
     comision_apertura = tools.truncar_decimal(capital_prestado_4CB * tasa_comision_apertura_4CB / 100, 2)
+    print(f"Comisión de apertura: {comision_apertura} €")
+    print(f"Capital prestado: {capital_prestado_4CB} €")
+    print(f"Tasa comisión de apertura: {tasa_comision_apertura_4CB} %")
     
     '''Calcular cuota de la facilidad de pago 4CB'''
     cuota_4CB = tools.truncar_decimal((capital_prestado_4CB + comision_apertura) / 4, 2)
@@ -237,8 +240,8 @@ def simular_masivamente(importes_prestado_4CB,
     acumulado_tasa_comision_apertura.clear()
 
     ''' Desplegar las listas de duraciones / importes / carencia '''
-    importes_prestado_4CB = list(np.arange(importes_prestado_4CB[0], importes_prestado_4CB[1] + 1.0, 0.01))
-    tasas_comision_apertura_4CB = list(np.arange(tasas_comision_apertura_4CB[0], tasas_comision_apertura_4CB[1] + 0.01, 0.10))
+    importes_prestado_4CB = list(np.round(np.arange(importes_prestado_4CB[0], importes_prestado_4CB[1] + 0.01, 0.01), 2))
+    tasas_comision_apertura_4CB = list(np.round(np.arange(tasas_comision_apertura_4CB[0], tasas_comision_apertura_4CB[1] + 0.01, 0.10), 2))
     
     ''' Función la simulación masiva de préstamos amortizables '''
     for capital_prestado_4CB in importes_prestado_4CB:
