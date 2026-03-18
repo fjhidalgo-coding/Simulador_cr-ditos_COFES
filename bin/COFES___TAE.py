@@ -2,6 +2,7 @@
 '''Programa para la simulación de los productos amortizables de COF_ES'''
 
 import pandas as pd
+from decimal import Decimal
 import bin.COFES___tools as tools
 
 ''' Definir funciones asociadas al cálculo de la TAE '''
@@ -39,23 +40,29 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,
 def calcular_tae(cuota_tae,
                  tiempo,
                  tasa,
-                 van_cuota_tae=[],
+                 van_cuota_tae=None,
                  tolerancia=0.000001,
                  max_iteraciones=1000):
 
     '''Función para calcular la TAE de la operación'''
-    tae = (1 + tasa / 1200) ** 12 - 1 # TAE inicial aproximada
+    if van_cuota_tae is None:
+        van_cuota_tae = []
+
+    tasa_float = float(tasa)
+    tae = (1 + tasa_float / 1200) ** 12 - 1 # TAE inicial aproximada
     for _ in range(max_iteraciones):
         van_cuota_tae.clear()
         for i in range(len(cuota_tae)):
-            van_cuota_tae.append(cuota_tae[i] / ((1 + tae) ** tiempo[i]))
+            cuota = float(cuota_tae[i]) if cuota_tae[i] is not None else 0.0
+            periodo = float(tiempo[i]) if tiempo[i] is not None else 0.0
+            van_cuota_tae.append(cuota / ((1 + tae) ** periodo))
             
         if abs(sum(van_cuota_tae)) < tolerancia:  # Comprueba si el VAN está dentro de la tolerancia
-            return tools.redondear_decimal(tae * 100)
+            return tools.redondear_decimal(Decimal(str(tae * 100)))
         
         if sum(van_cuota_tae) < 0:
             tae -= 0.0001
         else:
             tae += 0.0001
         
-    return tools.redondear_decimal(tae * 100)
+    return tools.redondear_decimal(Decimal(str(tae * 100)))

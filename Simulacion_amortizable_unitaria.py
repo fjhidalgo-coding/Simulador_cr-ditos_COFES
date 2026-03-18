@@ -21,24 +21,6 @@ PRODUCTOS_DICCIONARIO = sim.PRODUCTOS_DICCIONARIO
 
 
 
-# Inicializar variables
-
-carencia = 0
-tasa_2sec = 0.00
-capital_2sec = 0
-plazo_2sec = 0
-seguro_titular_1 = "SIN SEGURO"
-seguro_titular_2 = "SIN SEGURO"
-tasa_comision_apertura = 0.0
-comision_apertura_capitalizada = False
-imp_max_com_apertura = 0.0
-fecha_financiacion = dt.date.today()
-dia_pago = 2
-etiqueta_producto = LISTA_PRODUCTOS[1]
-on = False
-
-
-
 #  Iniciar la aplicación / Configuración del título y de la barra lateral / CSS
 
 st.title('Simulador de préstamos amortizables')
@@ -68,16 +50,12 @@ st.markdown(
 
 with st.sidebar:
 
-
-
     # Crear selector del producto amortizable a simular
-
     etiqueta_producto = st.selectbox('Elige el producto contratado:', LISTA_PRODUCTOS, index=1)
 
 
 
     # Mostrar las opciones de fecha de simulación y día de pago
-
     with st.expander("Personalizar las fechas"):
         fecha_financiacion = st.date_input("Fecha de financiación", dt.date.today())
         dia_pago = st.number_input("Día de vencimiento", 
@@ -87,7 +65,6 @@ with st.sidebar:
 
 
     # Mostrar los campos para gestionar el seguro en los productos que lo permiten
-
     if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
         with st.expander("Gestionar el seguro"):
             if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
@@ -96,15 +73,16 @@ with st.sidebar:
             else:
                 seguro_titular_1 = st.selectbox("Seguro titular 1", LISTA_SEGURO[1:], index=0)
                 seguro_titular_2 = st.selectbox("Seguro titular 2", LISTA_SEGURO[1:], index=0)
-
+    else:
+        seguro_titular_1 = "SIN SEGURO"
+        seguro_titular_2 = "SIN SEGURO"
 
 
     # Mostrar los campos para gestionar la comisión de apertura en los productos que lo permiten
-
     if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
         with st.expander("Gestionar la comisión de apertura"):
             tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura", 
-                                                     min_value=0.00, max_value=10.00, step=0.05, 
+                                                     min_value=0.00, max_value=10.00, step=0.05, value=0.00,
                                                      help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
             
             if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
@@ -115,11 +93,16 @@ with st.sidebar:
                                                              value=True)
             elif LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
+            else:
+                comision_apertura_capitalizada = False 
             
             imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)", 
                                                    min_value=0.00, step=1.00, 
                                                    help="Se debe indicar el importe que no debería superar la comisión de apertura")
-
+    else:
+        tasa_comision_apertura = 0.00
+        comision_apertura_capitalizada = False
+        imp_max_com_apertura = 0.00
 
 
     # Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
@@ -152,7 +135,8 @@ with st.sidebar:
         carencia = st.number_input("Meses de carencia", 
                                    min_value=0, max_value=4, step=1, 
                                    help="Se debe indicar la duración de la carencia total inicial")
-
+    else:
+        carencia = 0
 
 
     # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
@@ -173,17 +157,18 @@ with st.sidebar:
             plazo_2sec = st.number_input("Duración de la segunda secuencia", 
                                          min_value=1, max_value=60, step=1, 
                                          help="Se debe indicar la duración en meses del segundo tramo de amortización")   
-
+    else:
+        tasa_2sec = 0.00
+        capital_2sec = 0
+        plazo_2sec = 0
 
 
 # Mostra el resultado de la simulación
-
 if st.session_state.get("simular", True):
 
 
 
     # Obtener los resultados de la simulación llamando a la función visualizar_simulacion_unitaria de la librería COFES_SIM_AMO_Consola
-
     resumen1, resumen2, resumen3, ejemplo_representativo, cuadro_amortizacion, input_tae = sim.visualizar_simulacion_unitaria(etiqueta_producto,
                                                                                                                               fecha_financiacion,
                                                                                                                               dia_pago,
@@ -205,7 +190,6 @@ if st.session_state.get("simular", True):
     # Mostrar resumen de la simulación
     
     # Detallar las características del producto amortizable de la simulación
-
     with st.expander(f"Características del producto {etiqueta_producto}", expanded=False):
         # Filtrar el dataframe "PRODUCTOS_DICCIONARIO" con el producto seleccionado en la simulación
         producto_info = PRODUCTOS_DICCIONARIO[PRODUCTOS_DICCIONARIO["Nombre del producto"] == etiqueta_producto]
@@ -213,7 +197,6 @@ if st.session_state.get("simular", True):
         st.dataframe(producto_info.T, width='stretch')
            
         # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
-
         if LISTA_PRODUCTOS.index(etiqueta_producto) == 3:
             st.warning('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")
             st.toast('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")
@@ -221,7 +204,6 @@ if st.session_state.get("simular", True):
 
 
     # Mostrar el resumen económico de la simulación
-
     with st.expander("Resumen", expanded=True):
         col1, col2 = st.columns([0.08, 0.92], gap="small")
         html_table1 = resumen1.to_html(classes='table table-right', index=True)
@@ -243,13 +225,11 @@ if st.session_state.get("simular", True):
 
 
     # Mostrar las pestañas con los detalles de la simulación
-
     tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras", "Ejemplo representativo", "Cuadro de amortización", "Detalle TAE"])
 
 
 
     # Mostrar contenido de la pestaña Secuencias financieras
-
     with tab1:
         html_table = resumen3.to_html(classes='table table-right', index=True)
         st.markdown(html_table, unsafe_allow_html=True)
@@ -257,21 +237,18 @@ if st.session_state.get("simular", True):
 
 
     # Mostrar contenido de la pestaña "Ejemplo representativo"
-
     with tab2:
         st.code(ejemplo_representativo, wrap_lines=True)
 
 
 
     # Mostrar contenido de la pestaña "Cuadro de amortización"
-
     with tab3:
         st.dataframe(cuadro_amortizacion,hide_index=True)
 
 
 
     # Mostrar contenido de la pestaña "Detalle TAE"
-
     with tab4:
         st.dataframe(input_tae,hide_index=True)
 

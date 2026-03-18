@@ -2,9 +2,11 @@
 '''Funciones comunes a todos los simuladores'''
 
 import calendar as cl
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN, getcontext
 from io import BytesIO
 import pandas as pd
+
+getcontext().prec = 28
 
 
 def dias_año(fecha):
@@ -18,16 +20,18 @@ def truncar_decimal(valor,
                     decimales):
 
     '''Función para truncar un número decimal a un número específico de decimales sin redondear'''
-    factor = 10 ** decimales
-   
-    return int(valor * factor) / factor
-
+    if not isinstance(valor, Decimal):
+        valor = Decimal(str(valor))
+    formato = '0.' + '0' * decimales
+    return valor.quantize(Decimal(formato), rounding=ROUND_DOWN)
 
 
 def redondear_decimal(valor):
 
     '''Función para redondear un número decimal a 2 decimales'''
-    return float(Decimal(valor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+    if not isinstance(valor, Decimal):
+        valor = Decimal(str(valor))
+    return valor.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
 
@@ -43,8 +47,12 @@ def mostrar_fecha(fecha):
 
 
 
-def formatear_decimales(value: float) -> str:
+def formatear_decimales(value) -> str:
     """Formatea un valor numérico como moneda con coma decimal."""
+    if isinstance(value, Decimal):
+        value = float(value)
+    if value is None:
+        return "0,00"
     return f"{value:.2f}".replace('.', ',')
 
 

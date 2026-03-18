@@ -2,6 +2,7 @@
 '''Programa para la simulación de los productos amortizables de COF_ES'''
 
 import datetime as dt
+from decimal import Decimal
 import pandas as pd
 import numpy as np
 import bin.COFES___TAE as tools_tae
@@ -69,6 +70,10 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     
     '''Función principal para la simulación de los productos amortizables de COF_ES'''
     
+    # Convertir entradas a Decimal para cálculos en base 10 exacta
+    capital_prestado_4CB = Decimal(str(capital_prestado_4CB))
+    tasa_comision_apertura_4CB = Decimal(str(tasa_comision_apertura_4CB))
+
     '''Limpiar variables del cuadro de amortización de la operación simulada con anterioridad'''
     tipo_vencimiento.clear()
     numero_vencimiento.clear()
@@ -96,20 +101,21 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     '''Calcular capital del primer vencimiento de la facilidad de pago 4CB0'''
     ajuste_1er_vencimiento = capital_prestado_4CB - (capital_4CB * 4)
     
+    
     '''Crear el cuadro de amortización'''
     cuadro_amortizacion = pd.DataFrame()
     
     '''Alimentar cuadro de amortización'''
     dias_vencimiento = [0, 1, 32, 63, 90]
-    w_capital_inicial = 0.00
+    w_capital_inicial = Decimal('0.00')
     
     for i in range(5):
         w_fecha_vencimiento = fecha_financiacion_4CB + dt.timedelta(days=dias_vencimiento[i])
-        w_mensualidad_vencimiento = cuota_4CB if i > 0 else 0.00
-        w_capital_financiado_periodo = capital_prestado_4CB if i == 0 else 0.00
-        w_capital_vencimiento = tools.redondear_decimal(capital_4CB + ajuste_1er_vencimiento) if i == 1 else capital_4CB if i > 1 else -capital_prestado_4CB
-        w_capital_pendiente = tools.redondear_decimal(w_capital_inicial - w_capital_vencimiento)
-        w_comisiones_vencimiento = tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento) if i > 0 else 0.00
+        w_mensualidad_vencimiento = Decimal(str(cuota_4CB)) if i > 0 else Decimal('0.00')
+        w_capital_financiado_periodo = capital_prestado_4CB if i == 0 else Decimal('0.00')
+        w_capital_vencimiento = Decimal(str(tools.redondear_decimal(capital_4CB + ajuste_1er_vencimiento))) if i == 1 else Decimal(str(capital_4CB)) if i > 1 else -capital_prestado_4CB
+        w_capital_pendiente = Decimal(str(tools.redondear_decimal(w_capital_inicial - w_capital_vencimiento)))
+        w_comisiones_vencimiento = Decimal(str(tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento))) if i > 0 else Decimal('0.00')
         w_dia_año = tools.dias_año(w_fecha_vencimiento)
         
         alimentar_cuadro_amortizacion("Amortización" if i > 0 else "Financiación",
