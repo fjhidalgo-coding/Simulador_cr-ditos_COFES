@@ -111,11 +111,11 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     
     for i in range(5):
         w_fecha_vencimiento = fecha_financiacion_4CB + dt.timedelta(days=dias_vencimiento[i])
-        w_mensualidad_vencimiento = Decimal(str(cuota_4CB)) if i > 0 else Decimal('0.00')
+        w_mensualidad_vencimiento = Decimal(cuota_4CB + ajuste_1er_vencimiento) if i == 1 and tasa_comision_apertura_4CB == 0.00 else Decimal(str(cuota_4CB)) if i > 0 else Decimal('0.00')
         w_capital_financiado_periodo = capital_prestado_4CB if i == 0 else Decimal('0.00')
         w_capital_vencimiento = Decimal(str(tools.redondear_decimal(capital_4CB + ajuste_1er_vencimiento))) if i == 1 else Decimal(str(capital_4CB)) if i > 1 else -capital_prestado_4CB
         w_capital_pendiente = Decimal(str(tools.redondear_decimal(w_capital_inicial - w_capital_vencimiento)))
-        w_comisiones_vencimiento = Decimal(str(tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento))) if i > 0 else Decimal('0.00')
+        w_comisiones_vencimiento = Decimal(str(tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento))) if i > 0 and tasa_comision_apertura_4CB > 0.00 else Decimal('0.00')
         w_dia_año = tools.dias_año(w_fecha_vencimiento)
         
         alimentar_cuadro_amortizacion("Amortización" if i > 0 else "Financiación",
