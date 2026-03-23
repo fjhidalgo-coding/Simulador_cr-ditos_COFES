@@ -9,7 +9,6 @@ import bin.COFES___tools as tools
 
 
 st.title('Simulador para facilidades de pago 4CB')
-st.info('Funcionalidad en pruebas', icon="⚠️")
 
 st.set_page_config(
    page_title="Simulador para facilidades de pago 4CB",

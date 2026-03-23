@@ -183,12 +183,17 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     )
 
     ''' Crear el ejemplo representativo de la operación simulada '''
-    ej_repr_seccion_1 = (f"Para un préstamo de importe/PVP {tools.formatear_decimales(capital_prestado_4CB)} €, con un tipo de interés fijo del 0,00 % anual y TAE de {tools.formatear_decimales(tae)} %, ")
-    ej_repr_seccion_2 = f"se paga en 4 mensualidades, de {tools.formatear_decimales(cuota_4CB)} € al mes. "
-    ej_repr_seccion_3 = f"Comisión de apertura financiada: {tools.formatear_decimales(comision_apertura)} € (del {tools.formatear_decimales(tasa_comision_apertura_4CB)} %). Importe total de los intereses: 0,00 €. Coste total del préstamo: {tools.formatear_decimales(coste_total)} €. "
-    ej_repr_seccion_4 = f"Importe total adeudado/precio total a plazos: {tools.formatear_decimales(importe_total_a_pagar)} €. Sistema de amortización francés."
+    if tasa_comision_apertura_4CB == 0.00 and mensualidad_vencimiento[1] != mensualidad_vencimiento[2]:
+        ej_repr_seccion_1 = f"Ejemplo de financiación con promoción para importe PVP {tools.formatear_decimales(capital_prestado_4CB)} €: 4 cuotas, la primera de {tools.formatear_decimales(mensualidad_vencimiento[1])} € y el resto de {tools.formatear_decimales(mensualidad_vencimiento[2])} €. Importe total adeudado/precio total a plazos: {tools.formatear_decimales(importe_total_a_pagar)} €. Comisión de apertura financiada (0 %) / coste total del préstamo: 0 € . TIN 0 %. TAE 0 %."
+    elif tasa_comision_apertura_4CB == 0.00:
+        ej_repr_seccion_1 = f"Ejemplo de financiación con promoción para importe PVP {tools.formatear_decimales(capital_prestado_4CB)} €: 4 cuotas de {tools.formatear_decimales(mensualidad_vencimiento[1])} €. Importe total adeudado/precio total a plazos: {tools.formatear_decimales(importe_total_a_pagar)} €. Comisión de apertura financiada (0 %) / coste total del préstamo: 0 € . TIN 0 %. TAE 0 %."
+    else:
+        ej_repr_seccion_1 = f"Ejemplo de financiación sin promoción para importe PVP {tools.formatear_decimales(capital_prestado_4CB)} €: 4 cuotas de {tools.formatear_decimales(mensualidad_vencimiento[1])} €. Importe total adeudado/precio total a plazos: {tools.formatear_decimales(importe_total_a_pagar)} €. Comisión de apertura financiada / coste total del préstamo: {tools.formatear_decimales(comision_apertura)} € ({tools.formatear_decimales(tasa_comision_apertura_4CB)} %). TIN 0 %. TAE {tools.formatear_decimales(tae)} %."
     
-    ejemplo_representativo = ej_repr_seccion_1 + ej_repr_seccion_2 + ej_repr_seccion_3 + ej_repr_seccion_4
+    ej_repr_seccion_2 = f"\nFecha de financiación del ejemplo representativo {tools.mostrar_fecha(fecha_vencimiento[0])} y primera amortización el {tools.mostrar_fecha(fecha_vencimiento[1])}, segunda el {tools.mostrar_fecha(fecha_vencimiento[2])}, tercera el {tools.mostrar_fecha(fecha_vencimiento[3])} y cuarta el {tools.mostrar_fecha(fecha_vencimiento[4])}."
+    ej_repr_seccion_3 = f"Sistema de amortización francés. Para otros importes y/o plazos, consulte condiciones de financiación."
+    
+    ejemplo_representativo = ej_repr_seccion_1 + ej_repr_seccion_2 + ej_repr_seccion_3
 
     
     return (tae,
