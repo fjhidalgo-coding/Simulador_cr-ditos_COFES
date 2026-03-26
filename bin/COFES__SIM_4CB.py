@@ -12,6 +12,9 @@ import bin.COFES___tools as tools
 
 ''' Declarar variables globales '''
 
+dias_vencimiento = [0, 1, 32, 63, 90]
+cuadro_amortizacion = pd.DataFrame()
+    
 tipo_vencimiento = []
 numero_vencimiento = []
 fecha_vencimiento = []
@@ -34,6 +37,7 @@ acumulado_ejemplo_representativo = []
 acumulado_fecha_financiacion = []
 acumulado_capital_prestado = []
 acumulado_tasa_comision_apertura = []
+
 
 
 def alimentar_cuadro_amortizacion(w_tipo_vencimiento, 
@@ -101,14 +105,8 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     '''Calcular capital del primer vencimiento de la facilidad de pago 4CB0'''
     ajuste_1er_vencimiento = capital_prestado_4CB - (capital_4CB * 4)
     
-    
-    '''Crear el cuadro de amortización'''
-    cuadro_amortizacion = pd.DataFrame()
-    
     '''Alimentar cuadro de amortización'''
-    dias_vencimiento = [0, 1, 32, 63, 90]
     w_capital_inicial = Decimal('0.00')
-    
     for i in range(5):
         w_fecha_vencimiento = fecha_financiacion_4CB + dt.timedelta(days=dias_vencimiento[i])
         w_mensualidad_vencimiento = Decimal(cuota_4CB + ajuste_1er_vencimiento) if i == 1 and tasa_comision_apertura_4CB == 0.00 else Decimal(str(cuota_4CB)) if i > 0 else Decimal('0.00')
@@ -154,6 +152,7 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     'Tiempo': tiempo,
     'van_cuota_tae' : van_cuota_tae
 }
+
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
     cuadro_amortizacion = pd.DataFrame(datos_amortizacion)
     
