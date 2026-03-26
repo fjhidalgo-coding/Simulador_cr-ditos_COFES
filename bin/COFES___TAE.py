@@ -16,8 +16,12 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,
     w_fecha_ultimo_vencimiento_tratado = pd.to_datetime(w_fecha_ultimo_vencimiento_tratado)
     
     '''Función para calcular la fracción del año entre la fecha de financiación y el vencimiento tratado'''
-    w_dia_año_anterior = tools.dias_año(w_fecha_ultimo_vencimiento_tratado - pd.DateOffset(days=1))
-    w_dia_año_anterior = w_dia_año if pd.to_datetime(w_fecha_ultimo_vencimiento_tratado).year ==  pd.to_datetime(fecha_financiacion).year else w_dia_año_anterior 
+    if pd.to_datetime(w_fecha_ultimo_vencimiento_tratado).year ==  pd.to_datetime(fecha_financiacion).year:
+        w_dia_año_anterior = w_dia_año
+    else:
+        w_dia_año_anterior = tools.dias_año(w_fecha_ultimo_vencimiento_tratado - pd.DateOffset(days=1))
+    
+       
     delta_años = 0 if (w_fecha_ultimo_vencimiento_tratado.year - fecha_financiacion.year + 1) < 1 else w_fecha_ultimo_vencimiento_tratado.year - fecha_financiacion.year + 1
     w_aniversario_fecha_financiación = fecha_financiacion + pd.DateOffset(years=delta_años)
     
