@@ -5,9 +5,7 @@
 
 # Importar los módulos a utilizar en la aplicación
 
-import datetime  as dt
 import streamlit as st
-import pandas as pd
 import bin.COFES__SIM_AMO as sim
 import bin.COFES___tools as tools
 
@@ -15,9 +13,9 @@ import bin.COFES___tools as tools
 
 #  Declarar las listas de productos tanto de crédito como de seguro
 
-LISTA_SEGURO = sim.LISTA_SEGURO
-LISTA_PRODUCTOS = sim.LISTA_PRODUCTOS
-PRODUCTOS_DICCIONARIO = sim.PRODUCTOS_DICCIONARIO
+LISTA_PRODUCTOS = tools.LISTA_PRODUCTOS
+LISTA_SEGURO = tools.LISTA_SEGURO
+PRODUCTOS_DICCIONARIO = tools.PRODUCTOS_DICCIONARIO
 
 
 
@@ -57,7 +55,7 @@ with st.sidebar:
 
     # Mostrar las opciones de fecha de simulación y día de pago
     with st.expander("Personalizar las fechas"):
-        fecha_financiacion = st.date_input("Fecha de financiación", dt.date.today())
+        fecha_financiacion = st.date_input("Fecha de financiación", tools.dt.date.today())
         dia_pago = st.number_input("Día de vencimiento", 
                                    min_value=1, max_value=12, step=1, value=2, 
                                    help="Se debe indicar el día de pago seleccionado por el cliente")
@@ -216,7 +214,7 @@ if st.session_state.get("simular", True):
         label="📥 Descargar en Excel",
         data=tools.generar_excel(resumen2,
                                  cuadro_amortizacion,
-                                 pd.DataFrame({'TAE': [resumen1.at['%','TAE']], 'Ejemplo representativo': [ejemplo_representativo]}),
+                                 tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']], 'Ejemplo representativo': [ejemplo_representativo]}),
                                  input_tae,
                                  resumen3),
         file_name="simulacion_amortizable.xlsx",

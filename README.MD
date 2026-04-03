@@ -14,12 +14,10 @@ Aplicación Streamlit para simular productos amortizables de COF_ES: cálculo de
   - **1_Simulación_masiva.py** — Simulación masiva de operaciones.
   - **2_Simulación_curso_vida.py** — (En construcción) Simulación de operaciones en curso de vida del préstamo.
 - **/data/**
-
   - **COFES_00_PRODUCTOS_DICCIONARIO.csv** - Contiene el detalle de los productos
   - **COFES_01_Date_Blocage.csv** - Contiene el listado de fechas de cierre contable
 
 - **/bin/**
-
   - **COFES\_\_SIM_AMO_Consola.py** - Funciones para realizar las simulaciones de préstamo
 
 ---
@@ -95,6 +93,7 @@ Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_
 ### 👥 Contribuyentes
 
 <img src="https://github.com/fjhidalgo-coding.png" width="24" height="24"> [fjhidalgo-coding](https://github.com/fjhidalgo-coding)
+<img src="https://github.com/mildredbr-design.png" width="24" height="24"> [mildredbr-design](https://https://github.com/mildredbr-design)
 
 ---
 
