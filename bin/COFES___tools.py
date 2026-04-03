@@ -271,7 +271,7 @@ def mostrar_fecha(fecha):
 
     ''' Función para devolver la fecha formateada a dd/mm/yyyy '''
     if fecha is not None and pd.notnull(fecha):
-        fecha = pd.to_datetime(fecha).strftime('%d/%m/%Y') 
+        fecha = pd.to_datetime(fecha, format='%d/%m/%Y').strftime('%d/%m/%Y') 
     else:
         return None    
 
@@ -338,6 +338,8 @@ def truncar_decimal(valor,
                     decimales):
 
     '''Función para truncar un número decimal a un número específico de decimales sin redondear'''
+    if not isinstance(valor, Decimal):
+        valor = Decimal(str(valor))
     formato = '0.' + '0' * decimales
 
-    return bascular_a_decimal(valor, ROUND_DOWN)
+    return valor.quantize(Decimal(formato), rounding=ROUND_DOWN)
