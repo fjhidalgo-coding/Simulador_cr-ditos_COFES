@@ -202,53 +202,55 @@ if st.session_state.get("simular", True):
 
 
     # Mostrar el resumen económico de la simulación
-    with st.expander("Resumen", expanded=True):
-        col1, col2 = st.columns([0.08, 0.92], gap="small")
-        html_table1 = resumen1.to_html(classes='table table-right', index=True)
-        html_table2 = resumen2.to_html(classes='table table-right', index=True)
-
-        col1.markdown(html_table1, unsafe_allow_html=True)
-        col2.markdown(html_table2, unsafe_allow_html=True)
-
-    st.download_button(
-        label="📥 Descargar en Excel",
-        data=tools.generar_excel(resumen2,
-                                 cuadro_amortizacion,
-                                 tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']], 'Ejemplo representativo': [ejemplo_representativo]}),
-                                 input_tae,
-                                 resumen3),
-        file_name="simulacion_amortizable.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-
-    # Mostrar las pestañas con los detalles de la simulación
-    tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras", "Ejemplo representativo", "Cuadro de amortización", "Detalle TAE"])
-
-
-
-    # Mostrar contenido de la pestaña Secuencias financieras
-    with tab1:
-        html_table = resumen3.to_html(classes='table table-right', index=True)
-        st.markdown(html_table, unsafe_allow_html=True)
-
-
-
-    # Mostrar contenido de la pestaña "Ejemplo representativo"
-    with tab2:
-        st.code(ejemplo_representativo, wrap_lines=True)
-
-
-
-    # Mostrar contenido de la pestaña "Cuadro de amortización"
-    with tab3:
-        st.dataframe(cuadro_amortizacion,hide_index=True)
-
-
-
-    # Mostrar contenido de la pestaña "Detalle TAE"
-    with tab4:
-        st.dataframe(input_tae,hide_index=True)
+    if resumen1 is None:
+         st.error(ejemplo_representativo, icon="❌")
+    else:
+        with st.expander("Resumen", expanded=True):
+            col1, col2 = st.columns([0.08, 0.92], gap="small")
+            html_table1 = resumen1.to_html(classes='table table-right', index=True)
+            html_table2 = resumen2.to_html(classes='table table-right', index=True)    
+            col1.markdown(html_table1, unsafe_allow_html=True)
+            col2.markdown(html_table2, unsafe_allow_html=True)
+    
+        st.download_button(
+            label="📥 Descargar en Excel",
+            data=tools.generar_excel(resumen2,
+                                     cuadro_amortizacion,
+                                     tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']], 'Ejemplo representativo': [ejemplo_representativo]}),
+                                     input_tae,
+                                     resumen3),
+            file_name="simulacion_amortizable.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    
+    
+        # Mostrar las pestañas con los detalles de la simulación
+        tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras", "Ejemplo representativo", "Cuadro de amortización", "Detalle TAE"])
+    
+    
+    
+        # Mostrar contenido de la pestaña Secuencias financieras
+        with tab1:
+            html_table = resumen3.to_html(classes='table table-right', index=True)
+            st.markdown(html_table, unsafe_allow_html=True)
+    
+    
+    
+        # Mostrar contenido de la pestaña "Ejemplo representativo"
+        with tab2:
+            st.code(ejemplo_representativo, wrap_lines=True)
+    
+    
+    
+        # Mostrar contenido de la pestaña "Cuadro de amortización"
+        with tab3:
+            st.dataframe(cuadro_amortizacion,hide_index=True)
+    
+    
+    
+        # Mostrar contenido de la pestaña "Detalle TAE"
+        with tab4:
+            st.dataframe(input_tae,hide_index=True)
 
 
 

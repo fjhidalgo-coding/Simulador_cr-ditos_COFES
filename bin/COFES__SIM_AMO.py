@@ -152,6 +152,30 @@ def simular_prestamo_CLB(etiqueta_producto,
     tasa_comision_apertura = tools.redondear_decimal(tasa_comision_apertura)
     imp_max_com_apertura = tools.redondear_decimal(imp_max_com_apertura)
 
+    '''Control sobre el capital'''
+    if capital_prestado <= 0.00 or capital_2sec >= capital_prestado:
+        return (tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00),
+                tools.redondear_decimal(0.00), 
+                tools.redondear_decimal(0.00), 
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                "El capital de las secuencias financieras es incoherente.")
+
     '''Calcular la comisión de apertura'''
     comision_apertura, capitalizacion_comision_apertura = tools.calcular_comision_apertura(capital_prestado,
                                                                                            tasa_comision_apertura,
