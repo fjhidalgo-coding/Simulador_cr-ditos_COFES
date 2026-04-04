@@ -56,22 +56,25 @@ st.markdown(
 # Primera sección de inputs: capital, TIN, fecha de inicio y tipo de cálculo
 col_varios_1, col_varios_2, col_varios_3, col_varios_4 = st.columns([0.25, 0.25, 0.25, 0.25], gap="small")
 
-capital = col_varios_1.number_input("Importe de financiación (€)",min_value=0.0, max_value=1000000.0, step=250.00, value=3000.0)
-tin = col_varios_2.number_input("TIN anual (%)",min_value=0.0, max_value=30.0, step=0.10, value=21.79)
-fecha_inicio = col_varios_3.date_input("Fecha de financiación", datetime.today())
-dia_recibo = col_varios_4.selectbox("Seleccione el día del recibo (1-12)",options=list(range(1, 13)), index=1)
+seguro_str=col_varios_1.selectbox("Seguro mensual",list(opciones_seguro.keys()))
+seguro_tasa=opciones_seguro[seguro_str]
 
+fecha_inicio = col_varios_2.date_input("Fecha de financiación", datetime.today())
+dia_recibo = col_varios_3.selectbox("Seleccione el día del recibo (1-12)",options=list(range(1, 13)), index=1)
 
 
 # Segunda sección de inputs: tipo de cálculo, valor asociado al tipo de cálculo y seguro mensual
-col_varios_5, col_varios_6, col_varios_7 = st.columns([0.25, 0.25, 0.25], gap="small")
+col_varios_5, col_varios_6, col_varios_7, col_varios_8 = st.columns([0.25, 0.25, 0.25, 0.25], gap="small")
 
-tipo_calculo = col_varios_5.selectbox("Tipo de cálculo",["Seleccionar","Vitesse","Cuota","Duración"])
+capital = col_varios_5.number_input("Importe de financiación (€)",min_value=0.0, max_value=1000000.0, step=250.00, value=3000.0)
+tin = col_varios_6.number_input("TIN anual (%)",min_value=0.0, max_value=30.0, step=0.10, value=21.79)
+
+tipo_calculo = col_varios_7.selectbox("Tipo de cálculo",["Seleccionar","Vitesse","Cuota","Duración"])
 if tipo_calculo=="Vitesse":
-    valor=col_varios_6.selectbox("Vitesse (%)",vitesse_valores)
+    valor=col_varios_8.selectbox("Vitesse (%)",vitesse_valores)
 elif tipo_calculo=="Cuota":
     opciones_cuota=[round(capital*v/100,2) for v in vitesse_valores]
-    valor=col_varios_6.selectbox("Cuota mensual (€)",opciones_cuota)
+    valor=col_varios_8.selectbox("Cuota mensual (€)",opciones_cuota)
 elif tipo_calculo=="Duración":
     opciones_duracion=[]
     mapa_vitesse={}
@@ -82,11 +85,13 @@ elif tipo_calculo=="Duración":
         etiqueta=f"{meses} meses"
         opciones_duracion.append(etiqueta)
         mapa_vitesse[etiqueta]=v
-    seleccion=col_varios_5.selectbox("Duración del préstamo",opciones_duracion)
+    seleccion=col_varios_8.selectbox("Duración del préstamo",opciones_duracion)
     valor=mapa_vitesse[seleccion]
     tipo_calculo="Vitesse"
-seguro_str=col_varios_7.selectbox("Seguro mensual",list(opciones_seguro.keys()))
-seguro_tasa=opciones_seguro[seguro_str]
+
+
+
+
 
 if valor is not None and tipo_calculo!="Seleccionar":
     

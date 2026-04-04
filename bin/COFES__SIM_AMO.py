@@ -711,6 +711,13 @@ def simular_prestamo_CLB(etiqueta_producto,
     
     ejemplo_representativo = ej_repr_seccion_1 + ej_repr_seccion_2 + ej_repr_seccion_3 + ej_repr_seccion_4
     
+    ''' Convertir DataFrames a str para compatibilidad con Arrow en Streamlit 1.56 '''
+    cuadro_amortizacion = cuadro_amortizacion.astype(str)
+    input_tae = input_tae.astype(str)
+    resumen1 = resumen1.astype(str)
+    resumen2 = resumen2.astype(str)
+    resumen3 = resumen3.astype(str)
+    
     return (tae,
             comision_apertura,
             importe_total_a_pagar,
