@@ -16,7 +16,7 @@ FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_
 PRODUCTOS_DICCIONARIO = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
 LISTA_PRODUCTOS = list(PRODUCTOS_DICCIONARIO['Nombre del producto'].values)
 LISTA_SEGURO = ["Seguro ADE", "Sin seguro", "Vida Plus", "Vida"]
-VITESSE_VALORES = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37]
+RCC_OPCIONES_VITESSE = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37]
 OPCIONES_SEGURO = {
     "No":0,
     "Un titular Light":0.0035,
@@ -329,12 +329,19 @@ def obtener_tasa_seguro_auto(plazo,
 
 
 
-def rcc_opciones_cuota(capital):
+def rcc_obtener_cuota(capital,vitesse):
 
     '''Función para calcular la cuota mensual en base al capital y el porcentaje de vitesse seleccionado'''
+    return redondear_decimal(capital * vitesse / 100)
+
+
+
+def rcc_opciones_cuota(capital):
+
+    '''Función para listar las cuotas posibles en base a las vitesse disponibles para un capital dado'''
     listado_mensualidades = []
-    for i in VITESSE_VALORES:
-        listado_mensualidades.append(redondear_decimal(capital * i / 100))
+    for i in RCC_OPCIONES_VITESSE:
+        listado_mensualidades.append(rcc_obtener_cuota(capital, i))
         
     return listado_mensualidades
 

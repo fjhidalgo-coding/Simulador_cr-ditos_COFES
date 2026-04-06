@@ -1,24 +1,33 @@
-# Simulador de Préstamos Amortizables COF_ES
+# Simulador de productos COF_ES
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![Streamlit](https://img.shields.io/badge/Framework-Streamlit-brightgreen)
 
-Aplicación Streamlit para simular productos amortizables de COF_ES: cálculo de cuotas, cuadro de amortización, TAE y ejemplo representativo.
+Aplicación Streamlit para simular los datos financieros de cualquier producto: cálculo de cuotas, cuadro de amortización, TAE y ejemplo representativo.
 
 ---
 
 ## Estructura del Proyecto
 
+- **README\.MD**
 - **requirements.txt**
-- **app_simulador_CLB.py** - Interfaz principal con el simulador operaciones unitarias
-- **/pages/**
-  - **1_Simulación_masiva.py** — Simulación masiva de operaciones.
-  - **2_Simulación_curso_vida.py** — (En construcción) Simulación de operaciones en curso de vida del préstamo.
-- **/data/**
-  - **COFES_00_PRODUCTOS_DICCIONARIO.csv** - Contiene el detalle de los productos
-  - **COFES_01_Date_Blocage.csv** - Contiene el listado de fechas de cierre contable
+- **Simulacion_amortizable_unitaria.py** - Interfaz principal con el simulador operaciones unitarias para los productos amortizables.
 
 - **/bin/**
-  - **COFES\_\_SIM_AMO_Consola.py** - Funciones para realizar las simulaciones de préstamo
+  - **COFES\_\_\_TAE.py** - Funciones comunes para el cómputo de la TAE.
+  - **COFES\_\_\_tools.py** - Funciones comunes a todos los simuladores.
+  - **COFES\_\_SIM_4CB.py** - Funciones para el simulador de facilidades de pago.
+  - **COFES\_\_SIM_AMO.py** - Funciones para el simulador de productos amortizables.
+  - **COFES\_\_SIM_RCC.py** - Funciones para el simulador de productos revolving.
+
+- **/data/**
+  - **COFES_00_PRODUCTOS_DICCIONARIO.csv** - Contiene el detalle de los productos amortizables.
+  - **COFES_01_Date_Blocage.csv** - Contiene el listado de fechas de cierre contable.
+
+- **/pages/**
+  - **1_Simulacion_4CB.py** — Simulador unitario y masivo para facilidades de pago.
+  - **2_Simulacion_NFOIS_unitaria.py** — (En construcción) Simulador unitario para los productos NFOIS.
+  - **3_Simulacion_revolving_unitaria.py** — (En pruebas) Simulador unitario para los productos revolving.
+  - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
 
 ---
 
@@ -39,6 +48,7 @@ requirements.txt:
 streamlit
 pandas
 numpy
+xlsxwriter
 ```
 
 Ejecuta la aplicación:
@@ -50,50 +60,19 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ---
 
-## 📝 Uso
-
-1. Selecciona el producto de crédito en la barra lateral.
-2. Personaliza fechas, importe, plazo, tipo de interés y otros parámetros.
-3. Configura el seguro y la comisión de apertura si el producto lo permite.
-4. Para productos con segunda secuencia financiera, activa la opción y configura los valores.
-5. Visualiza los resultados en las pestañas:
-   - **Secuencias financieras**: Resumen de vencimientos y cuotas.
-   - **Ejemplo representativo**: Texto explicativo del préstamo simulado.
-   - **Cuadro de amortización**: Detalle mensual de pagos, intereses y capital.
-   - **Detalle TAE**: Cálculo de la TAE y VAN.
-
----
-
-## 🛠️ Principales Funcionalidades
-
-| Funcionalidad           | Descripción                             |
-| ----------------------- | --------------------------------------- |
-| Simulación de préstamos | Diferentes productos y condiciones      |
-| Cálculo automático      | Cuotas, intereses, comisiones y seguros |
-| Visualización           | Cuadros de amortización y TAE           |
-| Ejemplo representativo  | Información clara para el cliente       |
-| Interfaz interactiva    | Personalización de parámetros           |
-
----
-
 ## 📦 Dependencias
 
 - [Streamlit](https://streamlit.io/)
 - [Pandas](https://pandas.pydata.org/)
 - [Numpy](https://pypi.org/project/numpy/)
-
----
-
-## 🎨 Personalización
-
-Puedes modificar los productos, seguros y parámetros en el módulo `COFES__SIM_AMO_Consola.py` para adaptarlo a nuevas ofertas o condiciones.
+- [xlsxwriter](https://pypi.org/project/xlsxwriter/)
 
 ---
 
 ### 👥 Contribuyentes
 
 <img src="https://github.com/fjhidalgo-coding.png" width="24" height="24"> [fjhidalgo-coding](https://github.com/fjhidalgo-coding)
-<img src="https://github.com/mildredbr-design.png" width="24" height="24"> [mildredbr-design](https://https://github.com/mildredbr-design)
+<img src="https://github.com/mildredbr-design.png" width="24" height="24"> [mildredbr-design](https://github.com/mildredbr-design)
 
 ---
 

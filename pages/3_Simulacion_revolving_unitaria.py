@@ -69,30 +69,20 @@ tipo_calculo = col_varios_7.selectbox("Tipo de cálculo",
                                       ["Seleccionar","Vitesse","Cuota","Duración"])
 
 if tipo_calculo == "Vitesse":
-    valor = col_varios_8.selectbox("Vitesse (%)",tools.VITESSE_VALORES)
+    cuota = tools.rcc_obtener_cuota(capital,col_varios_8.selectbox("Vitesse (%)",tools.RCC_OPCIONES_VITESSE))
 elif tipo_calculo == "Cuota":
-    valor = col_varios_8.selectbox("Cuota mensual (€)",tools.rcc_opciones_cuota(capital))
+    cuota = col_varios_8.selectbox("Cuota mensual (€)",tools.rcc_opciones_cuota(capital))
 elif tipo_calculo == "Duración":
-    opciones_duracion = []
-    mapa_vitesse = {}
-    for v in tools.VITESSE_VALORES:
-        cuota_test = round(capital*v/100,2)
-        tabla_test = sim.simulador(capital,tin,"Cuota",cuota_test,fecha_financiacion,0)
-        meses = len(tabla_test)
-        etiqueta = f"{meses} meses"
-        opciones_duracion.append(etiqueta)
-        mapa_vitesse[etiqueta] = v
-    seleccion = col_varios_8.selectbox("Duración del préstamo",opciones_duracion)
-    valor = mapa_vitesse[seleccion]
-    tipo_calculo = "Vitesse"
+    rcc_duraciones, rcc_cuotas = sim.rcc_obtener_duraciones(capital, tin, fecha_financiacion)    
+    cuota = rcc_cuotas[col_varios_8.selectbox("Duración del crédito", rcc_duraciones)]
 else:
-    valor = None
+    cuota = None
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Llamar backend para simular la operación y obtener resultados de la simulación
 # ----------------------------------------------------------------------------------------------------------------------
-if valor is not None:
-    cuadro_amortización, rcc_resumen = sim.simulador(capital, tin, tipo_calculo, valor, fecha_financiacion, seguro_tasa)
+if cuota is not None:
+    cuadro_amortización, rcc_resumen = sim.rcc_simulacion_completa(capital, tin, cuota, fecha_financiacion, seguro_tasa)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel

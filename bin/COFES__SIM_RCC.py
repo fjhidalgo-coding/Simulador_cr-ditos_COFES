@@ -24,6 +24,19 @@ def siguiente_recibo(fecha):
         return tools.dt.date(fecha.year + 1, 1, 2)
     return tools.dt.date(fecha.year, fecha.month + 1, 2)
 
+def rcc_obtener_duraciones(capital, tin, fecha_financiacion):
+    rcc_duraciones = []
+    rcc_cuotas = {}
+    for v in tools.RCC_OPCIONES_VITESSE:
+        cuota_test = round(capital*v/100,2)
+        cuadro_amortización = simulador(capital,tin,cuota_test,fecha_financiacion,0)
+        meses = len(cuadro_amortización)
+        etiqueta = f"{meses} meses"
+        rcc_duraciones.append(etiqueta)
+        rcc_cuotas[etiqueta] = cuota_test
+    
+    return rcc_duraciones, rcc_cuotas    
+
 # ---------------------------------------------------------
 # CALCULO INTERESES
 # ---------------------------------------------------------
@@ -80,9 +93,10 @@ def interes_preciso(capital, tin, fecha_financiacion, fecha_fin):
 # SIMULADOR
 # ---------------------------------------------------------
 
-def simulador(capital, tin, tipo_calculo, valor, fecha_financiacion, seguro_tasa=0):
+def simulador(capital, tin, cuota, fecha_financiacion, seguro_tasa=0):
 
     capital = tools.Decimal(str(capital))
+    cuota = tools.Decimal(str(cuota))
     saldo = capital
     seguro_tasa = tools.Decimal(str(seguro_tasa))
     
@@ -91,12 +105,6 @@ def simulador(capital, tin, tipo_calculo, valor, fecha_financiacion, seguro_tasa
 
     cuadro_amortización = []
     mes = 1
-
-    if tipo_calculo == "Vitesse":
-        cuota = (capital * tools.Decimal(str(valor)) / tools.Decimal("100")).quantize(tools.Decimal("0.01"), tools.ROUND_HALF_UP)
-
-    elif tipo_calculo == "Cuota":
-        cuota = tools.Decimal(str(valor)).quantize(tools.Decimal("0.01"), tools.ROUND_HALF_UP)
 
     while saldo > 0:
 
@@ -144,8 +152,11 @@ def simulador(capital, tin, tipo_calculo, valor, fecha_financiacion, seguro_tasa
         if mes > 600:
             break
     
-    cuadro_amortización = tools.pd.DataFrame(cuadro_amortización)
-    
+    return tools.pd.DataFrame(cuadro_amortización)
+
+
+def rcc_simulacion_completa(capital, tin, cuota, fecha_financiacion, seguro_tasa=0):
+    cuadro_amortización = simulador(capital, tin, cuota, fecha_financiacion, seguro_tasa)
     # Quitar columna seguro si no hay seguro
     if seguro_tasa == 0 and "Seguro (€)" in cuadro_amortización.columns:
         cuadro_amortización = cuadro_amortización.drop(columns=["Seguro (€)"])
