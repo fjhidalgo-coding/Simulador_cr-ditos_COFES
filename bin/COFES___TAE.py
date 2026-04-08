@@ -35,7 +35,7 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,
         w_aniversario_fecha_financiación += tools.pd.DateOffset(years=-1)
         fraccion_año = delta_años + ((tools.pd.to_datetime(w_fecha_ultimo_vencimiento_tratado).dayofyear - tools.pd.to_datetime(w_aniversario_fecha_financiación).dayofyear) / w_dia_año)
 
-    return tools.truncar_decimal(fraccion_año, 7)
+    return tools.truncar_decimal(fraccion_año, 17)
 
 
 
@@ -57,14 +57,14 @@ def calcular_tae(cuota_tae,
         for i in range(len(cuota_tae)):
             cuota = float(cuota_tae[i]) if cuota_tae[i] is not None else 0.0
             periodo = float(tiempo[i]) if tiempo[i] is not None else 0.0
-            van_cuota_tae.append(cuota / ((1 + tae) ** periodo))
+            van_cuota_tae.append(tools.truncar_decimal(cuota / ((1 + tae) ** periodo), 17))
             
         if abs(sum(van_cuota_tae)) < tolerancia:  # Comprueba si el VAN está dentro de la tolerancia
             return tools.redondear_decimal(tools.Decimal(str(tae * 100)))
-        
-        if sum(van_cuota_tae) < 0:
-            tae -= 0.0001
         else:
-            tae += 0.0001
+            if sum(van_cuota_tae) < 0:
+                tae -= 0.0001
+            else:
+                tae += 0.0001
         
     return tools.redondear_decimal(tools.Decimal(str(tae * 100)))

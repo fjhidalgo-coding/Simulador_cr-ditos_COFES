@@ -10,7 +10,7 @@ import numpy as np
 
 
 ''' Declarar las constantes globales para todos los simuladores '''
-getcontext().prec = 28
+getcontext().prec = 17
 
 FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
 PRODUCTOS_DICCIONARIO = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
@@ -211,8 +211,16 @@ def calcular_periodo_roto(base_calculo,
     base_calculo = redondear_decimal(base_calculo)
     tasa_a_aplicar = redondear_decimal(tasa_a_aplicar)
 
-    '''Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo'''
-    importe_calculo_periodo_roto = redondear_decimal(base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / w_DIAS_BASE)
+    ''' AMO: Calcular el interés o el seguro cuando el día de inicio de periodo no coincide con el día de fin de periodo
+        RCC: Calcular el interés del periodo'''
+    if w_DIAS_BASE == 365:
+        if dias_año(fecha_inicio) != dias_año(fecha_fin) and fecha_fin.month == 1:
+            importe_calculo_periodo_roto = (truncar_decimal(base_calculo * tasa_a_aplicar / 100 * (dt.datetime(fecha_inicio.year, 12, 31) - fecha_inicio).days / dias_año(fecha_inicio), 5) +
+                                            truncar_decimal(base_calculo * tasa_a_aplicar / 100 * ((fecha_fin - dt.datetime(fecha_fin.year, 1, 1)).days + 1) / dias_año(fecha_fin), 5))
+        else:
+            importe_calculo_periodo_roto = base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / dias_año(fecha_fin)
+    else:
+        importe_calculo_periodo_roto = base_calculo * tasa_a_aplicar / 100 * (pd.to_datetime(fecha_fin) - pd.to_datetime(fecha_inicio)).days / w_DIAS_BASE
     
     return redondear_decimal(importe_calculo_periodo_roto)
 
