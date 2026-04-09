@@ -10,14 +10,18 @@ import numpy as np
 
 
 ''' Declarar las constantes globales para todos los simuladores '''
-getcontext().prec = 17
+getcontext().prec = 50
 
 FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
 PRODUCTOS_DICCIONARIO = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
 LISTA_PRODUCTOS = list(PRODUCTOS_DICCIONARIO['Nombre del producto'].values)
 LISTA_SEGURO = ["Seguro ADE", "Sin seguro", "Vida Plus", "Vida"]
 RCC_OPCIONES_VITESSE = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37]
-OPCIONES_SEGURO = {
+OPCIONES_SEGURO_NFOIS = {
+    "No":0,
+    "ADE NFOIS":0.006
+}
+OPCIONES_SEGURO_RCC = {
     "No":0,
     "Un titular Light":0.0035,
     "Un titular Full/Senior":0.0061,
@@ -26,7 +30,6 @@ OPCIONES_SEGURO = {
     "Dos titulares Light/Light":0.0059,
     "Dos titulares Full/Light":0.0082
 }
-
 
 ''' Declarar las funciones comunes para todos los simuladores '''
 

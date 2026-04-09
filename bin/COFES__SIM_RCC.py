@@ -12,7 +12,7 @@ DIAS_BASE = 365
 
 
 
-''' Crear las funciones necesarias para la simulación amortizable'''
+''' Crear las funciones necesarias para la simulación revolving'''
 
 def rcc_cuadro_amortización(capital,
                             tin,
@@ -28,7 +28,7 @@ def rcc_cuadro_amortización(capital,
     capital = tools.redondear_decimal(capital)
     cuota = tools.redondear_decimal(cuota)
     tin = tools.redondear_decimal(tin)
-    seguro_tasa = tools.redondear_decimal(seguro_tasa)
+    seguro_tasa = tools.truncar_decimal(seguro_tasa, 4)
     saldo = capital
     mes = 1
     cuadro_amortización = []
@@ -130,6 +130,7 @@ def rcc_simulacion_completa(capital,
     
     total_intereses = tools.redondear_decimal(cuadro_amortización["Intereses total (€)"].sum())
     total_capital_intereses = tools.redondear_decimal(cuadro_amortización["Cuota (€)"].sum())
+    van_cuota_tae = []
 
     if seguro_tasa > 0:
         total_seguro = tools.redondear_decimal(cuadro_amortización["Seguro (€)"].sum())
@@ -142,8 +143,15 @@ def rcc_simulacion_completa(capital,
     tae = tools_tae.calcular_tae(cuotas_tae,
                                  tiempo,
                                  tin,
-                                 van_cuota_tae=[])
-    
+                                 van_cuota_tae)
+
+    datos_tae = {
+                 'Fecha' : [tools.mostrar_fecha(fecha_financiacion)]+list(cuadro_amortización["Fecha recibo"]),
+                 'cuota_tae' : cuotas_tae,
+                 'Tiempo': tiempo,
+                 'van_cuota_tae' : van_cuota_tae
+                 }    
+        
     cuadro_amortización = cuadro_amortización.drop(columns=["Fecha tae",
                                                             "Tiempo"])
     
@@ -184,4 +192,5 @@ def rcc_simulacion_completa(capital,
     rcc_resumen = tools.pd.DataFrame(rcc_resumen).transpose()
 
     return (tools.pd.DataFrame(cuadro_amortización),
-            tools.pd.DataFrame(rcc_resumen))
+            tools.pd.DataFrame(rcc_resumen),
+            tools.pd.DataFrame(datos_tae))
