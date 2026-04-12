@@ -3,6 +3,8 @@
 
 import bin.COFES___tools as tools
 
+
+
 ''' Definir funciones asociadas al cálculo de la TAE '''
 
 def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,
@@ -35,7 +37,7 @@ def calcular_fraccion_entre_financiacion_y_vencimiento(fecha_financiacion,
         w_aniversario_fecha_financiación += tools.pd.DateOffset(years=-1)
         fraccion_año = delta_años + ((tools.pd.to_datetime(w_fecha_ultimo_vencimiento_tratado).dayofyear - tools.pd.to_datetime(w_aniversario_fecha_financiación).dayofyear) / w_dia_año)
 
-    return tools.truncar_decimal(fraccion_año, 17)
+    return tools.truncar_decimal(fraccion_año, 10)
 
 
 
@@ -43,28 +45,29 @@ def calcular_tae(cuota_tae,
                  tiempo,
                  tasa,
                  van_cuota_tae=None,
-                 tolerancia=0.000001,
-                 max_iteraciones=1000):
+                 tolerancia=0.0001,
+                 max_iteraciones=2000):
 
     '''Función para calcular la TAE de la operación'''
     if van_cuota_tae is None:
         van_cuota_tae = []
 
-    tasa_float = float(tasa)
-    tae = (1 + tasa_float / 1200) ** 12 - 1 # TAE inicial aproximada
+    tae = tools.truncar_decimal((1 + tasa / 1200) ** 12 - 1, 10) # TAE inicial aproximada
+    tae = float(tae)
+    
     for _ in range(max_iteraciones):
         van_cuota_tae.clear()
         for i in range(len(cuota_tae)):
             cuota = float(cuota_tae[i]) if cuota_tae[i] is not None else 0.0
             periodo = float(tiempo[i]) if tiempo[i] is not None else 0.0
-            van_cuota_tae.append(tools.truncar_decimal(cuota / ((1 + tae) ** periodo), 17))
+            van_cuota_tae.append(tools.truncar_decimal(cuota / ((1 + tae) ** periodo), 10))
             
         if abs(sum(van_cuota_tae)) < tolerancia:  # Comprueba si el VAN está dentro de la tolerancia
-            return tools.redondear_decimal(tools.Decimal(str(tae * 100)))
+            return tools.redondear_decimal(tae * 100)
         else:
             if sum(van_cuota_tae) < 0:
-                tae -= 0.0001
+                tae -= 0.0001600666
             else:
-                tae += 0.0001
+                tae += 0.0001300333
         
-    return tools.redondear_decimal(tools.Decimal(str(tae * 100)))
+    return tools.redondear_decimal(tae * 100)

@@ -183,8 +183,12 @@ def calcular_mensualidad_estandar(importe_crédito,
     else:
         cuota_2sec = 0.00
     
-    return (redondear_decimal_superior(cuota_1sec),
-            redondear_decimal_superior(cuota_2sec))
+    if w_DIAS_BASE == 365:
+        return (redondear_decimal(cuota_1sec),
+                redondear_decimal(cuota_2sec))
+    else:
+        return (redondear_decimal_superior(cuota_1sec),
+                redondear_decimal_superior(cuota_2sec))
 
 
 

@@ -170,21 +170,23 @@ def nfois_simulacion_completa(capital_prestado,
     nfois_resumen = {
         "Concepto" : [
             "Duración (meses)",
-            "Intereses (€)",
-            "Comisión de apertura (€)",
+            "Mensualidad contractual (€)",
+            "TAE (%)",
+            "Importe total a pagar (€)",
             "Seguro (€)",
-            "Coste total (comisión de apertura + intereses)",
-            "Importe total a pagar",
-            "TAE (%)"
+            "Coste total (€, comisión de apertura + intereses)",
+            "Intereses (€)",
+            "Comisión de apertura (€)"
         ],
         "Valor" : [
             len(cuadro_amortización),
-            tools.formatear_decimales(total_intereses),
-            tools.formatear_decimales(comision_apertura),
+            tools.formatear_decimales(cuota_1sec),
+            tools.formatear_decimales(tae),
+            tools.formatear_decimales(total_capital_intereses+total_seguro),
             tools.formatear_decimales(total_seguro),
             tools.formatear_decimales(comision_apertura + total_intereses),
-            tools.formatear_decimales(total_capital_intereses+total_seguro),
-            tools.formatear_decimales(tae)
+            tools.formatear_decimales(total_intereses),
+            tools.formatear_decimales(comision_apertura)
         ]
     }
     
