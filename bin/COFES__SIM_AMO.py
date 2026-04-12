@@ -876,13 +876,17 @@ def simular_masivamente(capital_2sec,
     
     ''' Función la simulación masiva de préstamos amortizables '''
     for fecha_financiacion in fechas_financiacion:
+        print(fecha_financiacion)
         for capital_prestado in importes_prestado:
+            print(capital_prestado)
             w_capital_prestado = capital_prestado
             capital_prestado = (capital_prestado - entrega_a_cuenta)
             if on:
                 capital_2sec = tools.redondear_decimal(w_capital_prestado * w_capital_2sec / 100)
             for carencia in carencias:
+                print(carencia)
                 for plazo in plazos:
+                    print(plazo)
                     (
                         tae,
                         comision_apertura,
