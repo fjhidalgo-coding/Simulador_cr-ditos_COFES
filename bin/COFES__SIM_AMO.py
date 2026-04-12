@@ -858,6 +858,7 @@ def simular_masivamente(capital_2sec,
     acumulado_tasa_2sec.clear()
     acumulado_tasa_comision_apertura.clear()
     
+    errores_simulacion_masiva = []
     tasa_entrada = tasa
 
     ''' Desplegar las listas de duraciones / importes / carencia '''
@@ -883,45 +884,60 @@ def simular_masivamente(capital_2sec,
                 capital_2sec = tools.redondear_decimal(w_capital_prestado * w_capital_2sec / 100)
             for carencia in carencias:
                 for plazo in plazos:
-                    (
-                        tae,
-                        comision_apertura,
-                        importe_total_a_pagar,
-                        coste_total,
-                        intereses,
-                        coste_seguro,
-                        importe_crédito,
-                        descuento,
-                        tasa_result,
-                        cuota_1sec,
-                        cuota_2sec,
-                        fecha_fin_carencia_gratuita_forzada,
-                        fecha_fin_carencia_diferida,
-                        fecha_fin_carencia,
-                        fecha_primer_vencimiento,
-                        cuadro_amortizacion,
-                        input_tae,
-                        resumen1,
-                        resumen2,
-                        resumen3,
-                        ejemplo_representativo
-                    ) = simular_prestamo_CLB(
-                        etiqueta_producto,
-                        fecha_financiacion,
-                        dia_pago,
-                        tasa_entrada,
-                        capital_prestado,
-                        plazo,
-                        carencia,
-                        tasa_2sec,
-                        capital_2sec,
-                        plazo_2sec,
-                        seguro_titular_1,
-                        seguro_titular_2,
-                        tasa_comision_apertura,
-                        comision_apertura_capitalizada,
-                        imp_max_com_apertura
-                    )
+                    try:
+                        (
+                            tae,
+                            comision_apertura,
+                            importe_total_a_pagar,
+                            coste_total,
+                            intereses,
+                            coste_seguro,
+                            importe_crédito,
+                            descuento,
+                            tasa_result,
+                            cuota_1sec,
+                            cuota_2sec,
+                            fecha_fin_carencia_gratuita_forzada,
+                            fecha_fin_carencia_diferida,
+                            fecha_fin_carencia,
+                            fecha_primer_vencimiento,
+                            cuadro_amortizacion,
+                            input_tae,
+                            resumen1,
+                            resumen2,
+                            resumen3,
+                            ejemplo_representativo
+                        ) = simular_prestamo_CLB(
+                            etiqueta_producto,
+                            fecha_financiacion,
+                            dia_pago,
+                            tasa_entrada,
+                            capital_prestado,
+                            plazo,
+                            carencia,
+                            tasa_2sec,
+                            capital_2sec,
+                            plazo_2sec,
+                            seguro_titular_1,
+                            seguro_titular_2,
+                            tasa_comision_apertura,
+                            comision_apertura_capitalizada,
+                            imp_max_com_apertura
+                        )
+                    except Exception as exc:
+                        errores_simulacion_masiva.append({
+                            'Etiqueta producto': etiqueta_producto,
+                            'Fecha financiacion': tools.mostrar_fecha(fecha_financiacion),
+                            'Capital prestado': tools.formatear_decimales(w_capital_prestado),
+                            'Entrega a cuenta': tools.formatear_decimales(entrega_a_cuenta),
+                            'Carencia': tools.formatear_decimales(carencia),
+                            'Plazo': plazo,
+                            'Tasa': tools.formatear_decimales(tasa_entrada),
+                            'Tasa 2sec': tools.formatear_decimales(tasa_2sec),
+                            'Capital 2sec': tools.formatear_decimales(capital_2sec),
+                            'Error': str(exc),
+                        })
+                        continue
                     ''' Acumular los resultados de la simulación masiva '''
                     acumulado_tae.append(tools.formatear_decimales(tae))
                     acumulado_comision_apertura.append(tools.formatear_decimales(comision_apertura))
@@ -991,5 +1007,6 @@ def simular_masivamente(capital_2sec,
         }
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
     resultado_simulacion_masiva = tools.pd.DataFrame(resultado_simulacion_masiva)
+    errores_simulacion_masiva = tools.pd.DataFrame(errores_simulacion_masiva)
     
-    return resultado_simulacion_masiva
+    return resultado_simulacion_masiva, errores_simulacion_masiva

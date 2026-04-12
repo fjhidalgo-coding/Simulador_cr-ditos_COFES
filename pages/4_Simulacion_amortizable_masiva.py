@@ -215,30 +215,34 @@ with st.expander(f"Características del producto {etiqueta_producto}", expanded=
 st.subheader("Resumen de los datos a simular")
 
 if st.button("Simular"):
-    resultado_simulacion_masiva = sim.simular_masivamente(capital_2sec,
-                                                          carencias,
-                                                          comision_apertura_capitalizada,
-                                                          dia_pago,
-                                                          entrega_a_cuenta,
-                                                          etiqueta_producto,
-                                                          fechas_financiacion,
-                                                          imp_max_com_apertura,
-                                                          importes_prestado,
-                                                          on,
-                                                          plazo_2sec,
-                                                          plazos,
-                                                          seguro_titular_1,
-                                                          seguro_titular_2,
-                                                          tasa,
-                                                          tasa_2sec,
-                                                          tasa_comision_apertura)
+    resultado_simulacion_masiva, errores_simulacion_masiva = sim.simular_masivamente(capital_2sec,
+                                                                                   carencias,
+                                                                                   comision_apertura_capitalizada,
+                                                                                   dia_pago,
+                                                                                   entrega_a_cuenta,
+                                                                                   etiqueta_producto,
+                                                                                   fechas_financiacion,
+                                                                                   imp_max_com_apertura,
+                                                                                   importes_prestado,
+                                                                                   on,
+                                                                                   plazo_2sec,
+                                                                                   plazos,
+                                                                                   seguro_titular_1,
+                                                                                   seguro_titular_2,
+                                                                                   tasa,
+                                                                                   tasa_2sec,
+                                                                                   tasa_comision_apertura)
 
     st.download_button(
                 label="📥 Descargar en Excel",
-                data=tools.generar_excel(resultado_simulacion_masiva=resultado_simulacion_masiva),
+                data=tools.generar_excel(resultado_simulacion_masiva=resultado_simulacion_masiva, df_errores=errores_simulacion_masiva),
                 file_name="simulacion_AMO_masiva.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
     
     st.dataframe(resultado_simulacion_masiva,hide_index=True)
+
+    if not errores_simulacion_masiva.empty:
+        st.error(f"Se han descartado {len(errores_simulacion_masiva)} registros con error en la simulación.")
+        st.dataframe(errores_simulacion_masiva, hide_index=True)
     

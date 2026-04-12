@@ -267,7 +267,7 @@ def formatear_decimales(value) -> str:
 
 
 
-def generar_excel(df_resumen=None, df_tamo=None, df_ejemplo=None, df_tae=None, df_secuencias=None,resultado_simulacion_masiva=None):
+def generar_excel(df_resumen=None, df_tamo=None, df_ejemplo=None, df_tae=None, df_secuencias=None, resultado_simulacion_masiva=None, df_errores=None):
     
     '''Función para generar un archivo Excel con varias hojas a partir de los DataFrames proporcionados'''
     output = BytesIO()
@@ -285,6 +285,8 @@ def generar_excel(df_resumen=None, df_tamo=None, df_ejemplo=None, df_tae=None, d
             df_tae.to_excel(writer, sheet_name="TAE", index=False)
         if resultado_simulacion_masiva is not None:
             resultado_simulacion_masiva.to_excel(writer, sheet_name="Simulación Masiva", index=False)
+        if df_errores is not None:
+            df_errores.to_excel(writer, sheet_name="Errores", index=False)
     output.seek(0)
 
     return output
