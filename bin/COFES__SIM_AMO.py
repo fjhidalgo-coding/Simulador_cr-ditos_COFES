@@ -857,6 +857,8 @@ def simular_masivamente(capital_2sec,
     acumulado_seguro_titular_2.clear()
     acumulado_tasa_2sec.clear()
     acumulado_tasa_comision_apertura.clear()
+    
+    tasa_entrada = tasa
 
     ''' Desplegar las listas de duraciones / importes / carencia '''
     w_capital_2sec = capital_2sec
@@ -890,7 +892,7 @@ def simular_masivamente(capital_2sec,
                         coste_seguro,
                         importe_crédito,
                         descuento,
-                        tasa,
+                        tasa_result,
                         cuota_1sec,
                         cuota_2sec,
                         fecha_fin_carencia_gratuita_forzada,
@@ -907,7 +909,7 @@ def simular_masivamente(capital_2sec,
                         etiqueta_producto,
                         fecha_financiacion,
                         dia_pago,
-                        tasa,
+                        tasa_entrada,
                         capital_prestado,
                         plazo,
                         carencia,
@@ -929,7 +931,7 @@ def simular_masivamente(capital_2sec,
                     acumulado_coste_seguro.append(tools.formatear_decimales(coste_seguro))
                     acumulado_importe_crédito.append(tools.formatear_decimales(importe_crédito))
                     acumulado_descuento.append(tools.formatear_decimales(descuento))
-                    acumulado_tasa.append(tools.formatear_decimales(tasa))
+                    acumulado_tasa.append(tools.formatear_decimales(tasa_result))
                     acumulado_cuota_1sec.append(tools.formatear_decimales(cuota_1sec))
                     acumulado_cuota_2sec.append(tools.formatear_decimales(cuota_2sec))
                     acumulado_fecha_fin_carencia_gratuita_forzada.append(tools.mostrar_fecha(fecha_fin_carencia_gratuita_forzada))
