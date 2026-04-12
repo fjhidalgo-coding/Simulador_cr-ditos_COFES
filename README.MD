@@ -25,7 +25,7 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
 
 - **/pages/**
   - **1_Simulacion_4CB.py** — Simulador unitario y masivo para facilidades de pago.
-  - **2_Simulacion_NFOIS_unitaria.py** — (En construcción) Simulador unitario para los productos NFOIS.
+  - **2_Simulacion_NFOIS_unitaria.py** — (En pruebas) Simulador unitario para los productos NFOIS.
   - **3_Simulacion_revolving_unitaria.py** — (En pruebas) Simulador unitario para los productos revolving.
   - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
 
