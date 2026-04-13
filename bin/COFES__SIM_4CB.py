@@ -1,10 +1,6 @@
 #!
 '''Programa para la simulación de los productos amortizables de COF_ES'''
 
-import datetime as dt
-from decimal import Decimal
-import pandas as pd
-import numpy as np
 import bin.COFES___TAE as tools_tae
 import bin.COFES___tools as tools
 
@@ -13,7 +9,7 @@ import bin.COFES___tools as tools
 ''' Declarar variables globales '''
 
 dias_vencimiento = [0, 1, 32, 63, 90]
-cuadro_amortizacion = pd.DataFrame()
+cuadro_amortizacion = tools.pd.DataFrame()
     
 tipo_vencimiento = []
 numero_vencimiento = []
@@ -75,8 +71,8 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     '''Función principal para la simulación de los productos amortizables de COF_ES'''
     
     # Convertir entradas a Decimal para cálculos en base 10 exacta
-    capital_prestado_4CB = Decimal(str(capital_prestado_4CB))
-    tasa_comision_apertura_4CB = Decimal(str(tasa_comision_apertura_4CB))
+    capital_prestado_4CB = tools.redondear_decimal(capital_prestado_4CB)
+    tasa_comision_apertura_4CB = tools.redondear_decimal(tasa_comision_apertura_4CB)
 
     '''Limpiar variables del cuadro de amortización de la operación simulada con anterioridad'''
     tipo_vencimiento.clear()
@@ -106,14 +102,14 @@ def simular_prestamo_4CB(capital_prestado_4CB,
     ajuste_1er_vencimiento = capital_prestado_4CB - (capital_4CB * 4)
     
     '''Alimentar cuadro de amortización'''
-    w_capital_inicial = Decimal('0.00')
+    w_capital_inicial = tools.redondear_decimal('0.00')
     for i in range(5):
-        w_fecha_vencimiento = fecha_financiacion_4CB + dt.timedelta(days=dias_vencimiento[i])
-        w_mensualidad_vencimiento = Decimal(cuota_4CB + ajuste_1er_vencimiento) if i == 1 and tasa_comision_apertura_4CB == 0.00 else Decimal(str(cuota_4CB)) if i > 0 else Decimal('0.00')
-        w_capital_financiado_periodo = capital_prestado_4CB if i == 0 else Decimal('0.00')
-        w_capital_vencimiento = Decimal(str(tools.redondear_decimal(capital_4CB + ajuste_1er_vencimiento))) if i == 1 else Decimal(str(capital_4CB)) if i > 1 else -capital_prestado_4CB
-        w_capital_pendiente = Decimal(str(tools.redondear_decimal(w_capital_inicial - w_capital_vencimiento)))
-        w_comisiones_vencimiento = Decimal(str(tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento))) if i > 0 and tasa_comision_apertura_4CB > 0.00 else Decimal('0.00')
+        w_fecha_vencimiento = fecha_financiacion_4CB + tools.dt.timedelta(days=dias_vencimiento[i])
+        w_mensualidad_vencimiento = tools.redondear_decimal(cuota_4CB + ajuste_1er_vencimiento) if i == 1 and tasa_comision_apertura_4CB == 0.00 else tools.redondear_decimal(cuota_4CB) if i > 0 else tools.redondear_decimal('0.00')
+        w_capital_financiado_periodo = tools.redondear_decimal(capital_prestado_4CB) if i == 0 else tools.redondear_decimal('0.00')
+        w_capital_vencimiento = tools.redondear_decimal(capital_4CB + ajuste_1er_vencimiento) if i == 1 else tools.redondear_decimal(capital_4CB) if i > 1 else tools.redondear_decimal(-capital_prestado_4CB)
+        w_capital_pendiente = tools.redondear_decimal(w_capital_inicial - w_capital_vencimiento)
+        w_comisiones_vencimiento = tools.redondear_decimal(w_mensualidad_vencimiento - w_capital_vencimiento) if i > 0 and tasa_comision_apertura_4CB > 0.00 else tools.redondear_decimal('0.00')
         w_dia_año = tools.dias_año(w_fecha_vencimiento)
         
         alimentar_cuadro_amortizacion("Amortización" if i > 0 else "Financiación",
@@ -154,24 +150,24 @@ def simular_prestamo_4CB(capital_prestado_4CB,
 }
 
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
-    cuadro_amortizacion = pd.DataFrame(datos_amortizacion)
+    cuadro_amortizacion = tools.pd.DataFrame(datos_amortizacion)
     
     '''Crear el dataframe con el cuadro de cálculo TAE a mostrar'''
-    input_tae = pd.DataFrame(datos_tae)
+    input_tae = tools.pd.DataFrame(datos_tae)
     
     ''' Crear las variables con los sumatorios del cuadro de amortización'''
     comision_apertura = sum(comisiones_vencimiento)
     coste_total = comision_apertura
     importe_total_a_pagar = sum(mensualidad_vencimiento)
     
-    resumen1 = pd.DataFrame(
+    resumen1 = tools.pd.DataFrame(
         {
             "TAE": [tools.formatear_decimales(tae)],
         },
     index=["%"],
     )
 
-    resumen2 = pd.DataFrame(
+    resumen2 = tools.pd.DataFrame(
         {
             "Importe total a pagar": [tools.formatear_decimales(importe_total_a_pagar)],
             "Capital": [tools.formatear_decimales(capital_prestado_4CB)],
@@ -252,8 +248,8 @@ def simular_masivamente(importes_prestado_4CB,
     acumulado_tasa_comision_apertura.clear()
 
     ''' Desplegar las listas de duraciones / importes / carencia '''
-    importes_prestado_4CB = list(np.round(np.arange(importes_prestado_4CB[0], importes_prestado_4CB[1] + 0.01, 0.01), 2))
-    tasas_comision_apertura_4CB = list(np.round(np.arange(tasas_comision_apertura_4CB[0], tasas_comision_apertura_4CB[1] + 0.01, 0.10), 2))
+    importes_prestado_4CB = list(tools.np.round(tools.np.arange(importes_prestado_4CB[0], importes_prestado_4CB[1] + 0.01, 0.01), 2))
+    tasas_comision_apertura_4CB = list(tools.np.round(tools.np.arange(tasas_comision_apertura_4CB[0], tasas_comision_apertura_4CB[1] + 0.01, 0.10), 2))
     
     ''' Función la simulación masiva de préstamos amortizables '''
     for capital_prestado_4CB in importes_prestado_4CB:
@@ -295,6 +291,6 @@ def simular_masivamente(importes_prestado_4CB,
         'Imp. Com. Apert.' : acumulado_comision_apertura,
         }
     '''Crear el dataframe con el cuadro de amortización a mostrar'''
-    resultado_simulacion_masiva = pd.DataFrame(resultado_simulacion_masiva)
+    resultado_simulacion_masiva = tools.pd.DataFrame(resultado_simulacion_masiva)
     
     return resultado_simulacion_masiva
