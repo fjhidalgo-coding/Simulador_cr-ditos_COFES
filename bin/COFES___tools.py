@@ -16,7 +16,7 @@ FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_
 PRODUCTOS_DICCIONARIO = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
 LISTA_PRODUCTOS = list(PRODUCTOS_DICCIONARIO['Nombre del producto'].values)
 LISTA_SEGURO = ["Seguro ADE", "Sin seguro", "Vida Plus", "Vida"]
-RCC_OPCIONES_VITESSE = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37]
+RCC_OPCIONES_VITESSE = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37,3.7,4,4.4,4.8,5.2,5.6,6,6.4,6.8]
 OPCIONES_SEGURO_NFOIS = {
     "No":0,
     "ADE NFOIS":0.006
