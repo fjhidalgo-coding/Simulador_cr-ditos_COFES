@@ -49,7 +49,7 @@ st.markdown(
 with st.sidebar:
 
     # Crear selector del producto amortizable a simular
-    etiqueta_producto = st.selectbox('Elige el producto contratado:', LISTA_PRODUCTOS, index=1)
+    etiqueta_producto = st.selectbox('Elige el producto contratado:', LISTA_PRODUCTOS[:14], index=1)
 
 
 

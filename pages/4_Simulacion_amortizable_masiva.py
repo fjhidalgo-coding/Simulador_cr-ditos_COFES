@@ -69,7 +69,7 @@ col_sim_1, col_sim_2, col_sim_3, col_sim_4 = st.columns([0.4,
                                                          0.3],
                                                         gap="small")
 etiqueta_producto = col_sim_1.selectbox('Elige el producto contratado:',
-                                        LISTA_PRODUCTOS,
+                                        LISTA_PRODUCTOS[:14],
                                         index=1)
 dia_pago = col_sim_2.number_input("Día de vencimiento",
                                   min_value=1,
@@ -284,13 +284,11 @@ if st.button("Simular"):
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
     
-    
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
     st.dataframe(resultado_simulacion_masiva,
                  hide_index=True)
-
     
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar los errores de la simulación en Streamlit en caso de que existan errores en algunos registros

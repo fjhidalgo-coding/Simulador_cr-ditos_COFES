@@ -89,6 +89,32 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.0.0 Versión estable (20256-04-20)
+
+**Mejoras implementadas:**
+
+- Simulador para los productos revolving.
+- Simulador para los productos NFOIS.
+- Simulador para las facilidades de pago 4CB (cálculo unitario y masivo).
+- Simulador masivo para los productos amortizables.
+- Adaptación de los simuladores de amortizable a los productos AUTO / MOTO Balloon.
+
+**Fixed bugs:**
+
+- Precisión del cálculo de la TAE.
+- Remplazo de las variables `float` por variables `Decimal`.
+- Calcular el nº de días del año en función del vencimiento evaluado en lugar de en función de la fecha de financiación al calcular la fracción de tiempo para la TAE en los años bisiestos.
+- Cálculo por días de la prima de seguro capitalizada durante la carencia de un préstamo CFUSION cuando ésta supera el mes de duración.
+- Carencia diferida con TIN 0,00% para el producto `B 2460050001 - Compra a Plazos Vorwerk`.
+- Error en los cálculos del primer vencimiento y en los redondeos.
+
+**Closed issues:**
+
+- Adaptación a Streamlit 1.56.0 (conversión de los DataFrame Pandas a `String` para evitar errores con Arrow).
+- Descarga de los resultados en Excel.
+- Actualizar el límite del porcentaje máximo para la comisión de apertura.
+- Formateo de los decimales y las fechas.
+
 ### v1.0.0.BETA (2025-10-20)
 
 **Mejoras implementadas:**
