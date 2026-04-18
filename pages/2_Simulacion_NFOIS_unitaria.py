@@ -1,5 +1,10 @@
 #!
 # Aplicación Streamlit para simular operaciones de los productos NFOIS de COF_ES
+'''
+Origen:
+https://j5vbtgssdbnjlekfpym2p6.streamlit.app/
+https://github.com/mildredbr-design/Rev4/blob/main/app.py
+'''
 
 import streamlit as st
 import bin.COFES__SIM_NFOIS as sim

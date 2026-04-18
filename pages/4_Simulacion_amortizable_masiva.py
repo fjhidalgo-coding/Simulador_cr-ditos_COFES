@@ -5,31 +5,10 @@ import streamlit as st
 import bin.COFES__SIM_AMO as sim
 import bin.COFES___tools as tools
 
-#  Declarar las listas de productos tanto de crédito como de seguro
-LISTA_SEGURO = tools.LISTA_SEGURO
-LISTA_PRODUCTOS = tools.LISTA_PRODUCTOS
-PRODUCTOS_DICCIONARIO = tools.PRODUCTOS_DICCIONARIO
-FECHAS_BLOQUEO = tools.FECHAS_BLOQUEO
-
-# Inicializar variables
-carencias = [0,]
-tasa_2sec = tools.redondear_decimal(0.00)
-capital_2sec = tools.redondear_decimal(0.00)
-plazo_2sec = 0
-seguro_titular_1 = "SIN SEGURO"
-seguro_titular_2 = "SIN SEGURO"
-tasa_comision_apertura = tools.redondear_decimal(0.00)
-comision_apertura_capitalizada = False
-imp_max_com_apertura = tools.redondear_decimal(0.00)
-dia_pago = 2
-etiqueta_producto = LISTA_PRODUCTOS[1]
-on = False
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Título de la aplicación 
 # ----------------------------------------------------------------------------------------------------------------------
 st.title('Simulador masivo de préstamos amortizables')
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Definir la configuración de la página y estilos personalizados
 # ----------------------------------------------------------------------------------------------------------------------
@@ -53,23 +32,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 # ----------------------------------------------------------------------------------------------------------------------
-# Primera sección de inputs: rango de fechas de financiación
+# Primera sección de inputs: producto, día de pago, fecha de financiación y seguro
 # ----------------------------------------------------------------------------------------------------------------------
-fechas_financiacion = st.slider("Rango de fechas de financiación",
-                                min_value=min(FECHAS_BLOQUEO['Fecha_BLOQUEO']).to_pydatetime(),
-                                max_value=max(FECHAS_BLOQUEO['Fecha_BLOQUEO']).to_pydatetime(),
-                                value=[(max(FECHAS_BLOQUEO['Fecha_BLOQUEO']) - tools.pd.DateOffset(years=4)).to_pydatetime(), max(FECHAS_BLOQUEO['Fecha_BLOQUEO']).to_pydatetime()])
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Segunda sección de inputs: producto, día de pago y seguro
-# ----------------------------------------------------------------------------------------------------------------------
-col_sim_1, col_sim_2, col_sim_3, col_sim_4 = st.columns([0.4,
-                                                         0.2,
-                                                         0.3,
-                                                         0.3],
+col_sim_1, col_sim_2, col_sim_3, col_sim_4 = st.columns([0.25,
+                                                         0.25,
+                                                         0.25,
+                                                         0.25],
                                                         gap="small")
 etiqueta_producto = col_sim_1.selectbox('Elige el producto contratado:',
-                                        LISTA_PRODUCTOS[:14],
+                                        tools.LISTA_PRODUCTOS[:14],
                                         index=1)
 dia_pago = col_sim_2.number_input("Día de vencimiento",
                                   min_value=1,
@@ -77,26 +48,30 @@ dia_pago = col_sim_2.number_input("Día de vencimiento",
                                   step=1,
                                   value=2,
                                   help="Se debe indicar el día de pago seleccionado por el cliente")
-
-# Mostrar los campos para gestionar el seguro en los productos que lo permiten
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
-    if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
-        seguro_titular_1 = col_sim_3.selectbox("Seguro titular 1",
-                                               LISTA_SEGURO[:2],
-                                               index=1)
-        seguro_titular_2 = col_sim_4.selectbox("Seguro titular 2",
-                                               LISTA_SEGURO[:2],
-                                               index=1)
-    else:
-        seguro_titular_1 = col_sim_3.selectbox("Seguro titular 1",
-                                               LISTA_SEGURO[1:],
-                                               index=0)
-        seguro_titular_2 = col_sim_4.selectbox("Seguro titular 2",
-                                               LISTA_SEGURO[1:],
-                                               index=0)
-
+fecha_financiacion = col_sim_3.date_input("Fecha de financiación",
+                                          tools.dt.date.today())
+if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
+    seguro_tasa = tools.OPCIONES_SEGURO_AMO[col_sim_4.selectbox("Seguro mensual",
+                                                                list(tools.OPCIONES_SEGURO_AMO.keys())[:3], index=2)]
+elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11, 12, 13):
+    seguro_tasa = tools.OPCIONES_SEGURO_AMO[col_sim_4.selectbox("Seguro mensual",
+                                                                list(tools.OPCIONES_SEGURO_AMO.keys())[2:], index=0)]
+else:
+    seguro_tasa = 0.00
 # ----------------------------------------------------------------------------------------------------------------------
-# Tercera sección de inputs: tipo de interés, comisión de apertura y campos asociados a la comisión de apertura
+# Detalle del producto de préstamo seleccionado
+# ----------------------------------------------------------------------------------------------------------------------
+with st.expander(f"Características del producto {etiqueta_producto}",
+                 expanded=False):
+    # Filtrar el dataframe "tools.DICCIONARIO_PRODUCTOS" con el producto seleccionado en la simulación
+    producto_info = tools.DICCIONARIO_PRODUCTOS[tools.DICCIONARIO_PRODUCTOS["Nombre del producto"] == etiqueta_producto]
+    st.dataframe(producto_info.T,
+                 width='stretch')
+    # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
+    if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5):
+        st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
+# ----------------------------------------------------------------------------------------------------------------------
+# Segunda sección de inputs: tipo de interés, comisión de apertura y campos asociados a la comisión de apertura
 # ----------------------------------------------------------------------------------------------------------------------
 col_varios_1, col_varios_2, col_varios_3, col_varios_4 = st.columns([0.25,
                                                                      0.25,
@@ -109,7 +84,7 @@ tasa = col_varios_1.number_input("Tipo de Interés Deudor",
                                  step=0.05,
                                  value=5.95,
                                  help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
-if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
+if  tools.LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
     tasa_comision_apertura = col_varios_2.number_input("Porcentaje comisión de apertura",
                                                        min_value=0.00,
                                                        max_value=5.00,
@@ -119,31 +94,30 @@ if  LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
                                                      min_value=0.00,
                                                      step=1.00,
                                                      help="Se debe indicar el importe que no debería superar la comisión de apertura")
-    if LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
+    if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
         comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada",
                                                                value=True,
                                                                disabled=True)      
-    elif LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+    elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
         comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada",
                                                                value=True)
-    elif LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
+    elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 0:
+        comision_apertura_capitalizada = False
+    else:
         comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada")
-
+else:
+    tasa_comision_apertura = tools.redondear_decimal(0.00)
+    comision_apertura_capitalizada = False
+    imp_max_com_apertura = tools.redondear_decimal(0.00)
 # ----------------------------------------------------------------------------------------------------------------------
-# Cuarta sección de inputs: rango de importe solicitado, rango de duración del préstamo y rango de meses de carencia
+# Tercera sección de inputs: Importes prestados, plazos, carencias y campos asociados a la segunda secuencia financiera
 # ----------------------------------------------------------------------------------------------------------------------
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
     col_val_1, col_val_2, col_val_3, col_val_4 = st.columns([0.40,
                                                              0.20,
                                                              0.20,
                                                              0.20],
                                                             gap="small")
-else:
-    col_val_1, col_val_2, col_val_3 = st.columns([0.34,
-                                                  0.33,
-                                                  0.33],
-                                                 gap="small")
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
     importes_prestado = col_val_1.slider("Rango del bien adquirido (EUR)",
                                          min_value=3000.00,
                                          max_value=60000.00,
@@ -162,53 +136,58 @@ if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
                               step=12,
                               value=[24, 60],
                               help="Se debe indicar la duración en meses del plazo de amortización")
-elif LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
-    importes_prestado = col_val_1.slider("Rango de importe solicitado (EUR)",
-                                         min_value=3000.00,
-                                         max_value=60000.00,
-                                         step=500.00,
-                                         value=[4500.00,9500.00],
-                                         help="Se debe indicar el importe del capital solicitado en el préstamo")
-    plazos = col_val_2.slider("Rango de mensualidades a simular",
-                              min_value=12,
-                              max_value=360,
-                              step=12,
-                              value=[24, 60],
-                              help="Se debe indicar la duración en meses del plazo de amortización")
-    entrega_a_cuenta = 0.00
 else:
-    importes_prestado = col_val_1.slider("Rango de importe solicitado (EUR)",
-                                         min_value=50.00,
-                                         max_value=12000.00,
-                                         step=50.00,
-                                         value=[500.00,1500.00],
-                                         help="Se debe indicar el importe del capital solicitado en el préstamo")
-    plazos = col_val_2.slider("Rango de mensualidades a simular",
-                              min_value=1,
-                              max_value=120,
-                              step=1,
-                              value=[12, 60],
-                              help="Se debe indicar la duración en meses del plazo de amortización")
-    entrega_a_cuenta = 0.00
-
+    col_val_1, col_val_2, col_val_3 = st.columns([0.34,
+                                                  0.33,
+                                                  0.33],
+                                                 gap="small")
+    if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1, 8, 9, 10, 11):
+        importes_prestado = col_val_1.slider("Rango de importe solicitado (EUR)",
+                                             min_value=3000.00,
+                                             max_value=60000.00,
+                                             step=500.00,
+                                             value=[4500.00,9500.00],
+                                             help="Se debe indicar el importe del capital solicitado en el préstamo")
+        plazos = col_val_2.slider("Rango de mensualidades a simular",
+                                  min_value=12,
+                                  max_value=360,
+                                  step=12,
+                                  value=[24, 60],
+                                  help="Se debe indicar la duración en meses del plazo de amortización")
+        entrega_a_cuenta = 0.00
+    else:
+        importes_prestado = col_val_1.slider("Rango de importe solicitado (EUR)",
+                                             min_value=50.00,
+                                             max_value=12000.00,
+                                             step=50.00,
+                                             value=[500.00,1500.00],
+                                             help="Se debe indicar el importe del capital solicitado en el préstamo")
+        plazos = col_val_2.slider("Rango de mensualidades a simular",
+                                  min_value=1,
+                                  max_value=120,
+                                  step=1,
+                                  value=[12, 60],
+                                  help="Se debe indicar la duración en meses del plazo de amortización")
+        entrega_a_cuenta = 0.00
 # Mostrar el campo para indicar la carencia en los productos que lo permiten
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
+if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 2, 3, 4, 5, 6, 7):
     carencias = col_val_3.slider("Rango de meses de carencia",
                                  min_value=0,
                                  max_value=4,
                                  step=1,
                                  value=[0, 0],
                                  help="Se debe indicar la duración de la carencia total inicial")
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
+elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
     carencias = col_val_4.slider("Rango de meses de carencia",
                                  min_value=0,
                                  max_value=4,
                                  step=1,
                                  value=[0, 0],
                                  help="Se debe indicar la duración de la carencia total inicial")
-
+else:
+    carencias = [0,]
 # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
-if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
+if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
     with st.expander("Gestionar la segunda secuencia financiera",
                      expanded=True):
         on = st.toggle("Cuota residual porcentual")
@@ -236,43 +215,34 @@ if LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
                                      max_value=60,
                                      step=1, 
                                      help="Se debe indicar la duración en meses del segundo tramo de amortización")   
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Detalle del producto de préstamo seleccionado
-# ----------------------------------------------------------------------------------------------------------------------
-with st.expander(f"Características del producto {etiqueta_producto}",
-                 expanded=False):
-    # Filtrar el dataframe "PRODUCTOS_DICCIONARIO" con el producto seleccionado en la simulación
-    producto_info = PRODUCTOS_DICCIONARIO[PRODUCTOS_DICCIONARIO["Nombre del producto"] == etiqueta_producto]
-    st.dataframe(producto_info.T,
-                 width='stretch')
-    # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
-    if LISTA_PRODUCTOS.index(etiqueta_producto) in (3, 5):
-        st.markdown(":orange-badge[⚠️ Si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida con tipo de interés 0% para evitar que la primera mensualidad supere la cuota contractual]")
-
+else:
+    tasa_2sec = tools.redondear_decimal(0.00)
+    capital_2sec = tools.redondear_decimal(0.00)
+    plazo_2sec = 0
+    on = False
 # ----------------------------------------------------------------------------------------------------------------------
 # Llamar backend para simular la operación y obtener resultados de la simulación
 # ----------------------------------------------------------------------------------------------------------------------
 st.subheader("Resumen de los datos a simular")
 if st.button("Simular"):
-    resultado_simulacion_masiva, errores_simulacion_masiva = sim.simular_masivamente(capital_2sec,
-                                                                                   carencias,
-                                                                                   comision_apertura_capitalizada,
-                                                                                   dia_pago,
-                                                                                   entrega_a_cuenta,
-                                                                                   etiqueta_producto,
-                                                                                   fechas_financiacion,
-                                                                                   imp_max_com_apertura,
-                                                                                   importes_prestado,
-                                                                                   on,
-                                                                                   plazo_2sec,
-                                                                                   plazos,
-                                                                                   seguro_titular_1,
-                                                                                   seguro_titular_2,
-                                                                                   tasa,
-                                                                                   tasa_2sec,
-                                                                                   tasa_comision_apertura)
-
+    with st.spinner("Simulando..."):
+        resultado_simulacion_masiva, errores_simulacion_masiva = sim.simular_masivamente(capital_2sec,
+                                                                                         carencias,
+                                                                                         comision_apertura_capitalizada,
+                                                                                         dia_pago,
+                                                                                         entrega_a_cuenta,
+                                                                                         etiqueta_producto,
+                                                                                         fecha_financiacion,
+                                                                                         imp_max_com_apertura,
+                                                                                         importes_prestado,
+                                                                                         on,
+                                                                                         plazo_2sec,
+                                                                                         plazos,
+                                                                                         seguro_tasa,
+                                                                                         tasa,
+                                                                                         tasa_2sec,
+                                                                                         tasa_comision_apertura)
+    st.success("Simulación masiva completada")
 # ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
@@ -283,13 +253,11 @@ if st.button("Simular"):
                 file_name="simulacion_AMO_masiva.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-    
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
     st.dataframe(resultado_simulacion_masiva,
                  hide_index=True)
-    
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar los errores de la simulación en Streamlit en caso de que existan errores en algunos registros
 # ----------------------------------------------------------------------------------------------------------------------
@@ -297,7 +265,6 @@ if st.button("Simular"):
         st.error(f"Se han descartado {len(errores_simulacion_masiva)} registros con error en la simulación.")
         st.dataframe(errores_simulacion_masiva,
                      hide_index=True)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ----------------------------------------------------------------------------------------------------------------------
