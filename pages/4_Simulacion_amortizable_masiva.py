@@ -84,7 +84,11 @@ tasa = col_varios_1.number_input("Tipo de Interés Deudor",
                                  step=0.05,
                                  value=5.95,
                                  help="Se debe indicar el porcentaje del Tipo de Interés Nominal - TIN - a utlizar en la simulación")
-if  tools.LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
+if  tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 1:
+    tasa_comision_apertura = tools.redondear_decimal(0.00)
+    comision_apertura_capitalizada = False
+    imp_max_com_apertura = tools.redondear_decimal(0.00)
+else:
     tasa_comision_apertura = col_varios_2.number_input("Porcentaje comisión de apertura",
                                                        min_value=0.00,
                                                        max_value=5.00,
@@ -105,10 +109,6 @@ if  tools.LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
         comision_apertura_capitalizada = False
     else:
         comision_apertura_capitalizada = col_varios_4.checkbox("Comisión de apertura capitalizada")
-else:
-    tasa_comision_apertura = tools.redondear_decimal(0.00)
-    comision_apertura_capitalizada = False
-    imp_max_com_apertura = tools.redondear_decimal(0.00)
 # ----------------------------------------------------------------------------------------------------------------------
 # Tercera sección de inputs: Importes prestados, plazos, carencias y campos asociados a la segunda secuencia financiera
 # ----------------------------------------------------------------------------------------------------------------------
