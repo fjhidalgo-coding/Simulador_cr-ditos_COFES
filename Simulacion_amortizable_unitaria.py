@@ -9,7 +9,6 @@ import bin.COFES___tools as tools
 # Título de la aplicación 
 # ----------------------------------------------------------------------------------------------------------------------
 st.title('Simulador de préstamos amortizables')
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Definir la configuración de la página y estilos personalizados
 # ----------------------------------------------------------------------------------------------------------------------
@@ -32,7 +31,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Crear la barra lateral con los campos de entrada para la simulación
 # ----------------------------------------------------------------------------------------------------------------------
@@ -177,7 +175,6 @@ with st.sidebar:
         tasa_2sec = 0.00
         capital_2sec = 0
         plazo_2sec = 0
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostra el resultado de la simulación
 # ----------------------------------------------------------------------------------------------------------------------
@@ -214,10 +211,8 @@ if st.session_state.get("simular", True):
                      expanded=False):
         # Filtrar el dataframe "tools.DICCIONARIO_PRODUCTOS" con el producto seleccionado en la simulación
         producto_info = tools.DICCIONARIO_PRODUCTOS[tools.DICCIONARIO_PRODUCTOS["Nombre del producto"] == etiqueta_producto]
-        
         st.dataframe(producto_info.T,
                      width='stretch')
-           
         # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
         if tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 3:
             st.warning('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")

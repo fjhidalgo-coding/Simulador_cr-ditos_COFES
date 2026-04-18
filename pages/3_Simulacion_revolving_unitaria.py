@@ -1,5 +1,10 @@
 #!
-# Aplicación Streamlit para simular operaciones de los productos revolving de COF_ES
+'''
+Aplicación Streamlit para simular operaciones de los productos revolving de COF_ES
+Origen: 
+https://cappmhbrgvjwcruaui3ae7o.streamlit.app/
+https://github.com/mildredbr-design/Rev2/blob/main/app.py
+'''
 
 import streamlit as st
 import bin.COFES__SIM_RCC as sim

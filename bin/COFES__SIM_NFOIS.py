@@ -1,5 +1,10 @@
 #!
-'''Programa para la simulación de los productos revolving'''
+'''
+Aplicación Streamlit para simular operaciones de los productos NFOIS de COF_ES
+Origen:
+https://j5vbtgssdbnjlekfpym2p6.streamlit.app/
+https://github.com/mildredbr-design/Rev4/blob/main/app.py
+'''
 
 import bin.COFES___TAE as tools_tae
 import bin.COFES___tools as tools
