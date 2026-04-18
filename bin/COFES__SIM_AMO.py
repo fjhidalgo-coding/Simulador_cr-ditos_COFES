@@ -201,7 +201,7 @@ def simular_prestamo_CLB(etiqueta_producto,
     
     '''Calcular la tasa a utilizar para el cálculo de la mensualidad (incluye el seguro ADE; de la primera secuencia para los productos con 2 secuencias)'''
     tasa_ade = tools.redondear_decimal(seguro_tasa * 100) if seguro_tasa < 1.0000 else tools.redondear_decimal(0.0000)
-    tasa_global = tasa + seguro_tasa
+    tasa_global = tasa + tasa_ade
     
     '''Calcular las fechas que nos permiten generar el cuadro de amortización'''
     (fecha_fin_carencia_gratuita_forzada,

@@ -57,7 +57,11 @@ with st.sidebar:
 # ----------------------------------------------------------------------------------------------------------------------
     # Mostrar los campos para gestionar la comisión de apertura en los productos que lo permiten
 # ----------------------------------------------------------------------------------------------------------------------
-    if  tools.LISTA_PRODUCTOS.index(etiqueta_producto) != 1:
+    if  tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 1:
+        tasa_comision_apertura = 0.00
+        comision_apertura_capitalizada = False
+        imp_max_com_apertura = 0.00
+    else:
         with st.expander("Gestionar la comisión de apertura"):
             tasa_comision_apertura = st.number_input("Porcentaje comisión de apertura",
                                                      min_value=0.00,
@@ -65,26 +69,21 @@ with st.sidebar:
                                                      step=0.05,
                                                      value=0.00,
                                                      help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
-            if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
+            if tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 0:
+                comision_apertura_capitalizada = False 
+            elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
                                                              value=True,
                                                              disabled=True)
             elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13):
                 comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada",
                                                              value=True)
-            elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) != 0:
-                comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
             else:
-                comision_apertura_capitalizada = False 
-            
+                comision_apertura_capitalizada = st.checkbox("Comisión de apertura capitalizada")
             imp_max_com_apertura = st.number_input("Importe máximo de la comisión de apertura (EUR)",
                                                    min_value=0.00,
                                                    step=1.00, 
                                                    help="Se debe indicar el importe que no debería superar la comisión de apertura")
-    else:
-        tasa_comision_apertura = 0.00
-        comision_apertura_capitalizada = False
-        imp_max_com_apertura = 0.00
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
 # ----------------------------------------------------------------------------------------------------------------------

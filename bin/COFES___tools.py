@@ -19,10 +19,6 @@ FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv',
                              dayfirst=True).sort_values(by='Fecha_BLOQUEO')
 getcontext().prec = 50
 LISTA_PRODUCTOS = list(DICCIONARIO_PRODUCTOS['Nombre del producto'].values)
-LISTA_SEGURO = ["Seguro ADE",
-                "Sin seguro",
-                "Vida Plus",
-                "Vida"]
 OPCIONES_SEGURO_AMO = {
     "1 asegurado ADE":0.0444,
     "2 asegurados ADE":0.0768,
@@ -89,7 +85,9 @@ def calcular_descuento_partner(importe_crédito,
                                plazo_2sec):
 
     '''Función para calcular el descuento partner de los productos amortizables de COF_ES'''
-    if tasa != 0.00:
+    if tasa == 0.00:
+        descuento = 0.00
+    else:
         # En este cálculo, asumimos que la capitalización de la comisión de apertura debe ser abonada por el partner
         # Existe un descuadre en las operaciones con carencia --> El excel de EI no contenía la manera de calcular con carencia
         duracion_total = plazo + plazo_2sec
@@ -100,8 +98,6 @@ def calcular_descuento_partner(importe_crédito,
         capital_mensual_ajustado = truncar_decimal(capital_mensual * tasa_descuento, 7) * 1200
         descuento = truncar_decimal(capital_mensual_ajustado / tasa * ajuste_carencia, 7)
         descuento = truncar_decimal(importe_crédito - descuento, 2)
-    else:
-        descuento = 0.00
 
     return redondear_decimal(descuento)
 
@@ -131,7 +127,9 @@ def calcular_fechas(etiqueta_producto,
         fecha_primer_vencimiento += pd.DateOffset(months=1)
     
     if carencia != 0:
-        if fecha_financiacion.day != dia_pago:
+        if fecha_financiacion.day == dia_pago:
+            fecha_fin_carencia = fecha_primer_vencimiento + pd.DateOffset(months=carencia-1)
+        else:
             '''Calculamos la fecha fin carencia diferida, de la carencia normal y la fecha del primer vencimiento'''
             if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada):
                 '''Si existe carencia gratuita forzada, la fecha fin de carencia se calcula a partir de esta'''
@@ -143,8 +141,6 @@ def calcular_fechas(etiqueta_producto,
                 else:
                     fecha_fin_carencia_diferida = fecha_primer_vencimiento
                 fecha_fin_carencia = fecha_fin_carencia_diferida + pd.DateOffset(months=carencia)
-        else:
-            fecha_fin_carencia = fecha_primer_vencimiento + pd.DateOffset(months=carencia-1)
         fecha_primer_vencimiento = fecha_fin_carencia + pd.DateOffset(months=1)
 
     return (fecha_fin_carencia_gratuita_forzada, 
