@@ -14,8 +14,6 @@ import bin.COFES___tools as tools
 # Título de la aplicación y aviso de funcionalidad en construcción
 # ----------------------------------------------------------------------------------------------------------------------
 st.title('💳 Simulador CofidisPay')
-st.info('Funcionalidad en pruebas', icon="⚠️")
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Definir la configuración de la página y estilos personalizados
 # ----------------------------------------------------------------------------------------------------------------------
@@ -38,7 +36,6 @@ st.markdown(
     """,
     unsafe_allow_html = True,
 )
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Primera sección de inputs: capital financiado, tasa de interés, duración y opciones de seguro
 # ----------------------------------------------------------------------------------------------------------------------
@@ -66,7 +63,6 @@ plazo = col_varios_3.number_input("Nº de mensualidades",
                                   help="Se debe indicar la duración en meses del plazo de amortización")
 seguro_tasa = tools.OPCIONES_SEGURO_NFOIS[col_varios_4.selectbox("Seguro mensual",
                                                                  list(tools.OPCIONES_SEGURO_NFOIS.keys()))]
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Segunda sección de inputs: porcentaje de comisión de apertura, importe máximo de comisión de apertura, fecha de financiación y día de vencimiento
 # ----------------------------------------------------------------------------------------------------------------------
@@ -93,7 +89,6 @@ dia_pago = col_varios_8.number_input("Día de vencimiento",
                                      step=1,
                                      value=2,
                                      help="Se debe indicar el día de pago seleccionado por el cliente")
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Llamar backend para simular la operación y obtener resultados de la simulación
 # ----------------------------------------------------------------------------------------------------------------------
@@ -106,7 +101,6 @@ if plazo is not None:
                                                                                   dia_pago,
                                                                                   tasa_comision_apertura,
                                                                                   imp_max_com_apertura)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
@@ -119,25 +113,20 @@ if plazo is not None:
         file_name = "simulacion_NFOIS.xlsx",
         mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
     tab1, tab2, tab3 = st.tabs(["Resumen",
                                 "Cuadro de amortización",
                                 "Datos TAE"])
-
     with tab1:
         st.dataframe(nfois_resumen.astype(str))
-
     with tab2:
         st.dataframe(cuadro_amortización.astype(str),
                      hide_index=True)
-
     with tab3:
         st.dataframe(datos_tae.astype(str),
                      hide_index=True)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ----------------------------------------------------------------------------------------------------------------------
