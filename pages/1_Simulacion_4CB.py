@@ -9,7 +9,6 @@ import bin.COFES___tools as tools
 # Título de la aplicación 
 # ----------------------------------------------------------------------------------------------------------------------
 st.title('Simulador para facilidades de pago 4CB')
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Definir la configuración de la página y estilos personalizados
 # ----------------------------------------------------------------------------------------------------------------------
@@ -32,19 +31,16 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Toggle para seleccionar entre simulación unitaria o masiva
 # ----------------------------------------------------------------------------------------------------------------------
 on = st.toggle("Simulación masiva 4CB",
                value=False,
                key="toggle_4CB")
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Bloque de inputs para la simulación unitaria
 # ----------------------------------------------------------------------------------------------------------------------
 if on is False:
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Sección de inputs: capital financiado, tasa de la comisión de apertura y la fecha de financiación
 # ----------------------------------------------------------------------------------------------------------------------
@@ -52,7 +48,6 @@ if on is False:
                                                            0.33,
                                                            0.33],
                                                           gap="small")
-    
     capital_prestado_4CB = col_varios_1.number_input("Importe solicitado (EUR)",
                                                      min_value=60.00,
                                                      max_value=1500.00,
@@ -66,7 +61,6 @@ if on is False:
                                                            help="Se debe indicar el porcentaje de la comisión de apertura de la facilidad de pago. El porcentaje mínimo es de 0% y el máximo de 2.80%.")
     fecha_financiacion_4CB = col_varios_3.date_input("Fecha de financiación",
                                                      tools.dt.date.today())
-    
 # ----------------------------------------------------------------------------------------------------------------------
 # Llamar backend para simular la operación y obtener resultados de la simulación unitaria
 # ----------------------------------------------------------------------------------------------------------------------
@@ -78,7 +72,6 @@ if on is False:
          input_tae) = sim.visualizar_simulacion_unitaria(capital_prestado_4CB,
                                                          tasa_comision_apertura_4CB,
                                                          fecha_financiacion_4CB)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
@@ -92,7 +85,6 @@ if on is False:
             file_name="simulacion_4CB_unitaria.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
@@ -108,25 +100,20 @@ if on is False:
                           unsafe_allow_html=True)
             col2.markdown(html_table2,
                           unsafe_allow_html=True)
-
         tab1, tab2, tab3 = st.tabs(["Cuadro de amortización",
                                     "Ejemplo representativo",
                                     "Detalle TAE"])
-
         with tab1:
             st.dataframe(cuadro_amortizacion,
                          hide_index=True)
-
         with tab2:
             st.code(ejemplo_representativo,
                     wrap_lines=True)
-
         with tab3:
             st.dataframe(input_tae,
                          hide_index=True)
-
 # ----------------------------------------------------------------------------------------------------------------------
-# Bloque de inputs para la simulación unitaria
+# Bloque de inputs para la simulación masiva
 # ----------------------------------------------------------------------------------------------------------------------
 else:
 # ----------------------------------------------------------------------------------------------------------------------
@@ -136,14 +123,12 @@ else:
                                                            0.33,
                                                            0.33],
                                                           gap="small")
-    
     importes_prestado_4CB = col_varios_4.slider("Rango de importe solicitado (EUR)",
                                               min_value=60.00,
                                               max_value=1500.00,
                                               step=10.00,
                                               value=[300.00,360.00],
                                               help="Se debe indicar el rango del capital de la facilidad de pago. El importe mínimo es de 60 EUR y el máximo de 1500 EUR.")
-
     tasas_comision_apertura_4CB = col_varios_5.slider("Rango del porcentaje comisión de apertura",
                                                  min_value=0.00,
                                                  max_value=2.80,
@@ -152,7 +137,6 @@ else:
                                                  help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
     fechas_financiacion_4CB = col_varios_6.date_input("Fecha de financiación",
                                                       tools.dt.date.today())
-    
  # ----------------------------------------------------------------------------------------------------------------------
 # Llamar backend para simular la operación y obtener resultados de la simulación masiva
 # ----------------------------------------------------------------------------------------------------------------------
@@ -162,7 +146,6 @@ else:
                                                                   tasas_comision_apertura_4CB,
                                                                   fechas_financiacion_4CB)
         st.success("Simulación masiva completada")
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
@@ -172,7 +155,6 @@ else:
             file_name="simulacion_4CB_masiva.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
@@ -180,7 +162,6 @@ else:
                          expanded=True):
             st.dataframe(resultado_simulacion_masiva,
                          hide_index=True)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ---------------------------------------------------------------------------------------------------------------------- 

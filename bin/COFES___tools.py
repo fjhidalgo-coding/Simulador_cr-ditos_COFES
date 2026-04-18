@@ -10,13 +10,25 @@ import numpy as np
 
 
 ''' Declarar las constantes globales para todos los simuladores '''
+DICCIONARIO_PRODUCTOS = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv',
+                                    sep=',',
+                                    dayfirst=True).sort_values(by="Código de producto POPS")
+FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv',
+                             sep=';',
+                             parse_dates=['Fecha_BLOQUEO'],
+                             dayfirst=True).sort_values(by='Fecha_BLOQUEO')
 getcontext().prec = 50
-
-FECHAS_BLOQUEO = pd.read_csv('./data/COFES_01_Date_Blocage.csv', sep=';', parse_dates=['Fecha_BLOQUEO'], dayfirst=True).sort_values(by='Fecha_BLOQUEO')
-PRODUCTOS_DICCIONARIO = pd.read_csv('./data/COFES_00_PRODUCTOS_DICCIONARIO.csv', sep=',', dayfirst=True).sort_values(by="Código de producto POPS")
-LISTA_PRODUCTOS = list(PRODUCTOS_DICCIONARIO['Nombre del producto'].values)
-LISTA_SEGURO = ["Seguro ADE", "Sin seguro", "Vida Plus", "Vida"]
-RCC_OPCIONES_VITESSE = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37,3.7,4,4.4,4.8,5.2,5.6,6,6.4,6.8]
+LISTA_PRODUCTOS = list(DICCIONARIO_PRODUCTOS['Nombre del producto'].values)
+OPCIONES_SEGURO_AMO = {
+    "1 asegurado ADE":0.0444,
+    "2 asegurados ADE":0.0768,
+    "Sin seguro":0.0000,
+    "1 asegurado Vida":1.0000,
+    "1 asegurado Vida +":2.0000,
+    "1 asegurado Vida + y 1 asegurado Vida":3.0000,
+    "2 asegurado Vida":4.0000,
+    "2 asegurado Vida +":5.0000
+}
 OPCIONES_SEGURO_NFOIS = {
     "No":0,
     "ADE NFOIS":0.006
@@ -30,6 +42,9 @@ OPCIONES_SEGURO_RCC = {
     "Dos titulares Light/Light":0.0059,
     "Dos titulares Full/Light":0.0082
 }
+RCC_OPCIONES_VITESSE = [2.7,2.75,3,3.25,3.43,4.37,5.17,6.57,9.37,3.7,4,4.4,4.8,5.2,5.6,6,6.4,6.8]
+
+
 
 ''' Declarar las funciones comunes para todos los simuladores '''
 
@@ -70,7 +85,9 @@ def calcular_descuento_partner(importe_crédito,
                                plazo_2sec):
 
     '''Función para calcular el descuento partner de los productos amortizables de COF_ES'''
-    if tasa != 0.00:
+    if tasa == 0.00:
+        descuento = 0.00
+    else:
         # En este cálculo, asumimos que la capitalización de la comisión de apertura debe ser abonada por el partner
         # Existe un descuadre en las operaciones con carencia --> El excel de EI no contenía la manera de calcular con carencia
         duracion_total = plazo + plazo_2sec
@@ -81,8 +98,6 @@ def calcular_descuento_partner(importe_crédito,
         capital_mensual_ajustado = truncar_decimal(capital_mensual * tasa_descuento, 7) * 1200
         descuento = truncar_decimal(capital_mensual_ajustado / tasa * ajuste_carencia, 7)
         descuento = truncar_decimal(importe_crédito - descuento, 2)
-    else:
-        descuento = 0.00
 
     return redondear_decimal(descuento)
 
@@ -112,7 +127,9 @@ def calcular_fechas(etiqueta_producto,
         fecha_primer_vencimiento += pd.DateOffset(months=1)
     
     if carencia != 0:
-        if fecha_financiacion.day != dia_pago:
+        if fecha_financiacion.day == dia_pago:
+            fecha_fin_carencia = fecha_primer_vencimiento + pd.DateOffset(months=carencia-1)
+        else:
             '''Calculamos la fecha fin carencia diferida, de la carencia normal y la fecha del primer vencimiento'''
             if fecha_fin_carencia_gratuita_forzada is not None and pd.notnull(fecha_fin_carencia_gratuita_forzada):
                 '''Si existe carencia gratuita forzada, la fecha fin de carencia se calcula a partir de esta'''
@@ -124,8 +141,6 @@ def calcular_fechas(etiqueta_producto,
                 else:
                     fecha_fin_carencia_diferida = fecha_primer_vencimiento
                 fecha_fin_carencia = fecha_fin_carencia_diferida + pd.DateOffset(months=carencia)
-        else:
-            fecha_fin_carencia = fecha_primer_vencimiento + pd.DateOffset(months=carencia-1)
         fecha_primer_vencimiento = fecha_fin_carencia + pd.DateOffset(months=1)
 
     return (fecha_fin_carencia_gratuita_forzada, 
@@ -175,13 +190,13 @@ def calcular_mensualidad_estandar(importe_crédito,
     
 
     '''Calcular la mensualidad de la segunda secuencia en caso de que exista'''
-    if capital_2sec != 0.00:
+    if capital_2sec == 0.00:
+        cuota_2sec = 0.00
+    else:
         if tasa_2sec == 0.00:
             cuota_2sec = capital_2sec / plazo_2sec
         else:
             cuota_2sec = capital_2sec * tasa_2sec / 1200 * ((1 + (tasa_2sec / 1200)) ** plazo_2sec) / (((1 + (tasa_2sec / 1200)) ** plazo_2sec) - 1)
-    else:
-        cuota_2sec = 0.00
     
     if w_DIAS_BASE == 365:
         return (redondear_decimal(cuota_1sec),
@@ -305,44 +320,30 @@ def mostrar_fecha(fecha):
 
 
 
-def obtener_tasa_seguro_ade(seguro_titular_1,
-                            seguro_titular_2):
-
-    if seguro_titular_1 == "Seguro ADE" and seguro_titular_2 == "Seguro ADE":
-        tasa_ade = 7.68
-    elif seguro_titular_1 == "Seguro ADE" or seguro_titular_2 == "Seguro ADE":
-        tasa_ade = 4.44
-    else:
-        tasa_ade = 0.00
-    
-    return redondear_decimal(tasa_ade)
-
-
-
 def obtener_tasa_seguro_auto(plazo,
                              tipo_seguro):
 
     # Cada tupla: (plazo_máximo, tasa_vida_plus, tasa_vida, tasa_otro)
     rangos = [
-        (24, 0.04760, 0.01410, 0.0),
-        (36, 0.05550, 0.02200, 0.0),
-        (48, 0.06350, 0.03000, 0.0),
-        (60, 0.06910, 0.03560, 0.0),
-        (72, 0.07820, 0.04470, 0.0),
-        (84, 0.08820, 0.05470, 0.0),
-        (96, 0.09920, 0.06570, 0.0),
-        (108, 0.11100, 0.07750, 0.0),
-        (float('inf'), 0.12410, 0.09060, 0.0)
+        (24, 0.0476, 0.0141, 0.0),
+        (36, 0.0555, 0.0220, 0.0),
+        (48, 0.0635, 0.0300, 0.0),
+        (60, 0.0691, 0.0356, 0.0),
+        (72, 0.0782, 0.0447, 0.0),
+        (84, 0.0882, 0.0547, 0.0),
+        (96, 0.0992, 0.0657, 0.0),
+        (108, 0.1110, 0.0775, 0.0),
+        (float('inf'), 0.1241, 0.0906, 0.0)
     ]
     for max_plazo, tasa_vida_plus, tasa_plus, tasa_otro in rangos:
         if plazo < max_plazo + 1:
             return (
-                Decimal(str(tasa_vida_plus)).quantize(Decimal('0.00001'), ROUND_HALF_UP) if tipo_seguro == "Vida Plus"
-                else Decimal(str(tasa_plus)).quantize(Decimal('0.00001'), ROUND_HALF_UP) if tipo_seguro == "Vida"
-                else Decimal(str(tasa_otro)).quantize(Decimal('0.00001'), ROUND_HALF_UP)
+                truncar_decimal(tasa_vida_plus, 4) if tipo_seguro == 2 # 2 = Vida +
+                else truncar_decimal(tasa_plus, 4) if tipo_seguro == 1 # 1 = Vida
+                else truncar_decimal(tasa_otro, 4) # None = Sin seguro 
                 )
     
-    return redondear_decimal(0.0)
+    return truncar_decimal(0.0, 4)
 
 
 

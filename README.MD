@@ -10,14 +10,14 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
 
 - **README\.MD**
 - **requirements.txt**
-- **Simulacion_amortizable_unitaria.py** - Interfaz principal con el simulador operaciones unitarias para los productos amortizables.
+- **Simulacion_amortizable_unitaria.py** - Interfaz principal con el simulador de operaciones unitarias para los productos amortizables.
 
 - **/bin/**
   - **COFES\_\_\_TAE.py** - Funciones comunes para el cómputo de la TAE.
-  - **COFES\_\_\_tools.py** - Funciones comunes a todos los simuladores.
-  - **COFES\_\_SIM_4CB.py** - Funciones para el simulador de facilidades de pago.
-  - **COFES\_\_SIM_AMO.py** - Funciones para el simulador de productos amortizables.
-  - **COFES\_\_SIM_RCC.py** - Funciones para el simulador de productos revolving.
+  - **COFES\_\_\_tools.py** - Funciones comunes para todos los simuladores.
+  - **COFES\_\_SIM_4CB.py** - Funciones del simulador "facilidades de pago".
+  - **COFES\_\_SIM_AMO.py** - Funciones del simulador "productos amortizables".
+  - **COFES\_\_SIM_RCC.py** - Funciones del simulador "productos revolving".
 
 - **/data/**
   - **COFES_00_PRODUCTOS_DICCIONARIO.csv** - Contiene el detalle de los productos amortizables.
@@ -25,8 +25,8 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
 
 - **/pages/**
   - **1_Simulacion_4CB.py** — Simulador unitario y masivo para facilidades de pago.
-  - **2_Simulacion_NFOIS_unitaria.py** — (En pruebas) Simulador unitario para los productos NFOIS.
-  - **3_Simulacion_revolving_unitaria.py** — (En pruebas) Simulador unitario para los productos revolving.
+  - **2_Simulacion_NFOIS_unitaria.py** — Simulador unitario para los productos NFOIS.
+  - **3_Simulacion_revolving_unitaria.py** — Simulador unitario para los productos revolving.
   - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
 
 ---
@@ -37,8 +37,8 @@ Creación y activación del entorno virtual e instalación de las dependencias:
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
-source .venv/Scripts/activate
+[ PowerShell] .venv\Scripts\activate
+[ Bash ] source .venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
@@ -88,6 +88,32 @@ streamlit run Simulacion_amortizable_unitaria.py
 ---
 
 ## Changelog
+
+### v1.0.0 Versión estable (2026-04-20)
+
+**Mejoras implementadas:**
+
+- Simulador para los productos revolving.
+- Simulador para los productos NFOIS.
+- Simulador para las facilidades de pago 4CB (cálculo unitario y masivo).
+- Simulador masivo para los productos amortizables.
+- Adaptación de los simuladores de amortizable a los productos AUTO / MOTO Balloon.
+
+**Fixed bugs:**
+
+- Precisión del cálculo de la TAE.
+- Remplazo de las variables `float` por variables `Decimal`.
+- Calcular el nº de días del año en función del vencimiento evaluado en lugar de en función de la fecha de financiación al calcular la fracción de tiempo para la TAE en los años bisiestos.
+- Cálculo por días de la prima de seguro capitalizada durante la carencia de un préstamo CFUSION cuando ésta supera el mes de duración.
+- Carencia diferida con TIN 0,00% para el producto `B 2460050001 - Compra a Plazos Vorwerk`.
+- Error en los cálculos del primer vencimiento y en los redondeos.
+
+**Closed issues:**
+
+- Adaptación a Streamlit 1.56.0 (conversión de los DataFrame Pandas a `String` para evitar errores en Arrow).
+- Descarga de los resultados en Excel.
+- Actualizar el límite del porcentaje máximo para la comisión de apertura.
+- Formateo de los decimales y de las fechas.
 
 ### v1.0.0.BETA (2025-10-20)
 
