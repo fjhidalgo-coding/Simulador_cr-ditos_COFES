@@ -89,6 +89,12 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.0.1 (2026-04-22)
+
+**Fixed bugs:**
+
+- [Issue#27](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/27) Precisión del cálculo de la TAE en contratos con TIN 0.00%, comisión de apertura de alto porcentaje y corta duración.
+
 ### v1.0.0 Versión estable (2026-04-20)
 
 **Mejoras implementadas:**
