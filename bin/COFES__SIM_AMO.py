@@ -566,7 +566,10 @@ def simular_prestamo_CLB(etiqueta_producto,
             w_fecha_ultimo_vencimiento_tratado = w_fecha_vencimiento_calculado
     
     ''' Calcular la TAE de la operación con el listado de "cuota_tae", la fracción temporal entre la financiación y el vencimiento y el TIN'''
-    tae = tools_tae.calcular_tae(cuota_tae, tiempo, tasa, van_cuota_tae)
+    tae = tools_tae.calcular_tae(cuota_tae,
+                                 tiempo,
+                                 (tasa + tasa_comision_apertura * tools.redondear_decimal(12 / plazo)) if plazo < 6 else (tasa + tasa_comision_apertura),
+                                 van_cuota_tae)
     
     ''' Crear el diccionario con los datos del cuadro de amortización y de la TAE'''
     datos_amortizacion = {

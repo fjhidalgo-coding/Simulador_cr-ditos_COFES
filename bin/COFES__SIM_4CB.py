@@ -127,8 +127,11 @@ def simular_prestamo_4CB(capital_prestado_4CB,
         w_capital_inicial = w_capital_pendiente
 
     ''' Calcular la TAE de la operación con el listado de "cuota_tae", la fracción temporal entre la financiación y el vencimiento y el TIN'''
-    tae = tools_tae.calcular_tae(cuota_tae, tiempo, tasa_comision_apertura_4CB * 10, van_cuota_tae)
-    
+    tae = tools_tae.calcular_tae(cuota_tae,
+                                 tiempo,
+                                 tasa_comision_apertura_4CB * 10,
+                                 van_cuota_tae)
+
     ''' Crear el diccionario con los datos del cuadro de amortización y de la TAE'''
     datos_amortizacion = {
     'Tipo vcto' : tipo_vencimiento,

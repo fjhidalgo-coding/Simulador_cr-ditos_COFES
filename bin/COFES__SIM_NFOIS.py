@@ -159,7 +159,7 @@ def nfois_simulacion_completa(capital_prestado,
     
     tae = tools_tae.calcular_tae(cuotas_tae,
                                  tiempo,
-                                 tasa,
+                                 (tasa + tasa_comision_apertura * tools.redondear_decimal(12 / plazo)) if plazo < 6 else (tasa + tasa_comision_apertura),
                                  van_cuota_tae)
 
     datos_tae = {
