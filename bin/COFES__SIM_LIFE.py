@@ -14,19 +14,21 @@ import bin.COFES__SIM_RCC as sim_rcc
 
 ''' Crear las funciones necesarias para la simulación en curso de vida'''
 
-def rcc_cuadro_amortización(capital_pendiente,
-                            df_amort_raw,
-                            df_cambio_cuota_raw,
-                            df_cambio_dia_raw,
-                            df_dispos_raw,
-                            dia_pago,
-                            fecha_inicial,
-                            fecha_joker,
-                            mensualidad_actual,
-                            on,
-                            seguro_tasa,
-                            usar_joker,
-                            tasa_interes):
+def sim_curso_vida(capital_pendiente,
+                   df_amort_raw,
+                   df_cambio_cuota_raw,
+                   df_cambio_dia_raw,
+                   df_dispos_raw,
+                   dia_pago,
+                   fecha_aplazamiento,
+                   fecha_inicial,
+                   fecha_joker,
+                   importe_aplazado,
+                   mensualidad_actual,
+                   on,
+                   seguro_tasa,
+                   usar_joker,
+                   tasa_interes):
     if on:
         DIAS_BASE = 360
     else:

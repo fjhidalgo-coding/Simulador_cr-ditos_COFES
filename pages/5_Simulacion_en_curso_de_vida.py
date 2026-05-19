@@ -92,9 +92,10 @@ if on is True:
                                       "Cambio de mensualidad",
                                       "Aplazamiento"])
 else:
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Amortizaciones anticipadas",
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Amortizaciones anticipadas",
                                             "Cambio de día de pago",
                                             "Cambio de mensualidad",
+                                            "Aplazamiento",
                                             "Joker / Comodín",
                                             "Disposiciones (aumentos de capital)"])
 with tab1:
@@ -132,21 +133,41 @@ with tab3:
                                          width="stretch",
                                          key="editor_cambio_cuota")
 with tab4:
-    col_varios_7, col_varios_8, col_varios_9 = st.columns([0.15,
-                                                           0.20,
-                                                           0.65],
-                                                           gap="small")
-    usar_joker = col_varios_7.checkbox("Activar aplazamiento" if on is True else "Activar joker")
-    if usar_joker:
-        fecha_joker_input = col_varios_8.date_input("Fecha de inicio del aplazamiento" if on is True else "Fecha de la orden del joker",
-                                                    tools.dt.date.today(),
-                                                    key="joker_fecha")
-    fecha_joker = fecha_joker_input if usar_joker else None
+    col_varios_7, col_varios_8, col_varios_9, col_varios_10 = st.columns([0.15,
+                                                                          0.20,
+                                                                          0.25,
+                                                                          0.40],
+                                                                          gap="small")
+    usar_aplazamiento = col_varios_7.checkbox("Activar aplazamiento")
+    if usar_aplazamiento:
+        fecha_aplazamiento_input = col_varios_8.date_input("Fecha de inicio del aplazamiento",
+                                                           tools.dt.date.today(),
+                                                           key="aplazamiento_fecha")
+        importe_aplazado = col_varios_9.number_input("Importe del capital impagado a aplazar (EUR)",
+                                                     min_value=0.00,
+                                                     max_value=60_000.00,
+                                                     step=25.00,
+                                                     value=0.00,
+                                                     help="Se debe indicar el importe del capital impagado a aplazar. El importe mínimo es de 0 EUR y el máximo de 60.000 EUR.")
+    fecha_aplazamiento = fecha_aplazamiento_input if usar_aplazamiento else None
+    importe_aplazado = importe_aplazado if usar_aplazamiento else 0.00
 if on is True:
+    fecha_joker = None
     df_dispos_raw = tools.pd.DataFrame({"Fecha": [None],
                                         "Importe": [0.0]})
 else:
     with tab5: # type: ignore
+        col_varios_11, col_varios_12, col_varios_13 = st.columns([0.15,
+                                                                  0.20,
+                                                                  0.65],
+                                                                  gap="small")
+        usar_joker = col_varios_11.checkbox("Activar joker")
+        if usar_joker:
+            fecha_joker_input = col_varios_12.date_input("Fecha de la orden del joker",
+                                                         tools.dt.date.today(),
+                                                         key="joker_fecha")
+        fecha_joker = fecha_joker_input if usar_joker else None
+    with tab6: # type: ignore
         df_dispos_raw = st.data_editor(tools.pd.DataFrame({"Fecha": [None],
                                                            "Importe": [0.0]}),
                                        column_config={"Fecha": st.column_config.DateColumn("Fecha disposicion",
