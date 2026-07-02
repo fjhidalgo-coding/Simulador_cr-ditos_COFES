@@ -52,12 +52,6 @@ capital = col_varios_1.number_input("Importe de financiación (€)",
                                     value=3000.0)
 fecha_financiacion = col_varios_1.date_input("Fecha de financiación",
                                              tools.dt.date.today())
-dia_pago = col_varios_1.number_input("Día de vencimiento",
-                                     min_value=1,
-                                     max_value=12,
-                                     step=1,
-                                     value=2,
-                                     help="Se debe indicar el día de pago seleccionado por el cliente")
 # ----------------------------------------------------------------------------------------------------------------------
 # Input de velocidades para crear el listado a convertir a duraciones (columna 2)
 # ----------------------------------------------------------------------------------------------------------------------

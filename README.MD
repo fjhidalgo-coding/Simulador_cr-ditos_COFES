@@ -89,6 +89,12 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.1.1 (2026-07-02)
+
+**Fixed bugs:**
+
+- Conversor de velocidad a duración : Supresión del desplegable para seleccionar el día de pago.
+
 ### v1.1.0 (2026-07-02)
 
 **Mejoras implementadas:**
