@@ -1,5 +1,5 @@
 #!
-'''Aplicación Streamlit para simular operaciones de los productos revolving de COF_ES
+'''Aplicación Streamlit para simular operaciones de los productos revolving
 Origen: 
 https://cappmhbrgvjwcruaui3ae7o.streamlit.app/
 https://github.com/mildredbr-design/Rev2/blob/main/app.py
@@ -95,33 +95,22 @@ def rcc_cuadro_amortización(capital,
 
 def rcc_obtener_duraciones(capital,
                            tin,
-                           fecha_financiacion):
+                           fecha_financiacion,
+                           vitesse):
     
     '''Función para obtener las duraciones disponibles para un capital y TIN determinados en el producto RCC.
     Devuelve una lista de duraciones en meses y un diccionario con la cuota correspondiente a cada duración.'''
-    rcc_duraciones = []
-    rcc_cuotas = {}
-    for v in tools.RCC_OPCIONES_VITESSE:
-        cuota_test = tools.redondear_decimal(capital * v / 100)
-        cuadro_amortización = rcc_cuadro_amortización(capital,
-                                                      tin,
-                                                      cuota_test,
-                                                      fecha_financiacion,
-                                                      0)
-        meses = len(cuadro_amortización)
-        etiqueta = f"{meses} meses"
-        rcc_duraciones.append(etiqueta)
-        rcc_cuotas[etiqueta] = cuota_test
-    
-    return rcc_duraciones, rcc_cuotas    
-
-def rcc_obtener_duraciones_a_partir_vitesse(capital,
-                                            tin,
-                                            fecha_financiacion,
-                                            vitesse):
-    
-    '''Función para obtener las duraciones disponibles para un capital y TIN determinados en el producto RCC.
-    Devuelve una lista de duraciones en meses y un diccionario con la cuota correspondiente a cada duración.'''
+    if vitesse is None:
+        vitesse = tools.RCC_OPCIONES_VITESSE
+    else:
+        vitesse = tools.pd.Series(vitesse.values.ravel()).dropna()
+        print("")
+        print(len(vitesse))
+        print("")
+        if len(vitesse) > 1:
+            vitesse = vitesse.squeeze().tolist()
+        else:
+            vitesse = (vitesse)
     rcc_duraciones = []
     rcc_cuotas = {}
     for v in vitesse:
@@ -135,9 +124,8 @@ def rcc_obtener_duraciones_a_partir_vitesse(capital,
         etiqueta = f"{meses} meses"
         rcc_duraciones.append(etiqueta)
         rcc_cuotas[etiqueta] = cuota_test
-
-
-    return rcc_duraciones, rcc_cuotas   
+    
+    return rcc_duraciones, rcc_cuotas    
 
 def rcc_simulacion_completa(capital,
                             tin,

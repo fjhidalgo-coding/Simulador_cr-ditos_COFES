@@ -1,5 +1,5 @@
 #!
-'''Programa para la simulación de los productos amortizables de COF_ES'''
+'''Funciones para el cálculo de la TAE'''
 
 import bin.COFES___tools as tools
 

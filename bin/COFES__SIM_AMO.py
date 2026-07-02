@@ -127,7 +127,7 @@ def simular_prestamo_CLB(etiqueta_producto,
                          tasa_comision_apertura, 
                          comision_apertura_capitalizada, 
                          imp_max_com_apertura):
-    '''Función principal para la simulación de los productos amortizables de COF_ES'''
+    '''Función principal para la simulación de los productos amortizables'''
     
     '''Forzar formato Decimal para los cálculos y evitar problemas de precisión con los floats'''
     capital_prestado = tools.redondear_decimal(capital_prestado)

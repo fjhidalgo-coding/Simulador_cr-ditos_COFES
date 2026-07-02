@@ -1,6 +1,6 @@
 #!
 '''
-Aplicación Streamlit para simular operaciones de los productos revolving de COF_ES
+Aplicación Streamlit para simular operaciones de los productos revolving
 Origen: 
 https://cappmhbrgvjwcruaui3ae7o.streamlit.app/
 https://github.com/mildredbr-design/Rev2/blob/main/app.py
@@ -86,7 +86,8 @@ elif tipo_calculo == "Cuota":
 elif tipo_calculo == "Duración":
     rcc_duraciones, rcc_cuotas = sim.rcc_obtener_duraciones(capital,
                                                             tin,
-                                                            fecha_financiacion)    
+                                                            fecha_financiacion,
+                                                            None)    
     cuota = rcc_cuotas[col_varios_8.selectbox("Duración del crédito",
                                               rcc_duraciones)]
 else:
