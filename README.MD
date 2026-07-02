@@ -89,6 +89,12 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.1.0 (2026-07-02)
+
+**Mejoras implementadas:**
+
+- [Issue#28](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/28) Conversor entre velocidades de rembolso y duraciones para un producto revolving dado un importe de financiación, un tipo de interés y una fecha de financiación.
+
 ### v1.0.1 (2026-04-22)
 
 **Fixed bugs:**

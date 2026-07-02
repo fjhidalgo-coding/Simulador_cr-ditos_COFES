@@ -1,5 +1,5 @@
 #!
-'''Programa para la simulación de los productos amortizables de COF_ES'''
+'''Programa para la simulación de las facilidades de pago'''
 
 import bin.COFES___TAE as tools_tae
 import bin.COFES___tools as tools
@@ -68,7 +68,7 @@ def simular_prestamo_4CB(capital_prestado_4CB,
                          tasa_comision_apertura_4CB,
                          fecha_financiacion_4CB):
     
-    '''Función principal para la simulación de los productos amortizables de COF_ES'''
+    '''Función principal para la simulación de las facilidades de pago'''
     
     # Convertir entradas a Decimal para cálculos en base 10 exacta
     capital_prestado_4CB = tools.redondear_decimal(capital_prestado_4CB)
@@ -254,7 +254,7 @@ def simular_masivamente(importes_prestado_4CB,
     importes_prestado_4CB = list(tools.np.round(tools.np.arange(importes_prestado_4CB[0], importes_prestado_4CB[1] + 0.01, 0.01), 2))
     tasas_comision_apertura_4CB = list(tools.np.round(tools.np.arange(tasas_comision_apertura_4CB[0], tasas_comision_apertura_4CB[1] + 0.01, 0.10), 2))
     
-    ''' Función la simulación masiva de préstamos amortizables '''
+    ''' Función la simulación masiva de las facilidades de pago '''
     for capital_prestado_4CB in importes_prestado_4CB:
         for tasa_comision_apertura_4CB in tasas_comision_apertura_4CB:
             (

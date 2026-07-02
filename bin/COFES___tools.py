@@ -1,4 +1,5 @@
 #!
+'''Funciones comunes a todos los simuladores'''
 
 import calendar as cl
 import datetime  as dt
@@ -84,7 +85,7 @@ def calcular_descuento_partner(importe_crédito,
                                plazo,
                                plazo_2sec):
 
-    '''Función para calcular el descuento partner de los productos amortizables de COF_ES'''
+    '''Función para calcular el descuento partner de los productos amortizables'''
     if tasa == 0.00:
         descuento = 0.00
     else:
@@ -164,7 +165,7 @@ def calcular_mensualidad_estandar(importe_crédito,
                                   fecha_fin_carencia_diferida, 
                                   fecha_fin_carencia,
                                   w_DIAS_BASE):
-    '''Función para calcular la mensualidad estándar de los productos amortizables de COF_ES'''
+    '''Función para calcular la mensualidad estándar de los productos amortizables'''
     
     '''Incremantar el capital de la operación con el interés y seguro capitalizado al finalizar carencia'''
     
