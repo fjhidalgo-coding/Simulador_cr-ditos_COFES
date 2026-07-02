@@ -115,7 +115,29 @@ def rcc_obtener_duraciones(capital,
     
     return rcc_duraciones, rcc_cuotas    
 
+def rcc_obtener_duraciones_a_partir_vitesse(capital,
+                                            tin,
+                                            fecha_financiacion,
+                                            vitesse):
+    
+    '''Función para obtener las duraciones disponibles para un capital y TIN determinados en el producto RCC.
+    Devuelve una lista de duraciones en meses y un diccionario con la cuota correspondiente a cada duración.'''
+    rcc_duraciones = []
+    rcc_cuotas = {}
+    for v in vitesse:
+        cuota_test = tools.redondear_decimal(capital * v / 100)
+        cuadro_amortización = rcc_cuadro_amortización(capital,
+                                                      tin,
+                                                      cuota_test,
+                                                      fecha_financiacion,
+                                                      0)
+        meses = len(cuadro_amortización)
+        etiqueta = f"{meses} meses"
+        rcc_duraciones.append(etiqueta)
+        rcc_cuotas[etiqueta] = cuota_test
 
+
+    return rcc_duraciones, rcc_cuotas   
 
 def rcc_simulacion_completa(capital,
                             tin,
