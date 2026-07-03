@@ -1,5 +1,5 @@
 #!
-# Aplicación Streamlit para simular masivamente operaciones de los productos amortizables de COF_ES
+# Aplicación Streamlit para simular masivamente operaciones de los productos amortizables
 
 import streamlit as st
 import bin.COFES__SIM_AMO as sim

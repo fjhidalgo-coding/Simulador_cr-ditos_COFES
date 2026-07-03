@@ -28,6 +28,7 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
   - **2_Simulacion_NFOIS_unitaria.py** — Simulador unitario para los productos NFOIS.
   - **3_Simulacion_revolving_unitaria.py** — Simulador unitario para los productos revolving.
   - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
+  - **5_Conversor_entre_vitesse_y_duraciones.py** — Conversor de velocidades de amortización a vencimientos.
 
 ---
 
@@ -88,6 +89,25 @@ streamlit run Simulacion_amortizable_unitaria.py
 ---
 
 ## Changelog
+
+### v1.1.2 (2026-07-03)
+
+**Closed issues:**
+
+- README: Actualización del bloque "Estructura del Proyecto".
+- COFES\_\_SIM_RCC: Optimización de la función `rcc_obtener_duraciones` y supresión del `print()` utilizado para depurar por consola.
+
+### v1.1.1 (2026-07-02)
+
+**Fixed bugs:**
+
+- Conversor de velocidad a duración : Supresión del desplegable para seleccionar el día de pago.
+
+### v1.1.0 (2026-07-02)
+
+**Mejoras implementadas:**
+
+- [Issue#28](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/28) Conversor entre velocidades de rembolso y duraciones para un producto revolving dado un importe de financiación, un tipo de interés y una fecha de financiación.
 
 ### v1.0.1 (2026-04-22)
 

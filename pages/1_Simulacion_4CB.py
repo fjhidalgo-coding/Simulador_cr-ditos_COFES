@@ -1,5 +1,5 @@
 #!
-# Aplicación Streamlit para simular las facilidades de pago 4CB de COF_ES
+# Aplicación Streamlit para simular las facilidades de pago
 
 import streamlit as st
 import bin.COFES__SIM_4CB as sim
