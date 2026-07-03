@@ -104,13 +104,7 @@ def rcc_obtener_duraciones(capital,
         vitesse = tools.RCC_OPCIONES_VITESSE
     else:
         vitesse = tools.pd.Series(vitesse.values.ravel()).dropna()
-        print("")
-        print(len(vitesse))
-        print("")
-        if len(vitesse) > 1:
-            vitesse = vitesse.squeeze().tolist()
-        else:
-            vitesse = (vitesse)
+        vitesse = (vitesse)
     rcc_duraciones = []
     rcc_cuotas = {}
     for v in vitesse:
