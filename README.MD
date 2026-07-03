@@ -17,6 +17,8 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
   - **COFES\_\_\_tools.py** - Funciones comunes para todos los simuladores.
   - **COFES\_\_SIM_4CB.py** - Funciones del simulador "facilidades de pago".
   - **COFES\_\_SIM_AMO.py** - Funciones del simulador "productos amortizables".
+  - **COFES\_\_SIM_LIFE.py** - Funciones del simulador "en curso de vida".
+  - **COFES\_\_SIM_NFOIS.py** - Funciones del simulador "productos N veces".
   - **COFES\_\_SIM_RCC.py** - Funciones del simulador "productos revolving".
 
 - **/data/**
@@ -29,6 +31,7 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
   - **3_Simulacion_revolving_unitaria.py** — Simulador unitario para los productos revolving.
   - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
   - **5_Conversor_entre_vitesse_y_duraciones.py** — Conversor de velocidades de amortización a vencimientos.
+  - **6_Simulacion_en_curso_de_vida.py** — Simulador para simular cualquier cambio realizado en curso de vida.
 
 ---
 
@@ -89,6 +92,12 @@ streamlit run Simulacion_amortizable_unitaria.py
 ---
 
 ## Changelog
+
+### v1.2.0 (2026-08-01)
+
+**Mejoras implementadas:**
+
+- [Issue#16](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/16) Creación de un simulador que permita incorporar los cambios que se producen en curso de vida.
 
 ### v1.1.2 (2026-07-03)
 
