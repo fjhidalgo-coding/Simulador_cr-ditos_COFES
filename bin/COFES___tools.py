@@ -218,7 +218,7 @@ def calcular_periodo(base_calculo,
     tasa_a_aplicar = redondear_decimal(tasa_a_aplicar)
 
     '''Calcular el interés o el seguro cuando el periodo está completo'''
-    importe_calculo_periodo = redondear_decimal(base_calculo * tasa_a_aplicar / 1200 * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month)))
+    importe_calculo_periodo = redondear_decimal(base_calculo * tasa_a_aplicar / 1200) * ((fecha_fin.year - fecha_inicio.year) * 12 + (fecha_fin.month - fecha_inicio.month))
    
     return redondear_decimal(importe_calculo_periodo)
 
