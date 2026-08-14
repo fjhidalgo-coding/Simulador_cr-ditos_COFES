@@ -90,6 +90,12 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.1.3 (2026-08-15)
+
+**Fixed bugs:**
+
+- [Issue#30](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/30): Anomalía en el cálculo de los intereses de la carencia al redondear tras calcular los interes de toda la duración de la carencia en lugar de redondear al calcular el interés aplicable a un periodo antes multiplicar dicho importe por el nº de periodos de carencia.
+
 ### v1.1.2 (2026-07-03)
 
 **Closed issues:**
