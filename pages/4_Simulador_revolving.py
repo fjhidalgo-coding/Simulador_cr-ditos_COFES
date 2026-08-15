@@ -27,7 +27,7 @@ st.markdown(
     """
     <style>
         section[data-testid = "stSidebar"] {
-            width: 425px !important; # Set the width to your desired value
+            width: 250px !important; # Set the width to your desired value
         }
         .table-right td, .table-right th {
             text-align: right !important;
@@ -103,18 +103,6 @@ if cuota is not None:
                                                                               seguro_tasa,
                                                                               dia_pago)
 # ----------------------------------------------------------------------------------------------------------------------
-# Exportar resultados de la simulación a Excel
-# ----------------------------------------------------------------------------------------------------------------------
-    st.download_button(
-        label = "📥 Descargar en Excel",
-        data = tools.generar_excel(rcc_resumen,
-                                   cuadro_amortización,
-                                   None,
-                                   datos_tae),
-        file_name = "simulacion_revolving.xlsx",
-        mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-# ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
     tab1, tab2, tab3 = st.tabs(["Resumen",
@@ -128,6 +116,18 @@ if cuota is not None:
     with tab3:
         st.dataframe(datos_tae.astype(str),
                      hide_index=True)
+# ----------------------------------------------------------------------------------------------------------------------
+# Exportar resultados de la simulación a Excel
+# ----------------------------------------------------------------------------------------------------------------------
+    st.download_button(
+        label = "📥 Descargar en Excel",
+        data = tools.generar_excel(rcc_resumen,
+                                   cuadro_amortización,
+                                   None,
+                                   datos_tae),
+        file_name = "simulacion_revolving.xlsx",
+        mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ----------------------------------------------------------------------------------------------------------------------

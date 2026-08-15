@@ -10,7 +10,7 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
 
 - **README\.MD**
 - **requirements.txt**
-- **Simulacion_amortizable_unitaria.py** - Interfaz principal con el simulador de operaciones unitarias para los productos amortizables.
+- **app.py** - Portada a la aplicación de herramientas de simulación.
 
 - **/bin/**
   - **COFES\_\_\_TAE.py** - Funciones comunes para el cómputo de la TAE.
@@ -24,10 +24,10 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
   - **COFES_01_Date_Blocage.csv** - Contiene el listado de fechas de cierre contable.
 
 - **/pages/**
-  - **1_Simulacion_4CB.py** — Simulador unitario y masivo para facilidades de pago.
-  - **2_Simulacion_NFOIS_unitaria.py** — Simulador unitario para los productos NFOIS.
-  - **3_Simulacion_revolving_unitaria.py** — Simulador unitario para los productos revolving.
-  - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
+  - **1_Simulador_4CB.py** — Simulador unitario y masivo para facilidades de pago.
+  - **2_Simulador_amortizable.py** — Simulador unitario y masivo para los productos amortizables.
+  - **3_Simulador_NFOIS.py** — Simulador unitario para los productos NFOIS.
+  - **4_Simulador_revolving.py** — Simulador unitario para los productos revolving.
   - **5_Conversor_entre_vitesse_y_duraciones.py** — Conversor de velocidades de amortización a vencimientos.
 
 ---
@@ -48,7 +48,6 @@ requirements.txt:
 ```
 streamlit
 pandas
-numpy
 xlsxwriter
 ```
 
@@ -56,7 +55,7 @@ Ejecuta la aplicación:
 
 ```bash
 # Ejecuta la aplicación
-streamlit run Simulacion_amortizable_unitaria.py
+streamlit run app.py
 ```
 
 ---
@@ -65,7 +64,6 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 - [Streamlit](https://streamlit.io/)
 - [Pandas](https://pandas.pydata.org/)
-- [Numpy](https://pypi.org/project/numpy/)
 - [xlsxwriter](https://pypi.org/project/xlsxwriter/)
 
 ---
@@ -90,11 +88,22 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.2.0 (2026-08-16)
+
+**Mejoras implementadas:**
+
+- ND000608: Adaptación de los productos OPTION+ al cálculo del capital de la segunda secuencia en base al importe de la compra en lugar del importe financiado.
+- Fusión de los simuladores amortizable unitario y masivo con una solución parecida a la implementada en el simulador de facilidades de pago.
+
+**Closed issues:**
+
+- Reorganización del proyecto: Tras la incorporación de los diversos simuladores, la disposición del simulador amortizable en la barra lateral se hace inviable. Además, prepara el proyecto a futuras funcionalidades.
+
 ### v1.1.3 (2026-08-15)
 
 **Fixed bugs:**
 
-- [Issue#30](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/30): Anomalía en el cálculo de los intereses de la carencia al redondear tras calcular los interes de toda la duración de la carencia en lugar de redondear al calcular el interés aplicable a un periodo antes multiplicar dicho importe por el nº de periodos de carencia.
+- [Issue#30](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/30): Anomalía en el cálculo de los intereses de la carencia al redondear tras calcular los interés de toda la duración de la carencia en lugar de redondear al calcular el interés aplicable a un periodo antes multiplicar dicho importe por el nº de periodos de carencia.
 
 ### v1.1.2 (2026-07-03)
 

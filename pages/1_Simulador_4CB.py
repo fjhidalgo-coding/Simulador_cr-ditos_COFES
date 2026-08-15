@@ -22,7 +22,7 @@ st.markdown(
     """
     <style>
         section[data-testid="stSidebar"] {
-            width: 425px !important; # Set the width to your desired value
+            width: 250px !important; # Set the width to your desired value
         }
         .table-right td, .table-right th {
             text-align: right !important;
@@ -36,7 +36,8 @@ st.markdown(
 # ----------------------------------------------------------------------------------------------------------------------
 on = st.toggle("Simulación masiva 4CB",
                value=False,
-               key="toggle_4CB")
+               key="toggle_4CB",
+               help="Se debe activar el toggle para realizar una simulación masiva de los productos 4CB")
 # ----------------------------------------------------------------------------------------------------------------------
 # Bloque de inputs para la simulación unitaria
 # ----------------------------------------------------------------------------------------------------------------------
@@ -73,6 +74,34 @@ if on is False:
                                                          tasa_comision_apertura_4CB,
                                                          fecha_financiacion_4CB)
 # ----------------------------------------------------------------------------------------------------------------------
+# Mostrar resultados de la simulación en Streamlit
+# ----------------------------------------------------------------------------------------------------------------------
+        tab1, tab2, tab3, tab4 = st.tabs(["Resumen",
+                                          "Ejemplo representativo",
+                                          "Cuadro de amortización",
+                                          "Detalle TAE"])
+        with tab1:
+            col1, col2 = st.columns([0.08,
+                                     0.92],
+                                    gap="small")
+            html_table1 = resumen1.to_html(classes='table table-right',
+                                           index=True)
+            html_table2 = resumen2.to_html(classes='table table-right',
+                                           index=True)
+            col1.markdown(html_table1,
+                          unsafe_allow_html=True)
+            col2.markdown(html_table2,
+                          unsafe_allow_html=True)
+        with tab2:
+            st.code(ejemplo_representativo,
+                    wrap_lines=True)
+        with tab3:
+            st.dataframe(cuadro_amortizacion,
+                         hide_index=True)
+        with tab4:
+            st.dataframe(input_tae,
+                         hide_index=True)
+# ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
         st.download_button(
@@ -85,33 +114,6 @@ if on is False:
             file_name="simulacion_4CB_unitaria.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-# ----------------------------------------------------------------------------------------------------------------------
-# Mostrar resultados de la simulación en Streamlit
-# ----------------------------------------------------------------------------------------------------------------------
-        with st.expander("Resumen", expanded=True):
-            col1, col2 = st.columns([0.08,
-                                     0.92],
-                                    gap="small")
-            html_table1 = resumen1.to_html(classes='table table-right',
-                                           index=True)
-            html_table2 = resumen2.to_html(classes='table table-right',
-                                           index=True)
-            col1.markdown(html_table1,
-                          unsafe_allow_html=True)
-            col2.markdown(html_table2,
-                          unsafe_allow_html=True)
-        tab1, tab2, tab3 = st.tabs(["Cuadro de amortización",
-                                    "Ejemplo representativo",
-                                    "Detalle TAE"])
-        with tab1:
-            st.dataframe(cuadro_amortizacion,
-                         hide_index=True)
-        with tab2:
-            st.code(ejemplo_representativo,
-                    wrap_lines=True)
-        with tab3:
-            st.dataframe(input_tae,
-                         hide_index=True)
 # ----------------------------------------------------------------------------------------------------------------------
 # Bloque de inputs para la simulación masiva
 # ----------------------------------------------------------------------------------------------------------------------
@@ -147,6 +149,13 @@ else:
                                                                   fechas_financiacion_4CB)
         st.success("Simulación masiva completada")
 # ----------------------------------------------------------------------------------------------------------------------
+# Mostrar resultados de la simulación en Streamlit
+# ----------------------------------------------------------------------------------------------------------------------
+        with st.expander("Resultados de la simulación masiva",
+                         expanded=True):
+            st.dataframe(resultado_simulacion_masiva,
+                         hide_index=True)
+# ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
         st.download_button(
@@ -155,13 +164,6 @@ else:
             file_name="simulacion_4CB_masiva.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-# ----------------------------------------------------------------------------------------------------------------------
-# Mostrar resultados de la simulación en Streamlit
-# ----------------------------------------------------------------------------------------------------------------------
-        with st.expander("Resultados de la simulación masiva",
-                         expanded=True):
-            st.dataframe(resultado_simulacion_masiva,
-                         hide_index=True)
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ---------------------------------------------------------------------------------------------------------------------- 
