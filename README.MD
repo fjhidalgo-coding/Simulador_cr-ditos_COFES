@@ -64,7 +64,6 @@ streamlit run app.py
 
 - [Streamlit](https://streamlit.io/)
 - [Pandas](https://pandas.pydata.org/)
-- [Numpy](https://pypi.org/project/numpy/)
 - [xlsxwriter](https://pypi.org/project/xlsxwriter/)
 
 ---
@@ -89,11 +88,11 @@ streamlit run app.py
 
 ## Changelog
 
-### v1.2.0 (2026-08-17)
+### v1.2.0 (2026-08-16)
 
 **Mejoras implementadas:**
 
-- Adaptación de los productos OPTION+ al cálculo del capital de la segunda secuencia en base al importe de la compra en lugar del importe financiado.
+- ND000608: Adaptación de los productos OPTION+ al cálculo del capital de la segunda secuencia en base al importe de la compra en lugar del importe financiado.
 - Fusión de los simuladores amortizable unitario y masivo con una solución parecida a la implementada en el simulador de facilidades de pago.
 
 **Closed issues:**
