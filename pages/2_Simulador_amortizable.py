@@ -32,33 +32,51 @@ st.markdown(
     unsafe_allow_html=True,
 )
 # ----------------------------------------------------------------------------------------------------------------------
-# Toggle para seleccionar entre simulación unitaria o masiva
+# Primera sección de inputs: producto, día de pago, fecha de financiación y seguro
 # ----------------------------------------------------------------------------------------------------------------------
-on = st.toggle("Simulación masiva amortizable",
-               value=False,
-               key="toggle_amortizable",
-               help="Se debe activar el toggle para realizar una simulación masiva de los productos amortizables")
+col_sim_1, col_sim_2, col_sim_3, col_sim_4, col_sim_5 = st.columns([0.20,
+                                                                    0.20,
+                                                                    0.20,
+                                                                    0.20,
+                                                                    0.20],
+                                                                    gap="small")
+# Toggle para seleccionar entre simulación unitaria o masiva
+on = col_sim_1.toggle("Simulación masiva",
+                      value=False,
+                      key="toggle_amortizable",
+                      help="Se debe activar el toggle para realizar una simulación masiva de los productos amortizables")
+# Menú desplegable para seleccionar el producto a simular
+etiqueta_producto = col_sim_2.selectbox('Elige el producto contratado:',
+                                        tools.LISTA_PRODUCTOS[:14],
+                                        index=1)
+# Input para seleccionar el día de pago y la fecha de financiación
+dia_pago = col_sim_3.number_input("Día de vencimiento",
+                                  min_value=1,
+                                  max_value=12,
+                                  step=1,
+                                  value=2,
+                                  help="Se debe indicar el día de pago seleccionado por el cliente")
+# Input para seleccionar la fecha de financiación
+fecha_financiacion = col_sim_4.date_input("Fecha de financiación",
+                                          tools.dt.date.today())
+# Menú desplegable para seleccionar el seguro mensual en los productos que lo permiten
+if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
+    seguro_tasa = tools.OPCIONES_SEGURO_AMO[col_sim_5.selectbox("Seguro mensual",
+                                                                list(tools.OPCIONES_SEGURO_AMO.keys())[:3], index=2)]
+elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11, 12, 13):
+    seguro_tasa = tools.OPCIONES_SEGURO_AMO[col_sim_5.selectbox("Seguro mensual",
+                                                                list(tools.OPCIONES_SEGURO_AMO.keys())[2:], index=0)]
+else:
+    seguro_tasa = 0.00
+
+
+
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Bloque de inputs para la simulación unitaria
 # ----------------------------------------------------------------------------------------------------------------------
 if on is False:
-# ----------------------------------------------------------------------------------------------------------------------
-# Crear selector del producto amortizable a simular
-# ----------------------------------------------------------------------------------------------------------------------
-    etiqueta_producto = st.selectbox('Elige el producto contratado:',
-                                     tools.LISTA_PRODUCTOS[:14], index=1)
-# ----------------------------------------------------------------------------------------------------------------------
-    # Crar expander donde mostrar las opciones de fecha de simulación y día de pago
-# ----------------------------------------------------------------------------------------------------------------------
-    with st.expander("Personalizar las fechas"):
-        fecha_financiacion = st.date_input("Fecha de financiación",
-                                           tools.dt.date.today())
-        dia_pago = st.number_input("Día de vencimiento",
-                                   min_value=1,
-                                   max_value=12,
-                                   step=1,
-                                   value=2, 
-                                   help="Se debe indicar el día de pago seleccionado por el cliente")
 # ----------------------------------------------------------------------------------------------------------------------
     # Mostrar los campos para gestionar la comisión de apertura en los productos que lo permiten
 # ----------------------------------------------------------------------------------------------------------------------
@@ -128,17 +146,6 @@ if on is False:
                             step=1,
                             value=12,
                             help="Se debe indicar la duración en meses del plazo de amortización")
-# ----------------------------------------------------------------------------------------------------------------------
-# Mostrar los campos para gestionar el seguro en los productos que lo permiten
-# ----------------------------------------------------------------------------------------------------------------------
-    if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (0, 1):
-        seguro_tasa = tools.OPCIONES_SEGURO_AMO[st.selectbox("Seguro mensual",
-                                                              list(tools.OPCIONES_SEGURO_AMO.keys())[:3], index=2)]
-    elif tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (8, 9, 10, 11, 12, 13):
-        seguro_tasa = tools.OPCIONES_SEGURO_AMO[st.selectbox("Seguro mensual",
-                                                              list(tools.OPCIONES_SEGURO_AMO.keys())[2:], index=0)]
-    else:
-        seguro_tasa = 0.00
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar el campo para indicar la carencia en los productos que lo permiten
 # ----------------------------------------------------------------------------------------------------------------------
