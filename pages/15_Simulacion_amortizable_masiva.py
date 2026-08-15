@@ -22,7 +22,7 @@ st.markdown(
     """
     <style>
         section[data-testid="stSidebar"] {
-            width: 425px !important; # Set the width to your desired value
+            width: 250px !important; # Set the width to your desired value
         }
         .table-right td, .table-right th {
             text-align: right !important;

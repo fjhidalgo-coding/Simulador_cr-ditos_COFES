@@ -22,7 +22,7 @@ st.markdown(
     """
     <style>
         section[data-testid="stSidebar"] {
-            width: 425px !important; # Set the width to your desired value
+            width: 250px !important; # Set the width to your desired value
         }
         .table-right td, .table-right th {
             text-align: right !important;
@@ -32,9 +32,16 @@ st.markdown(
     unsafe_allow_html=True,
 )
 # ----------------------------------------------------------------------------------------------------------------------
-# Crear la barra lateral con los campos de entrada para la simulación
+# Toggle para seleccionar entre simulación unitaria o masiva
 # ----------------------------------------------------------------------------------------------------------------------
-with st.sidebar:
+on = st.toggle("Simulación masiva amortizable",
+               value=False,
+               key="toggle_amortizable",
+               help="Se debe activar el toggle para realizar una simulación masiva de los productos amortizables")
+# ----------------------------------------------------------------------------------------------------------------------
+# Bloque de inputs para la simulación unitaria
+# ----------------------------------------------------------------------------------------------------------------------
+if on is False:
 # ----------------------------------------------------------------------------------------------------------------------
 # Crear selector del producto amortizable a simular
 # ----------------------------------------------------------------------------------------------------------------------
@@ -202,29 +209,34 @@ if st.session_state.get("simular", True):
                                                      comision_apertura_capitalizada,
                                                      imp_max_com_apertura)
 # ----------------------------------------------------------------------------------------------------------------------
-# Mostrar resumen de la simulación
+# Exportar resultados de la simulación a Excel
+# ----------------------------------------------------------------------------------------------------------------------    
+    st.download_button(
+        label="📥 Descargar en Excel",
+        data=tools.generar_excel(resumen2,
+                                cuadro_amortizacion,
+                                tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']],
+                                                    'Ejemplo representativo': [ejemplo_representativo]}),
+                                input_tae,
+                                resumen3),
+        file_name="simulacion_amortizable.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 # ----------------------------------------------------------------------------------------------------------------------
+# Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
-# Detallar las características del producto amortizable de la simulación
-# ----------------------------------------------------------------------------------------------------------------------
-    with st.expander(f"Características del producto {etiqueta_producto}",
-                     expanded=False):
-        # Filtrar el dataframe "tools.DICCIONARIO_PRODUCTOS" con el producto seleccionado en la simulación
-        producto_info = tools.DICCIONARIO_PRODUCTOS[tools.DICCIONARIO_PRODUCTOS["Nombre del producto"] == etiqueta_producto]
-        st.dataframe(producto_info.T,
-                     width='stretch')
-        # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
-        if tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 3:
-            st.warning('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")
-            st.toast('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")
-# ----------------------------------------------------------------------------------------------------------------------
-# Mostrar el resumen económico de la simulación
-# ----------------------------------------------------------------------------------------------------------------------
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Resumen",
+                                                  "Secuencias financieras",
+                                                  "Ejemplo representativo",
+                                                  "Cuadro de amortización",
+                                                  "Detalle TAE",
+                                                  f"Características del producto {etiqueta_producto}"])
+    # Mostrar el resumen económico de la simulación
     if resumen1 is None:
-         st.error(ejemplo_representativo,
-                  icon="❌")
+        with tab1:
+            st.error(ejemplo_representativo,icon="❌")
     else:
-        with st.expander("Resumen", expanded=True):
+        with tab1:
             col1, col2 = st.columns([0.08,
                                      0.92],
                                     gap="small")
@@ -236,41 +248,34 @@ if st.session_state.get("simular", True):
                           unsafe_allow_html=True)
             col2.markdown(html_table2,
                           unsafe_allow_html=True)
-# ----------------------------------------------------------------------------------------------------------------------
-# Exportar resultados de la simulación a Excel
-# ----------------------------------------------------------------------------------------------------------------------    
-        st.download_button(
-            label="📥 Descargar en Excel",
-            data=tools.generar_excel(resumen2,
-                                     cuadro_amortizacion,
-                                     tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']],
-                                                         'Ejemplo representativo': [ejemplo_representativo]}),
-                                     input_tae,
-                                     resumen3),
-            file_name="simulacion_amortizable.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-# ----------------------------------------------------------------------------------------------------------------------
-# Mostrar resultados de la simulación en Streamlit
-# ----------------------------------------------------------------------------------------------------------------------
-        tab1, tab2, tab3, tab4 = st.tabs(["Secuencias financieras",
-                                          "Ejemplo representativo",
-                                          "Cuadro de amortización",
-                                          "Detalle TAE"])
-        with tab1:
-            html_table = resumen3.to_html(classes='table table-right',
-                                          index=True)
-            st.markdown(html_table,
-                        unsafe_allow_html=True)
-        with tab2:
-            st.code(ejemplo_representativo,
-                    wrap_lines=True)
-        with tab3:
-            st.dataframe(cuadro_amortizacion,
-                         hide_index=True)
-        with tab4:
-            st.dataframe(input_tae,
-                         hide_index=True)
+    # Mostrar el resumen de las secuencias financieras de la simulación
+    with tab2:
+        html_table = resumen3.to_html(classes='table table-right',
+                                      index=True)
+        st.markdown(html_table,
+                    unsafe_allow_html=True)
+    # Mostrar el ejemplo representativo de la simulación
+    with tab3:
+        st.code(ejemplo_representativo,
+                wrap_lines=True)
+    # Mostrar el cuadro de amortización de la simulación
+    with tab4:
+        st.dataframe(cuadro_amortizacion,
+                     hide_index=True)
+    # Mostrar el detalle del TAE de la simulación
+    with tab5:
+        st.dataframe(input_tae,
+                     hide_index=True)
+    # Mostrar el detalle del producto de la simulación
+    with tab6:
+        # Filtrar el dataframe "tools.DICCIONARIO_PRODUCTOS" con el producto seleccionado en la simulación
+        producto_info = tools.DICCIONARIO_PRODUCTOS[tools.DICCIONARIO_PRODUCTOS["Nombre del producto"] == etiqueta_producto]
+        # Recordatorio de que la primera mensualidad de los productos Vorwerk financiado no puede superar la mensualidad contractual
+        if tools.LISTA_PRODUCTOS.index(etiqueta_producto) == 3:
+            st.warning('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")
+            st.toast('Para evitar que la primera mensualidad supere la cuota contractual, la carencia diferida tiene un tipo de interés del 0,00 % y, si el contrato es financiado entre fecha de bloqueo y fecha de vencimiento, se crea una carencia diferida forzada entre la fecha de financiación y la primera fecha de vencimiento teórica posible.', icon="⚠️")
+        st.dataframe(producto_info.T,
+                     width='stretch')
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ---------------------------------------------------------------------------------------------------------------------- 

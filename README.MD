@@ -90,11 +90,22 @@ streamlit run Simulacion_amortizable_unitaria.py
 
 ## Changelog
 
+### v1.2.0 (2026-08-17)
+
+**Mejoras implementadas:**
+
+- Adaptación de los productos OPTION+ al cálculo del capital de la segunda secuencia en base al importe de la compra en lugar del importe financiado.
+- Fusión de los simuladores amortizable unitario y masivo con una solución parecida a la implementada en el simulador de facilidades de pago.
+
+**Closed issues:**
+
+- Reorganización del proyecto: Tras la incorporación de los diversos simuladores, la disposición del simulador amortizable en la barra lateral se hace inviable. Además, prepara el proyecto a futuras funcionalidades.
+
 ### v1.1.3 (2026-08-15)
 
 **Fixed bugs:**
 
-- [Issue#30](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/30): Anomalía en el cálculo de los intereses de la carencia al redondear tras calcular los interes de toda la duración de la carencia en lugar de redondear al calcular el interés aplicable a un periodo antes multiplicar dicho importe por el nº de periodos de carencia.
+- [Issue#30](https://github.com/fjhidalgo-coding/Simulador_cr-ditos_COFES/issues/30): Anomalía en el cálculo de los intereses de la carencia al redondear tras calcular los interés de toda la duración de la carencia en lugar de redondear al calcular el interés aplicable a un periodo antes multiplicar dicho importe por el nº de periodos de carencia.
 
 ### v1.1.2 (2026-07-03)
 

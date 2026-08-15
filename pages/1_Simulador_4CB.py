@@ -22,7 +22,7 @@ st.markdown(
     """
     <style>
         section[data-testid="stSidebar"] {
-            width: 425px !important; # Set the width to your desired value
+            width: 250px !important; # Set the width to your desired value
         }
         .table-right td, .table-right th {
             text-align: right !important;
@@ -36,7 +36,8 @@ st.markdown(
 # ----------------------------------------------------------------------------------------------------------------------
 on = st.toggle("Simulación masiva 4CB",
                value=False,
-               key="toggle_4CB")
+               key="toggle_4CB",
+               help="Se debe activar el toggle para realizar una simulación masiva de los productos 4CB")
 # ----------------------------------------------------------------------------------------------------------------------
 # Bloque de inputs para la simulación unitaria
 # ----------------------------------------------------------------------------------------------------------------------
@@ -88,7 +89,11 @@ if on is False:
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
-        with st.expander("Resumen", expanded=True):
+        tab1, tab2, tab3, tab4 = st.tabs(["Resumen",
+                                          "Ejemplo representativo",
+                                          "Cuadro de amortización",
+                                          "Detalle TAE"])
+        with tab1:
             col1, col2 = st.columns([0.08,
                                      0.92],
                                     gap="small")
@@ -100,16 +105,13 @@ if on is False:
                           unsafe_allow_html=True)
             col2.markdown(html_table2,
                           unsafe_allow_html=True)
-        tab1, tab2, tab3 = st.tabs(["Cuadro de amortización",
-                                    "Ejemplo representativo",
-                                    "Detalle TAE"])
-        with tab1:
-            st.dataframe(cuadro_amortizacion,
-                         hide_index=True)
         with tab2:
             st.code(ejemplo_representativo,
                     wrap_lines=True)
         with tab3:
+            st.dataframe(cuadro_amortizacion,
+                         hide_index=True)
+        with tab4:
             st.dataframe(input_tae,
                          hide_index=True)
 # ----------------------------------------------------------------------------------------------------------------------
