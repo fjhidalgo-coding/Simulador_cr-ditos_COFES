@@ -10,7 +10,7 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
 
 - **README\.MD**
 - **requirements.txt**
-- **Simulacion_amortizable_unitaria.py** - Interfaz principal con el simulador de operaciones unitarias para los productos amortizables.
+- **app.py** - Portada a la aplicación de herramientas de simulación.
 
 - **/bin/**
   - **COFES\_\_\_TAE.py** - Funciones comunes para el cómputo de la TAE.
@@ -24,10 +24,10 @@ Aplicación Streamlit para simular los datos financieros de cualquier producto: 
   - **COFES_01_Date_Blocage.csv** - Contiene el listado de fechas de cierre contable.
 
 - **/pages/**
-  - **1_Simulacion_4CB.py** — Simulador unitario y masivo para facilidades de pago.
-  - **2_Simulacion_NFOIS_unitaria.py** — Simulador unitario para los productos NFOIS.
-  - **3_Simulacion_revolving_unitaria.py** — Simulador unitario para los productos revolving.
-  - **4_Simulacion_amortizable_masiva.py** — Simulador masivo para los productos amortizables.
+  - **1_Simulador_4CB.py** — Simulador unitario y masivo para facilidades de pago.
+  - **2_Simulador_amortizable.py** — Simulador unitario y masivo para los productos amortizables.
+  - **3_Simulador_NFOIS.py** — Simulador unitario para los productos NFOIS.
+  - **4_Simulador_revolving.py** — Simulador unitario para los productos revolving.
   - **5_Conversor_entre_vitesse_y_duraciones.py** — Conversor de velocidades de amortización a vencimientos.
 
 ---
@@ -48,7 +48,6 @@ requirements.txt:
 ```
 streamlit
 pandas
-numpy
 xlsxwriter
 ```
 
@@ -56,7 +55,7 @@ Ejecuta la aplicación:
 
 ```bash
 # Ejecuta la aplicación
-streamlit run Simulacion_amortizable_unitaria.py
+streamlit run app.py
 ```
 
 ---

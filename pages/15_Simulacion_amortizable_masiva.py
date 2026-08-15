@@ -244,16 +244,6 @@ if st.button("Simular"):
                                                                                          tasa_comision_apertura)
     st.success("Simulación masiva completada")
 # ----------------------------------------------------------------------------------------------------------------------
-# Exportar resultados de la simulación a Excel
-# ----------------------------------------------------------------------------------------------------------------------
-    st.download_button(
-                label="📥 Descargar en Excel",
-                data=tools.generar_excel(resultado_simulacion_masiva=resultado_simulacion_masiva,
-                                         df_errores=errores_simulacion_masiva),
-                file_name="simulacion_AMO_masiva.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-# ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
     st.dataframe(resultado_simulacion_masiva,
@@ -265,6 +255,16 @@ if st.button("Simular"):
         st.error(f"Se han descartado {len(errores_simulacion_masiva)} registros con error en la simulación.")
         st.dataframe(errores_simulacion_masiva,
                      hide_index=True)
+# ----------------------------------------------------------------------------------------------------------------------
+# Exportar resultados de la simulación a Excel
+# ----------------------------------------------------------------------------------------------------------------------
+    st.download_button(
+                label="📥 Descargar en Excel",
+                data=tools.generar_excel(resultado_simulacion_masiva=resultado_simulacion_masiva,
+                                         df_errores=errores_simulacion_masiva),
+                file_name="simulacion_AMO_masiva.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ----------------------------------------------------------------------------------------------------------------------
