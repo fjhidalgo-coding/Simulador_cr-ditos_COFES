@@ -74,19 +74,6 @@ if on is False:
                                                          tasa_comision_apertura_4CB,
                                                          fecha_financiacion_4CB)
 # ----------------------------------------------------------------------------------------------------------------------
-# Exportar resultados de la simulación a Excel
-# ----------------------------------------------------------------------------------------------------------------------
-        st.download_button(
-            label="📥 Descargar en Excel",
-            data=tools.generar_excel(resumen2,
-                                     cuadro_amortizacion,
-                                     tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']],
-                                                         'Ejemplo representativo': [ejemplo_representativo]}),
-                                     input_tae  ),
-            file_name="simulacion_4CB_unitaria.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-# ----------------------------------------------------------------------------------------------------------------------
 # Mostrar resultados de la simulación en Streamlit
 # ----------------------------------------------------------------------------------------------------------------------
         tab1, tab2, tab3, tab4 = st.tabs(["Resumen",
@@ -114,6 +101,19 @@ if on is False:
         with tab4:
             st.dataframe(input_tae,
                          hide_index=True)
+# ----------------------------------------------------------------------------------------------------------------------
+# Exportar resultados de la simulación a Excel
+# ----------------------------------------------------------------------------------------------------------------------
+        st.download_button(
+            label="📥 Descargar en Excel",
+            data=tools.generar_excel(resumen2,
+                                     cuadro_amortizacion,
+                                     tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']],
+                                                         'Ejemplo representativo': [ejemplo_representativo]}),
+                                     input_tae  ),
+            file_name="simulacion_4CB_unitaria.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 # ----------------------------------------------------------------------------------------------------------------------
 # Bloque de inputs para la simulación masiva
 # ----------------------------------------------------------------------------------------------------------------------
@@ -149,6 +149,13 @@ else:
                                                                   fechas_financiacion_4CB)
         st.success("Simulación masiva completada")
 # ----------------------------------------------------------------------------------------------------------------------
+# Mostrar resultados de la simulación en Streamlit
+# ----------------------------------------------------------------------------------------------------------------------
+        with st.expander("Resultados de la simulación masiva",
+                         expanded=True):
+            st.dataframe(resultado_simulacion_masiva,
+                         hide_index=True)
+# ----------------------------------------------------------------------------------------------------------------------
 # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------
         st.download_button(
@@ -157,13 +164,6 @@ else:
             file_name="simulacion_4CB_masiva.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-# ----------------------------------------------------------------------------------------------------------------------
-# Mostrar resultados de la simulación en Streamlit
-# ----------------------------------------------------------------------------------------------------------------------
-        with st.expander("Resultados de la simulación masiva",
-                         expanded=True):
-            st.dataframe(resultado_simulacion_masiva,
-                         hide_index=True)
 # ----------------------------------------------------------------------------------------------------------------------
 # Final de la aplicación
 # ---------------------------------------------------------------------------------------------------------------------- 

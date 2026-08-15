@@ -293,7 +293,7 @@ if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
                                                                  0.25,
                                                                  0.25],
                                                                  gap="small")
-    if on_residual_porcentual == True:
+    if on_residual_porcentual == True and on_masiva is False:
         capital_2sec = round(col_sim_15.number_input("% a amortizar en la segunda secuencia",
                                                      min_value=5.00,
                                                      max_value=70.00,
@@ -303,6 +303,13 @@ if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
                              * (importe_bien if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13) else capital_prestado)
                              /100,
                              2)
+    elif on_residual_porcentual == True and on_masiva is True:
+        capital_2sec = col_sim_15.number_input("% a amortizar en la segunda secuencia",
+                                               min_value=5.00,
+                                               max_value=70.00,
+                                               step=5.00,
+                                               value=30.00, 
+                                               help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")
     else:
         capital_2sec = col_sim_15.number_input("Importe a amortizar en la 2ª secuencia",
                                                min_value=50.00,
@@ -457,7 +464,7 @@ else:
                                                                                              fecha_financiacion,
                                                                                              imp_max_com_apertura,
                                                                                              importes_prestado,
-                                                                                             on,
+                                                                                             on_residual_porcentual,
                                                                                              plazo_2sec,
                                                                                              plazos,
                                                                                              seguro_tasa,
