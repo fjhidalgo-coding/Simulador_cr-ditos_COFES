@@ -88,6 +88,13 @@ streamlit run app.py
 
 ## Changelog
 
+### v1.2.1 (2026-08-16)
+
+**Fixed bugs:**
+
+- Cálculo correcto del capital de segunda secuencia financiera para un OPTION+ donde el cálculo es porcentual en base al importe de la compra (simulaciones unitarias).
+- Correcto control sobre el error asociado a `if capital_prestado <= 0.00 or capital_2sec >= capital_prestado:` ya que se alimentaba un dataframe con None y generaba un error al convertido a html (resumen`x`.to_html)
+
 ### v1.2.0 (2026-08-16)
 
 **Mejoras implementadas:**

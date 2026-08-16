@@ -107,7 +107,7 @@ col_sim_6, col_sim_7, col_sim_8, col_sim_9, col_sim_10 = st.columns([0.20,
                                                                     0.20],
                                                                     gap="small")
 # ----------------------------------------------------------------------------------------------------------------------    
-# Input para seleccionar el tipo de interés deudor, opciones de la comisión de apertura y 
+# Input para seleccionar el tipo de interés deudor, opciones de la comisión de apertura e importe entregado a cuenta
 # ----------------------------------------------------------------------------------------------------------------------    
 tasa = col_sim_6.number_input("Tipo de Interés Deudor",
                               min_value=0.0,
@@ -166,11 +166,12 @@ if on_masiva is False:
 # ----------------------------------------------------------------------------------------------------------------------
 # Mostrar los campos de tipo de interés, importe a financiar y duración del préstamo
 # ----------------------------------------------------------------------------------------------------------------------
-    col_sim_11, col_sim_12, col_sim_13, col_sim_14 = st.columns([0.25,
-                                                                 0.25,
-                                                                 0.25,
-                                                                 0.25],
-                                                                 gap="small")
+    col_sim_11, col_sim_12, col_sim_13, col_sim_14,col_sim_15 = st.columns([0.20,
+                                                                            0.20,
+                                                                            0.20,
+                                                                            0.20,
+                                                                            0.20],
+                                                                            gap="small")
     if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13) or on_porcentual_compra == True:
         importe_bien = col_sim_11.number_input("Importe del bien adquirido (EUR)",
                                                min_value=50.00,
@@ -178,7 +179,7 @@ if on_masiva is False:
                                                step=50.00,
                                                value=15000.00, 
                                                help="Se debe indicar el importe del bien adquirido con el préstamo")
-        capital_prestado = col_sim_14.number_input("Importe solicitado (EUR)",
+        capital_prestado = col_sim_15.number_input("Importe solicitado (EUR)",
                                                    value=(importe_bien - entrega_a_cuenta if importe_bien > entrega_a_cuenta else 0),
                                                    disabled=True,
                                                    help="Se debe indicar el importe del capital solicitado en el préstamo")
@@ -288,40 +289,41 @@ else:
 # Mostrar los campos para gestionar la segunda secuencia financiera en los productos que lo permiten
 # ----------------------------------------------------------------------------------------------------------------------
 if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (6, 7, 12, 13):
-    col_sim_15, col_sim_16, col_sim_17, col_sim_18 = st.columns([0.25,
-                                                                 0.25,
-                                                                 0.25,
-                                                                 0.25],
-                                                                 gap="small")
+    col_sim_15, col_sim_16, col_sim_17, col_sim_18, col_sim_19 = st.columns([0.20,
+                                                                             0.20,
+                                                                             0.20,
+                                                                             0.20,
+                                                                             0.20],
+                                                                             gap="small")
     if on_residual_porcentual == True and on_masiva is False:
-        capital_2sec = round(col_sim_15.number_input("% a amortizar en la segunda secuencia",
+        capital_2sec = round(col_sim_15.number_input("% a amortizar en la 2ª secuencia",
                                                      min_value=5.00,
                                                      max_value=70.00,
                                                      step=5.00,
                                                      value=30.00, 
                                                      help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")
-                             * (importe_bien if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13) else capital_prestado)
+                             * (importe_bien if tools.LISTA_PRODUCTOS.index(etiqueta_producto) in (12, 13) or on_porcentual_compra is True else capital_prestado)
                              /100,
                              2)
     elif on_residual_porcentual == True and on_masiva is True:
-        capital_2sec = col_sim_15.number_input("% a amortizar en la segunda secuencia",
+        capital_2sec = col_sim_15.number_input("% a amortizar en la 2ª secuencia",
                                                min_value=5.00,
                                                max_value=70.00,
                                                step=5.00,
                                                value=30.00, 
                                                help="Se debe indicar el porcentaje del capital a amortizar en la segunda secuencia del OPTION+")
     else:
-        capital_2sec = col_sim_15.number_input("Importe a amortizar en la 2ª secuencia",
+        capital_2sec = col_sim_15.number_input("Capital de la 2ª secuencia",
                                                min_value=50.00,
                                                max_value=30000.00,
                                                step=50.00, 
                                                help="Se debe indicar el importe del capital a amortizar en la segunda secuencia del OPTION+")
-    plazo_2sec = col_sim_16.number_input("Duración de la segunda secuencia",
+    plazo_2sec = col_sim_16.number_input("Duración de la 2ª secuencia",
                                          min_value=1,
                                          max_value=60,
                                          step=1, 
                                          help="Se debe indicar la duración en meses del segundo tramo de amortización")   
-    tasa_2sec = col_sim_17.number_input("Tipo de Interés Deudor de la 2º secuencia",
+    tasa_2sec = col_sim_17.number_input("Tipo Deudor de la 2º secuencia",
                                         min_value=0.0,
                                         max_value=20.00,
                                         step=0.05,
@@ -394,11 +396,12 @@ if on_masiva is False:
 # ----------------------------------------------------------------------------------------------------------------------    
     # Mostrar el resumen de las secuencias financieras de la simulación
 # ----------------------------------------------------------------------------------------------------------------------    
-        with tab2:
-            html_table = resumen3.to_html(classes='table table-right',
-                                          index=True)
-            st.markdown(html_table,
-                        unsafe_allow_html=True)
+        if resumen1 is not None:
+            with tab2:
+                html_table = resumen3.to_html(classes='table table-right',
+                                              index=True)
+                st.markdown(html_table,
+                            unsafe_allow_html=True)
 # ----------------------------------------------------------------------------------------------------------------------    
     # Mostrar el ejemplo representativo de la simulación
 # ----------------------------------------------------------------------------------------------------------------------    
@@ -432,17 +435,18 @@ if on_masiva is False:
 # ----------------------------------------------------------------------------------------------------------------------
     # Exportar resultados de la simulación a Excel
 # ----------------------------------------------------------------------------------------------------------------------    
-        st.download_button(
-            label="📥 Descargar en Excel",
-            data=tools.generar_excel(resumen2,
-                                    cuadro_amortizacion,
-                                    tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']],# type: ignore
-                                                        'Ejemplo representativo': [ejemplo_representativo]}),
-                                    input_tae,
-                                    resumen3),
-            file_name="simulacion_amortizable.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+        if resumen1 is not None:
+            st.download_button(
+                label="📥 Descargar en Excel",
+                data=tools.generar_excel(resumen2,
+                                        cuadro_amortizacion,
+                                        tools.pd.DataFrame({'TAE': [resumen1.at['%','TAE']],# type: ignore
+                                                            'Ejemplo representativo': [ejemplo_representativo]}),
+                                        input_tae,
+                                        resumen3),
+                file_name="simulacion_amortizable.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ********BLOQUE SIMULACION MASIVA********
