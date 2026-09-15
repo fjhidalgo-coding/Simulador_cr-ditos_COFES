@@ -88,6 +88,12 @@ streamlit run app.py
 
 ## Changelog
 
+### v1.2.2 (2026-09-15)
+
+**Closed issues:**
+
+- Simulador facilidades de pago (4CB): Modificación del techo de la comisión de apertura para retrocompatibilidad con las operaciones históricas.
+
 ### v1.2.1 (2026-08-16)
 
 **Fixed bugs:**

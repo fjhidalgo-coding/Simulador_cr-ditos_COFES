@@ -57,9 +57,9 @@ if on is False:
                                                      help="Se debe indicar el importe del capital de la facilidad de pago. El importe mínimo es de 60 EUR y el máximo de 1500 EUR.")
     tasa_comision_apertura_4CB = col_varios_2.number_input("Porcentaje comisión de apertura",
                                                            min_value=0.00,
-                                                           max_value=2.80,
+                                                           max_value=2.85,
                                                            step=0.05,
-                                                           help="Se debe indicar el porcentaje de la comisión de apertura de la facilidad de pago. El porcentaje mínimo es de 0% y el máximo de 2.80%.")
+                                                           help="Se debe indicar el porcentaje de la comisión de apertura de la facilidad de pago. El porcentaje mínimo es de 0% y el máximo de 2.85%.")
     fecha_financiacion_4CB = col_varios_3.date_input("Fecha de financiación",
                                                      tools.dt.date.today())
 # ----------------------------------------------------------------------------------------------------------------------
@@ -133,9 +133,9 @@ else:
                                               help="Se debe indicar el rango del capital de la facilidad de pago. El importe mínimo es de 60 EUR y el máximo de 1500 EUR.")
     tasas_comision_apertura_4CB = col_varios_5.slider("Rango del porcentaje comisión de apertura",
                                                  min_value=0.00,
-                                                 max_value=2.80,
+                                                 max_value=2.85,
                                                  step=0.05,
-                                                 value=[2.60,2.80],
+                                                 value=[2.60,2.85],
                                                  help="Se debe indicar el porcentaje de la comisión de apertura a utlizar en la simulación")
     fechas_financiacion_4CB = col_varios_6.date_input("Fecha de financiación",
                                                       tools.dt.date.today())
